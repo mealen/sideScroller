@@ -86,10 +86,21 @@ public:
 
 private:
     std::map<TextureNames, std::vector<SDL_Texture *>> textures;
+    SDL_Rect position;
+    int screenWidth;
 
 public:
 
-    Mario(SDL_Renderer *ren, int &error) {
+    Mario(SDL_Rect mapPosition, SDL_Renderer *ren, int screenWidth, int &error) : position(mapPosition),
+                                                                                  screenWidth(screenWidth) {
+
+        position.w = 32;
+        position.h = 32;
+        position.x *= 32;
+        position.y *= 32;
+
+        std::cout << position.x << ", " << position.y << std::endl;
+
         std::string marioImage = getResourcePath("mario") + "mario.bmp";
         textures[STAND].push_back(loadTexture(ren, marioImage));
 
@@ -114,6 +125,13 @@ public:
         error = 0;
     }
 
+    ~Mario() {
+        SDL_DestroyTexture(textures[STAND][0]);
+        SDL_DestroyTexture(textures[MOVE][0]);
+        SDL_DestroyTexture(textures[MOVE][1]);
+        SDL_DestroyTexture(textures[MOVE][2]);
+    }
+
     SDL_Texture *getTexture(TextureNames requiredTexture, long time) {
         switch (requiredTexture) {
             case STAND:
@@ -122,6 +140,26 @@ public:
                 return textures[MOVE][(time / 75) % 3];
         }
     }
+
+    SDL_Rect getPositionRect() const {
+        return position;
+    }
+
+    SDL_Rect move(bool left, bool right, bool jump, bool crouch) {
+        if (left) {
+            position.x -= 2;
+            if (position.x < 0) {
+                position.x = 0;
+            }
+        }
+        if (right) {
+            position.x += 2;
+            if (position.x + position.w > screenWidth / 2) {
+                position.x = screenWidth / 2 - position.w;
+            }
+        }
+    }
+
 };
 
 Map *loadMap(std::string mapLogicFile) {
@@ -241,7 +279,7 @@ int main(int argc, char *argv[]) {//these parameters has to be here or SDL_main 
         return 1;
     }
 
-    int imageWidth = bmp->w;
+    int mapWidth = bmp->w;
     SDL_FreeSurface(bmp);
     SDL_Rect sourceRect;
 
@@ -251,16 +289,6 @@ int main(int argc, char *argv[]) {//these parameters has to be here or SDL_main 
     sourceRect.w = 640;
 
     Map *map0101 = loadMap("0101_logic.txt");
-
-    SDL_Rect marioPos = getObject(*map0101, 8);
-
-    marioPos.w = 32;
-    marioPos.h = 32;
-    marioPos.x *= 32;
-    marioPos.y *= 32;
-
-    std::cout << marioPos.x << ", " << marioPos.y << std::endl;
-
 
     if (Mix_OpenAudio(22050, MIX_DEFAULT_FORMAT, 2, 4096) == -1) { return false; }
     Mix_Music *music = NULL;
@@ -278,7 +306,7 @@ int main(int argc, char *argv[]) {//these parameters has to be here or SDL_main 
     InputStates input;
     input.quit = false;
     int error;
-    Mario mario(ren, error);
+    Mario mario(getObject(*map0101, 8), ren, 640, error);
     if (error != 0) {
         std::cerr << "Error initializing Mario, Exiting" << std::endl;
         return -1;
@@ -287,32 +315,43 @@ int main(int argc, char *argv[]) {//these parameters has to be here or SDL_main 
 
     SDL_RendererFlip leftRightFlip = SDL_FLIP_NONE;
     long time;
+    SDL_Rect marioPos = mario.getPositionRect();;
     while (!input.quit) {
         time = SDL_GetTicks();
         readInput(input);
         //First clear the renderer
         SDL_RenderClear(ren);
-        //Draw the texture
-        SDL_RenderCopy(ren, tex, &sourceRect, NULL);
-        //draw the mario
         //Take a quick break after all that hard work
         //SDL_Delay(50);
+
         if (input.goRight) {
-            sourceRect.x += 5;
+            mario.move(false, true, false, false);
+            marioPos = mario.getPositionRect();
             leftRightFlip = SDL_FLIP_NONE;
-            SDL_RenderCopyEx(ren, mario.getTexture(mario.MOVE, time), 0, &marioPos, 0, 0, leftRightFlip);
-            if (sourceRect.x + sourceRect.w > imageWidth) {
-                sourceRect.x = imageWidth - sourceRect.w;
+            if (marioPos.x >= (640 - 64) / 2) {
+                sourceRect.x += 3;
+                if (sourceRect.x > mapWidth - 640) {
+                    sourceRect.x = mapWidth - 640;
+                }
+
             }
+            //Draw the texture
+            SDL_RenderCopy(ren, tex, &sourceRect, NULL);
+
+            //draw the mario
+            SDL_RenderCopyEx(ren, mario.getTexture(mario.MOVE, time), 0, &marioPos, 0, 0, leftRightFlip);
 
         } else if (input.goLeft) {
+            mario.move(true, false, false, false);
+            marioPos = mario.getPositionRect();
             leftRightFlip = SDL_FLIP_HORIZONTAL;
-            SDL_RenderCopyEx(ren, mario.getTexture(mario.MOVE, time), 0, &marioPos, 0, 0, leftRightFlip);
-            sourceRect.x -= 5;
-            if (sourceRect.x < 0) {
-                sourceRect.x = 0;
+            if (marioPos.x < 0) {
+                marioPos.x = 0;
             }
+            SDL_RenderCopy(ren, tex, &sourceRect, NULL);
+            SDL_RenderCopyEx(ren, mario.getTexture(mario.MOVE, time), 0, &marioPos, 0, 0, leftRightFlip);
         } else {
+            SDL_RenderCopy(ren, tex, &sourceRect, NULL);
             SDL_RenderCopyEx(ren, mario.getTexture(mario.STAND, time), 0, &marioPos, 0, 0, leftRightFlip);
         }
         //Update the screen
