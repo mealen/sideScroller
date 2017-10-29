@@ -7,7 +7,11 @@
 
 
 #include <fstream>
+
 #include <SDL_rect.h>
+
+#include "Map.h"
+
 
 class Map {
 public:

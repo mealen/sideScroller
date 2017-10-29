@@ -130,7 +130,9 @@ int main(int argc, char *argv[]) {//these parameters has to be here or SDL_main 
 
     InputStates input;
     input.quit = false;
-    Mario mario(map0101.getObject(Map::MARIO), ren, 640, error);
+    Mario mario(map0101.getObject(Map::MARIO), ren, 640,
+                map0101,
+                error);
     if (error != 0) {
         std::cerr << "Error initializing Mario, Exiting" << std::endl;
         return -1;
@@ -139,7 +141,13 @@ int main(int argc, char *argv[]) {//these parameters has to be here or SDL_main 
 
     SDL_RendererFlip leftRightFlip = SDL_FLIP_NONE;
     long time;
-    SDL_Rect marioPos = mario.getPositionRect();;
+    AABB marioPos = mario.getPositionRect();
+    SDL_Rect marioGrapPos;
+    marioGrapPos.w = 32;
+    marioGrapPos.h = 32;
+    marioGrapPos.y = marioPos.y1;
+    marioGrapPos.x = marioPos.x1;
+    Mario::TextureNames marioTextureName = Mario::STAND;
     while (!input.quit) {
         time = SDL_GetTicks();
         readInput(input);
@@ -152,32 +160,40 @@ int main(int argc, char *argv[]) {//these parameters has to be here or SDL_main 
             mario.move(false, true, false, false);
             marioPos = mario.getPositionRect();
             leftRightFlip = SDL_FLIP_NONE;
-            if (marioPos.x >= (640 - 64) / 2) {
-                sourceRect.x += 3;
+            marioTextureName = mario.MOVE;
+            if (marioPos.x1 >= (640 - 64) / 2) {
+                //if mario is beyond half of the screen
+                if(sourceRect.x < marioPos.x1 - (640 - 64) / 2) {
+                    sourceRect.x = marioPos.x1 - (640 - 64) / 2;
+                    marioGrapPos.x = (640 - 64) / 2;
+                } else {
+                    marioGrapPos.x = marioPos.x1 - sourceRect.x;
+                }
                 if (sourceRect.x > mapWidth - 640) {
                     sourceRect.x = mapWidth - 640;
                 }
-
+            } else {
+                marioGrapPos.y = marioPos.y1;
+                marioGrapPos.x = marioPos.x1;
             }
-            //Draw the texture
-            SDL_RenderCopy(ren, tex, &sourceRect, NULL);
-
-            //draw the mario
-            SDL_RenderCopyEx(ren, mario.getTexture(mario.MOVE, time), 0, &marioPos, 0, 0, leftRightFlip);
-
         } else if (input.goLeft) {
             mario.move(true, false, false, false);
             marioPos = mario.getPositionRect();
             leftRightFlip = SDL_FLIP_HORIZONTAL;
-            if (marioPos.x < 0) {
-                marioPos.x = 0;
-            }
-            SDL_RenderCopy(ren, tex, &sourceRect, NULL);
-            SDL_RenderCopyEx(ren, mario.getTexture(mario.MOVE, time), 0, &marioPos, 0, 0, leftRightFlip);
+            marioTextureName = mario.MOVE;
+            //don't move the screen, move the mario
+            //sourceRect.x; // last position of the screens left most point
+            marioGrapPos.x = marioPos.x1 - sourceRect.x;
         } else {
-            SDL_RenderCopy(ren, tex, &sourceRect, NULL);
-            SDL_RenderCopyEx(ren, mario.getTexture(mario.STAND, time), 0, &marioPos, 0, 0, leftRightFlip);
+            marioTextureName = mario.STAND;
         }
+
+        //Draw the texture
+        SDL_RenderCopy(ren, tex, &sourceRect, NULL);
+
+        //draw the mario
+        std::cout << "drawing mario at " << marioGrapPos.x << ", " << marioGrapPos.y << std::endl;
+        SDL_RenderCopyEx(ren, mario.getTexture(marioTextureName, time), 0, &marioGrapPos, 0, 0, leftRightFlip);
         //Update the screen
         SDL_RenderPresent(ren);
 

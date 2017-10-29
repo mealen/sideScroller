@@ -4,15 +4,25 @@
 
 #include "Mario.h"
 
-Mario::Mario(SDL_Rect mapPosition, SDL_Renderer *ren, int screenWidth, int &error) : position(mapPosition),
-screenWidth(screenWidth) {
 
-    position.w = 32;
-    position.h = 32;
-    position.x *= 32;
-    position.y *= 32;
+Mario::Mario(SDL_Rect mapPosition, SDL_Renderer *ren, int screenWidth, Map currentMap, int &error)
+        : graphicalPosition(mapPosition),
+          screenWidth(screenWidth), currentMap(currentMap)
+    {
 
-    std::cout << position.x << ", " << position.y << std::endl;
+
+
+    graphicalPosition.w = 32;
+    graphicalPosition.h = 32;
+    graphicalPosition.x *= 32;
+    graphicalPosition.y *= 32;
+
+    collitionBox.x1 = graphicalPosition.x;
+    collitionBox.x2 = graphicalPosition.x + collitionBox.representationFactor;
+    collitionBox.y1 = graphicalPosition.y;
+    collitionBox.y2 = graphicalPosition.y + collitionBox.representationFactor;
+
+    std::cout << graphicalPosition.x << ", " << graphicalPosition.y << std::endl;
 
     std::string marioImage = Utils::getResourcePath("mario") + "mario.bmp";
     textures[STAND].push_back(Utils::loadTexture(ren, marioImage));
