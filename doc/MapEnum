@@ -1,0 +1,13 @@
+Empty       white           255,255,255             0
+Ground      Green           0,255,0                 1
+brick       blue            0,0,255                 2
+minionMus   red             255,0,0                 3
+brickCoin   yellow          255,255,0               4
+brickMush   purple          255,0,255               5
+hiddenMus   cyan            0,255,255               6
+pipeEmpty                   128,0,0                 7
+Mario       Black           0,0,0                   8
+
+pipeEnemy
+pipePorta
+pipeEnPor

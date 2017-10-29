@@ -1,5 +1,9 @@
 #include <iostream>
+#include <fstream>
 #include <SDL2/SDL.h>
+#include <SDL2/SDL_mixer.h>
+#include <vector>
+#include <map>
 
 /*
  * Get the resource path for resources located in res/subDir
@@ -51,6 +55,95 @@ public:
     bool goLeft = false;
 };
 
+class Map {
+public:
+    int map[90][15];
+};
+
+SDL_Texture *loadTexture(SDL_Renderer *ren, std::string imageName) {
+    SDL_Texture *texture;
+    SDL_Surface *marioSurface = SDL_LoadBMP(imageName.c_str());
+    if (marioSurface == nullptr) {
+        std::cout << "SDL_LoadBMP Error: " << SDL_GetError() << std::endl;
+        return NULL;
+    }
+    Uint32 transparentColor = SDL_MapRGB(marioSurface->format, 255, 0, 255);
+    SDL_SetColorKey(marioSurface, SDL_TRUE, transparentColor);
+
+    texture = SDL_CreateTextureFromSurface(ren, marioSurface);
+
+    if (texture == nullptr) {
+        std::cout << "SDL_CreateTextureFromSurface Error: " << SDL_GetError() << std::endl;
+        return NULL;
+    }
+}
+
+class Mario {
+public:
+    enum TextureNames {
+        STAND, MOVE
+    };
+
+private:
+    std::map<TextureNames, std::vector<SDL_Texture *>> textures;
+
+public:
+
+    Mario(SDL_Renderer *ren, int &error) {
+        std::string marioImage = getResourcePath("mario") + "mario.bmp";
+        textures[STAND].push_back(loadTexture(ren, marioImage));
+
+        marioImage = getResourcePath("mario") + "mario_move0.bmp";
+        textures[MOVE].push_back(loadTexture(ren, marioImage));
+
+        marioImage = getResourcePath("mario") + "mario_move1.bmp";
+        textures[MOVE].push_back(loadTexture(ren, marioImage));
+
+        marioImage = getResourcePath("mario") + "mario_move2.bmp";
+        textures[MOVE].push_back(loadTexture(ren, marioImage));
+
+        if (textures[STAND][0] == nullptr ||
+            textures[MOVE][0] == nullptr ||
+            textures[MOVE][1] == nullptr ||
+            textures[MOVE][2] == nullptr) {
+            std::cerr << "Error loading Mario textures" << std::endl;
+            error = 1;
+            return;
+        }
+
+        error = 0;
+    }
+
+    SDL_Texture *getTexture(TextureNames requiredTexture, long time) {
+        switch (requiredTexture) {
+            case STAND:
+                return textures[STAND][0];
+            case MOVE:
+                return textures[MOVE][(time / 75) % 3];
+        }
+    }
+};
+
+Map *loadMap(std::string mapLogicFile) {
+    Map *currentMap = new Map();
+    std::ifstream myfile("./res/levels/" + mapLogicFile);
+    std::string line;
+    if (myfile.is_open()) {
+        int lineNumber = 0;
+        while (getline(myfile, line)) {
+            //std::cout << line << '\n';
+            for (int i = 0; i < line.length(); i++) {
+                currentMap->map[i][lineNumber] = line.at(i) - 48;
+            }
+            lineNumber++;
+        }
+        myfile.close();
+    } else {
+        return NULL;
+    }
+    return currentMap;
+}
+
 void readInput(InputStates &input) {
     SDL_Event e;
     while (SDL_PollEvent(&e)) {
@@ -89,10 +182,26 @@ void readInput(InputStates &input) {
     }
 }
 
-int main(int argv, char **args) {//these parameters has to be here or SDL_main linking issue arises
+SDL_Rect getObject(Map map, int objectId) {
+    SDL_Rect position;
+    position.x = 0;
+    position.y = 0;
+    for (int i = 0; i < 15; i++) {
+        for (int j = 0; j < 90; j++) {
+            if (map.map[i][j] == objectId) {
+                position.x = i;
+                position.y = j;
+                break;
+            }
+        }
+    }
+    return position;
+}
+
+int main(int argc, char *argv[]) {//these parameters has to be here or SDL_main linking issue arises
     std::cout << "Hello, World!" << std::endl;
 
-    if (SDL_Init(SDL_INIT_VIDEO) != 0) {
+    if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) != 0) {
         std::cout << "SDL_Init Error: " << SDL_GetError() << std::endl;
         return 1;
     }
@@ -112,7 +221,7 @@ int main(int argv, char **args) {//these parameters has to be here or SDL_main l
         return 1;
     }
 
-    std::string imagePath = getResourcePath("levels") + "11.bmp";
+    std::string imagePath = getResourcePath("levels") + "0101_graph.bmp";
     SDL_Surface *bmp = SDL_LoadBMP(imagePath.c_str());
     if (bmp == nullptr) {
         std::cout << "SDL_LoadBMP Error: " << SDL_GetError() << std::endl;
@@ -141,30 +250,75 @@ int main(int argv, char **args) {//these parameters has to be here or SDL_main l
     sourceRect.h = 480;
     sourceRect.w = 640;
 
+    Map *map0101 = loadMap("0101_logic.txt");
+
+    SDL_Rect marioPos = getObject(*map0101, 8);
+
+    marioPos.w = 32;
+    marioPos.h = 32;
+    marioPos.x *= 32;
+    marioPos.y *= 32;
+
+    std::cout << marioPos.x << ", " << marioPos.y << std::endl;
+
+
+    if (Mix_OpenAudio(22050, MIX_DEFAULT_FORMAT, 2, 4096) == -1) { return false; }
+    Mix_Music *music = NULL;
+    music = Mix_LoadMUS("./res/sounds/overworld.wav");
+    //If there was a problem loading the music
+    if (music == NULL) {
+        return false;
+    }
+
+    //Play the music
+    if (Mix_PlayMusic(music, -1) == -1) {
+        return 1;
+    }
+
     InputStates input;
     input.quit = false;
+    int error;
+    Mario mario(ren, error);
+    if (error != 0) {
+        std::cerr << "Error initializing Mario, Exiting" << std::endl;
+        return -1;
+    }
+
+
+    SDL_RendererFlip leftRightFlip = SDL_FLIP_NONE;
+    long time;
     while (!input.quit) {
+        time = SDL_GetTicks();
+        readInput(input);
         //First clear the renderer
         SDL_RenderClear(ren);
         //Draw the texture
         SDL_RenderCopy(ren, tex, &sourceRect, NULL);
-        //Update the screen
-        SDL_RenderPresent(ren);
+        //draw the mario
         //Take a quick break after all that hard work
         //SDL_Delay(50);
         if (input.goRight) {
             sourceRect.x += 5;
+            leftRightFlip = SDL_FLIP_NONE;
+            SDL_RenderCopyEx(ren, mario.getTexture(mario.MOVE, time), 0, &marioPos, 0, 0, leftRightFlip);
             if (sourceRect.x + sourceRect.w > imageWidth) {
                 sourceRect.x = imageWidth - sourceRect.w;
             }
-        }
-        if (input.goLeft) {
+
+        } else if (input.goLeft) {
+            leftRightFlip = SDL_FLIP_HORIZONTAL;
+            SDL_RenderCopyEx(ren, mario.getTexture(mario.MOVE, time), 0, &marioPos, 0, 0, leftRightFlip);
             sourceRect.x -= 5;
             if (sourceRect.x < 0) {
                 sourceRect.x = 0;
             }
+        } else {
+            SDL_RenderCopyEx(ren, mario.getTexture(mario.STAND, time), 0, &marioPos, 0, 0, leftRightFlip);
         }
-        readInput(input);
+        //Update the screen
+        SDL_RenderPresent(ren);
+
+
     }
 
     SDL_DestroyTexture(tex);
@@ -173,4 +327,6 @@ int main(int argv, char **args) {//these parameters has to be here or SDL_main l
     SDL_Quit();
     //return 0;
 }
+
+
 
