@@ -5,7 +5,7 @@ set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
 set(CMAKE_CXX_STANDARD 11)
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mconsole")
-set(SOURCE_FILES src/main.cpp)
+set(SOURCE_FILES src/main.cpp src/Mario.cpp src/Mario.h src/Utils.h)
 add_executable(mario ${SOURCE_FILES})
 
 

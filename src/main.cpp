@@ -4,49 +4,9 @@
 #include <SDL2/SDL_mixer.h>
 #include <vector>
 #include <map>
+#include "Utils.h"
+#include "Mario.h"
 
-/*
- * Get the resource path for resources located in res/subDir
- * It's assumed the project directory is structured like:
- * bin/
- *  the executable
- * res/
- *  Lesson1/
- *  Lesson2/
- *
- * Paths returned will be Lessons/res/subDir
- */
-std::string getResourcePath(const std::string &subDir = "") {
-    //We need to choose the path separator properly based on which
-    //platform we're running on, since Windows uses a different
-    //separator than most systems
-#ifdef _WIN32
-    const char PATH_SEP = '\\';
-#else
-    const char PATH_SEP = '/';
-#endif
-    //This will hold the base resource path: Lessons/res/
-    //We give it static lifetime so that we'll only need to call
-    //SDL_GetBasePath once to get the executable path
-    static std::string baseRes;
-    if (baseRes.empty()) {
-        //SDL_GetBasePath will return NULL if something went wrong in retrieving the path
-        char *basePath = SDL_GetBasePath();
-        if (basePath) {
-            baseRes = basePath;
-            SDL_free(basePath);
-        } else {
-            std::cerr << "Error getting resource path: " << SDL_GetError() << std::endl;
-            return "";
-        }
-        //We replace the last bin/ with res/ to get the the resource path
-        size_t pos = baseRes.rfind("bin");
-        baseRes = baseRes.substr(0, pos) + "res" + PATH_SEP;
-    }
-    //If we want a specific subdirectory path in the resource directory
-    //append it to the base path. This would be something like Lessons/res/Lesson0
-    return subDir.empty() ? baseRes : baseRes + subDir + PATH_SEP;
-}
 
 class InputStates {
 public:
@@ -58,108 +18,6 @@ public:
 class Map {
 public:
     int map[90][15];
-};
-
-SDL_Texture *loadTexture(SDL_Renderer *ren, std::string imageName) {
-    SDL_Texture *texture;
-    SDL_Surface *marioSurface = SDL_LoadBMP(imageName.c_str());
-    if (marioSurface == nullptr) {
-        std::cout << "SDL_LoadBMP Error: " << SDL_GetError() << std::endl;
-        return NULL;
-    }
-    Uint32 transparentColor = SDL_MapRGB(marioSurface->format, 255, 0, 255);
-    SDL_SetColorKey(marioSurface, SDL_TRUE, transparentColor);
-
-    texture = SDL_CreateTextureFromSurface(ren, marioSurface);
-
-    if (texture == nullptr) {
-        std::cout << "SDL_CreateTextureFromSurface Error: " << SDL_GetError() << std::endl;
-        return NULL;
-    }
-}
-
-class Mario {
-public:
-    enum TextureNames {
-        STAND, MOVE
-    };
-
-private:
-    std::map<TextureNames, std::vector<SDL_Texture *>> textures;
-    SDL_Rect position;
-    int screenWidth;
-
-public:
-
-    Mario(SDL_Rect mapPosition, SDL_Renderer *ren, int screenWidth, int &error) : position(mapPosition),
-                                                                                  screenWidth(screenWidth) {
-
-        position.w = 32;
-        position.h = 32;
-        position.x *= 32;
-        position.y *= 32;
-
-        std::cout << position.x << ", " << position.y << std::endl;
-
-        std::string marioImage = getResourcePath("mario") + "mario.bmp";
-        textures[STAND].push_back(loadTexture(ren, marioImage));
-
-        marioImage = getResourcePath("mario") + "mario_move0.bmp";
-        textures[MOVE].push_back(loadTexture(ren, marioImage));
-
-        marioImage = getResourcePath("mario") + "mario_move1.bmp";
-        textures[MOVE].push_back(loadTexture(ren, marioImage));
-
-        marioImage = getResourcePath("mario") + "mario_move2.bmp";
-        textures[MOVE].push_back(loadTexture(ren, marioImage));
-
-        if (textures[STAND][0] == nullptr ||
-            textures[MOVE][0] == nullptr ||
-            textures[MOVE][1] == nullptr ||
-            textures[MOVE][2] == nullptr) {
-            std::cerr << "Error loading Mario textures" << std::endl;
-            error = 1;
-            return;
-        }
-
-        error = 0;
-    }
-
-    ~Mario() {
-        SDL_DestroyTexture(textures[STAND][0]);
-        SDL_DestroyTexture(textures[MOVE][0]);
-        SDL_DestroyTexture(textures[MOVE][1]);
-        SDL_DestroyTexture(textures[MOVE][2]);
-    }
-
-    SDL_Texture *getTexture(TextureNames requiredTexture, long time) {
-        switch (requiredTexture) {
-            case STAND:
-                return textures[STAND][0];
-            case MOVE:
-                return textures[MOVE][(time / 75) % 3];
-        }
-    }
-
-    SDL_Rect getPositionRect() const {
-        return position;
-    }
-
-    SDL_Rect move(bool left, bool right, bool jump, bool crouch) {
-        if (left) {
-            position.x -= 2;
-            if (position.x < 0) {
-                position.x = 0;
-            }
-        }
-        if (right) {
-            position.x += 2;
-            if (position.x + position.w > screenWidth / 2) {
-                position.x = screenWidth / 2 - position.w;
-            }
-        }
-    }
-
 };
 
 Map *loadMap(std::string mapLogicFile) {
@@ -259,7 +117,7 @@ int main(int argc, char *argv[]) {//these parameters has to be here or SDL_main 
         return 1;
     }
 
-    std::string imagePath = getResourcePath("levels") + "0101_graph.bmp";
+    std::string imagePath = Utils::getResourcePath("levels") + "0101_graph.bmp";
     SDL_Surface *bmp = SDL_LoadBMP(imagePath.c_str());
     if (bmp == nullptr) {
         std::cout << "SDL_LoadBMP Error: " << SDL_GetError() << std::endl;
