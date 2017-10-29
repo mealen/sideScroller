@@ -6,6 +6,7 @@
 #include <map>
 #include "Utils.h"
 #include "Mario.h"
+#include "Map.h"
 
 
 class InputStates {
@@ -15,30 +16,7 @@ public:
     bool goLeft = false;
 };
 
-class Map {
-public:
-    int map[90][15];
-};
 
-Map *loadMap(std::string mapLogicFile) {
-    Map *currentMap = new Map();
-    std::ifstream myfile("./res/levels/" + mapLogicFile);
-    std::string line;
-    if (myfile.is_open()) {
-        int lineNumber = 0;
-        while (getline(myfile, line)) {
-            //std::cout << line << '\n';
-            for (int i = 0; i < line.length(); i++) {
-                currentMap->map[i][lineNumber] = line.at(i) - 48;
-            }
-            lineNumber++;
-        }
-        myfile.close();
-    } else {
-        return NULL;
-    }
-    return currentMap;
-}
 
 void readInput(InputStates &input) {
     SDL_Event e;
@@ -76,22 +54,6 @@ void readInput(InputStates &input) {
             input.quit = true;
         }
     }
-}
-
-SDL_Rect getObject(Map map, int objectId) {
-    SDL_Rect position;
-    position.x = 0;
-    position.y = 0;
-    for (int i = 0; i < 15; i++) {
-        for (int j = 0; j < 90; j++) {
-            if (map.map[i][j] == objectId) {
-                position.x = i;
-                position.y = j;
-                break;
-            }
-        }
-    }
-    return position;
 }
 
 int main(int argc, char *argv[]) {//these parameters has to be here or SDL_main linking issue arises
@@ -146,7 +108,12 @@ int main(int argc, char *argv[]) {//these parameters has to be here or SDL_main 
     sourceRect.h = 480;
     sourceRect.w = 640;
 
-    Map *map0101 = loadMap("0101_logic.txt");
+    int error;
+    Map map0101("0101_logic.txt", error);
+    if (error != 0) {
+        std::cerr << "Error initializing Map, Exiting" << std::endl;
+        return -1;
+    }
 
     if (Mix_OpenAudio(22050, MIX_DEFAULT_FORMAT, 2, 4096) == -1) { return false; }
     Mix_Music *music = NULL;
@@ -163,8 +130,7 @@ int main(int argc, char *argv[]) {//these parameters has to be here or SDL_main 
 
     InputStates input;
     input.quit = false;
-    int error;
-    Mario mario(getObject(*map0101, 8), ren, 640, error);
+    Mario mario(map0101.getObject(Map::MARIO), ren, 640, error);
     if (error != 0) {
         std::cerr << "Error initializing Mario, Exiting" << std::endl;
         return -1;
