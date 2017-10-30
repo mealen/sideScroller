@@ -14,6 +14,7 @@ public:
     bool quit = false;
     bool goRight = false;
     bool goLeft = false;
+    bool stop;
 };
 
 
@@ -37,6 +38,9 @@ void readInput(InputStates &input) {
                 case SDLK_a:
                     input.goLeft = true;
                     break;
+                case SDLK_p:
+                    input.stop = true;
+                    break;
             }
         }
         if (e.type == SDL_KEYUP) {
@@ -46,6 +50,9 @@ void readInput(InputStates &input) {
                     break;
                 case SDLK_a:
                     input.goLeft = false;
+                    break;
+                case SDLK_p:
+                    input.stop = false;
                     break;
             }
         }
@@ -149,6 +156,10 @@ int main(int argc, char *argv[]) {//these parameters has to be here or SDL_main 
     marioGrapPos.x = marioPos.x1;
     Mario::TextureNames marioTextureName = Mario::STAND;
     while (!input.quit) {
+        if (input.stop) {
+            SDL_Delay(1000);//for debugging
+            continue;
+        }
         time = SDL_GetTicks();
         readInput(input);
         //First clear the renderer
@@ -164,17 +175,22 @@ int main(int argc, char *argv[]) {//these parameters has to be here or SDL_main 
             if (marioPos.x1 >= (640 - 64) / 2) {
                 //if mario is beyond half of the screen
                 if(sourceRect.x < marioPos.x1 - (640 - 64) / 2) {
+                    //while going forward, check if mario is after half of the screen
+                    std::cout << "mario is after half of the screen" << std::endl;
                     sourceRect.x = marioPos.x1 - (640 - 64) / 2;
                     marioGrapPos.x = (640 - 64) / 2;
                 } else {
+                    std::cout << "mario is before half of the screen" << std::endl;
                     marioGrapPos.x = marioPos.x1 - sourceRect.x;
                 }
+
                 if (sourceRect.x > mapWidth - 640) {
                     sourceRect.x = mapWidth - 640;
                 }
             } else {
+                //if mario is at the first half of the screen,
                 marioGrapPos.y = marioPos.y1;
-                marioGrapPos.x = marioPos.x1;
+                marioGrapPos.x = marioPos.x1 - sourceRect.x;//source rec is because it is possible to move back after 1-2 tiles
             }
         } else if (input.goLeft) {
             mario.move(true, false, false, false);

@@ -20,7 +20,7 @@ class AABB {
 public:
     int x1,y1, x2,y2;
     int representationFactor = 32;//this is pixel/tile ratio
-    int maxright;
+    int maxright = 0;
 
     /**
      * Checks if the box is at collition with given tile coordinates.
