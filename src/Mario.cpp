@@ -6,24 +6,14 @@
 
 
 Mario::Mario(SDL_Rect mapPosition, SDL_Renderer *ren, int screenWidth, Map currentMap, int &error)
-        : graphicalPosition(mapPosition),
-          screenWidth(screenWidth), currentMap(currentMap)
+        : screenWidth(screenWidth), currentMap(currentMap)
     {
-
-
-
-    graphicalPosition.w = 32;
-    graphicalPosition.h = 32;
-    graphicalPosition.x = graphicalPosition.x * 32;
-    graphicalPosition.y = graphicalPosition.y * 32;
-
         collitionBox.setAABB(
-    graphicalPosition.x,
-    graphicalPosition.x + collitionBox.representationFactor -1,
-    graphicalPosition.y,
-    graphicalPosition.y + collitionBox.representationFactor -1); //-1 because this is the difference. pixels 0 - 32, 32 excluded
+                mapPosition.x * 32,
+                mapPosition.x * 32 + collitionBox.representationFactor -1,
+                mapPosition.y * 32,
+                mapPosition.y * 32 + collitionBox.representationFactor -1); //-1 because 32 is not part of box. pixels 0 - 32, 32 excluded
 
-    std::cout << graphicalPosition.x << ", " << graphicalPosition.y << std::endl;
 
     std::string marioImage = Utils::getResourcePath("mario") + "mario.bmp";
     textures[STAND].push_back(Utils::loadTexture(ren, marioImage));

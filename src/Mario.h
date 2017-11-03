@@ -117,7 +117,6 @@ public:
 
 private:
     std::map<TextureNames, std::vector<SDL_Texture *>> textures;
-    SDL_Rect graphicalPosition;
     int screenWidth;
     Map currentMap;
     AABB collitionBox;
@@ -152,33 +151,18 @@ public:
         }
         if (left) {
             if (collitionBox.getLeftBorder() + (320) > collitionBox.maxRight) {
-                collitionBox.moveLeft();
                 Map::TileTypes tile = collitionBox.collide(currentMap, -2, 0);
                 if (tile == Map::MARIO || tile == Map::EMPTY) {
-                    graphicalPosition.x -= 2;
-                    if (graphicalPosition.x < 0) {
-                        graphicalPosition.x = 0;
-                    }
-                } else {
-                    //std::cout << "some collition " << tile << std::endl;
-                    collitionBox.moveRight();
+                    collitionBox.moveLeft();
                 }
-
             } else {
                 //std::cout <<"max right was " << collitionBox.maxRight << ", " << " while x1 was" << collitionBox.getLeftBorder() << std::endl;
             }
         }
         if (right) {
-            collitionBox.moveRight();//FIXME this updates max right
             Map::TileTypes tile = collitionBox.collide(currentMap, 2, 0);
             if(tile == Map::MARIO || tile == Map::EMPTY) {
-                graphicalPosition.x += 2;
-                if (graphicalPosition.x + graphicalPosition.w > screenWidth / 2) {
-                    graphicalPosition.x = screenWidth / 2 - graphicalPosition.w;
-                }
-            } else {
-                //std::cout << "some collision "<< tile << std::endl;
-                collitionBox.moveLeft();
+                collitionBox.moveRight();//FIXME this updates max right
             }
         }
         collitionBox.step(currentMap);
