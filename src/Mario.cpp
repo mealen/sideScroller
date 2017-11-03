@@ -14,13 +14,14 @@ Mario::Mario(SDL_Rect mapPosition, SDL_Renderer *ren, int screenWidth, Map curre
 
     graphicalPosition.w = 32;
     graphicalPosition.h = 32;
-    graphicalPosition.x *= 32;
-    graphicalPosition.y *= 32;
+    graphicalPosition.x = graphicalPosition.x * 32;
+    graphicalPosition.y = graphicalPosition.y * 32;
 
-    collitionBox.x1 = graphicalPosition.x;
-    collitionBox.x2 = graphicalPosition.x + collitionBox.representationFactor;
-    collitionBox.y1 = graphicalPosition.y;
-    collitionBox.y2 = graphicalPosition.y + collitionBox.representationFactor;
+        collitionBox.setAABB(
+    graphicalPosition.x,
+    graphicalPosition.x + collitionBox.representationFactor -1,
+    graphicalPosition.y,
+    graphicalPosition.y + collitionBox.representationFactor -1); //-1 because this is the difference. pixels 0 - 32, 32 excluded
 
     std::cout << graphicalPosition.x << ", " << graphicalPosition.y << std::endl;
 

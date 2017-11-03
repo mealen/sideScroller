@@ -42,6 +42,9 @@ public:
     }
 
     TileTypes getTileObject(int x,int y) {
+        if(x <0 || x >= 90 || y < 0 ||y>=15) {
+            return GROUND;
+        }
         return tiles[x][y];
     }
 
