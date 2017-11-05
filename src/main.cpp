@@ -186,22 +186,32 @@ int main(int argc, char *argv[]) {//these parameters has to be here or SDL_main 
         }
 
         marioGrapPos.y = marioPos.getUpBorder();
-        int middleOfScreenPixel = (640 - 32) / 2;
+        int middleOfScreenPixel = (640) / 2 -32;
         //determine where the mario should be in screen, and where background should be
-        if (marioPos.getRightBorder() <= middleOfScreenPixel) {
-            //if mario is not
+        if (marioPos.getMaxRight() - 32 <= middleOfScreenPixel) {
+            //if mario is not passed middle of the screen
             sourceRect.x = 0;
             marioGrapPos.x = marioPos.getLeftBorder();
         } else {
             //put mario at middle of the screen, and move background to left
-            sourceRect.x = marioPos.getRightBorder() - middleOfScreenPixel;
-            marioGrapPos.x = middleOfScreenPixel -32;
+            //but first check if mario has been right before
+            int leftMovementAmount = 0;
+            if(marioPos.getMaxRight() > marioPos.getRightBorder()) {
+                //use maxleft instead of left
+                leftMovementAmount = marioPos.getMaxRight() - marioPos.getRightBorder();
+
+            }
+            sourceRect.x = (marioPos.getMaxRight() - 32) - middleOfScreenPixel;
+            marioGrapPos.x = middleOfScreenPixel - leftMovementAmount;
             if (sourceRect.x > mapWidth - 640) {
                 //if end of map, let mario move more, and lock background
                 marioGrapPos.x += sourceRect.x - (mapWidth-640);//re add the difference
                 sourceRect.x = mapWidth - 640;
             }
         }
+
+
+        std::cout << "screen x " << sourceRect.x << " mario x is " << marioGrapPos.x << std::endl;
 
         //Draw the texture
         SDL_RenderCopy(ren, tex, &sourceRect, NULL);

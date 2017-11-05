@@ -18,9 +18,10 @@
 
 class AABB {
     int x1,y1, x2,y2;
+    int maxRight = 0;
 public:
     int representationFactor = 32;//this is pixel/tile ratio
-    int maxRight = 0;
+
     int upwardSpeed = 0;
 
     /**
@@ -65,10 +66,8 @@ public:
         Map::TileTypes tile = collide(map, 0, -1 * upwardSpeed);
         //check if moving with upward speed is possible.
         if(tile == Map::GROUND) {//if not possible, stop
-            std::cout << "Step collition for " << upwardSpeed << std::endl;
             upwardSpeed = 0;
         } else { //if possible update
-            std::cout << "Step move for " << upwardSpeed << std::endl;
             y1 -= upwardSpeed;
             y2 -= upwardSpeed;
             upwardSpeed -= 1;
@@ -99,11 +98,16 @@ public:
         return y2;
     }
 
+    int getMaxRight() const {
+        return maxRight;
+    }
+
     void setAABB(int left, int right, int up, int down ) {
         x1 = left;
         x2 = right;
         y1 = up;
         y2 = down;
+        maxRight = x2;
     }
 
 
@@ -150,7 +154,7 @@ public:
             collitionBox.jump(currentMap);
         }
         if (left) {
-            if (collitionBox.getLeftBorder() + (320) > collitionBox.maxRight) {
+            if (collitionBox.getLeftBorder() + (320) > collitionBox.getMaxRight()) {
                 Map::TileTypes tile = collitionBox.collide(currentMap, -2, 0);
                 if (tile == Map::MARIO || tile == Map::EMPTY) {
                     collitionBox.moveLeft();
