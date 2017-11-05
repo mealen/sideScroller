@@ -34,20 +34,14 @@ public:
      * @return true if collides
      */
     Map::TileTypes collide(Map map, int rightSpeed, int downSpeed) {
-        int checkX, checkY;
-        if(rightSpeed >= 0){ //we are moving to left, use x2 for collition check
-            checkX = x2 + rightSpeed;
-        } else {//use x1 for collition check
-            checkX = x1 + rightSpeed;
-        }
+        Map::TileTypes tile = Map::EMPTY;
+        //we need 4 checks, since at any given time, object can be at 4 different places.
 
-        if(downSpeed >= 0){//we are moving down, use y2
-            checkY = y2 + downSpeed;
-        } else {//use y1 for upward motion
-            checkY = y1 + downSpeed;
-        }
-        //std::cout << "Checking " << x2/32 << ", " << y1/32 << ": " << map.getTileObject(x1/32, y1/32) << std::endl;
-        return map.getTileObject(checkX/32, checkY/32);
+        tile = std::max(tile, map.getTileObject((x1 + rightSpeed)/32, (y1 + downSpeed)/32));
+        tile = std::max(tile, map.getTileObject((x1 + rightSpeed)/32, (y2 + downSpeed)/32));
+        tile = std::max(tile, map.getTileObject((x2 + rightSpeed)/32, (y1 + downSpeed)/32));
+        tile = std::max(tile, map.getTileObject((x2 + rightSpeed)/32, (y2 + downSpeed)/32));
+        return tile;
     }
 
     bool moveRight() {
@@ -64,7 +58,7 @@ public:
     void step(Map map) {
         Map::TileTypes tile = collide(map, 0, -1 * upwardSpeed);
         //check if moving with upward speed is possible.
-        if(tile == Map::GROUND) {//if not possible, stop
+        if(tile != Map::EMPTY) {//if not possible, stop
             upwardSpeed = 0;
         } else { //if possible update
             y1 -= upwardSpeed;
@@ -75,7 +69,7 @@ public:
 
     void jump(Map &map) {
         std::cout << "pressed up" << std::endl;
-        if(collide(map, 0, 5) == Map::GROUND) {//jump only if you are stepping on something
+        if(collide(map, 0, 1) != Map::EMPTY) {//jump only if you are stepping on something
             upwardSpeed = 18;
         }
 
@@ -155,7 +149,7 @@ public:
         if (left) {
             if (collitionBox.getLeftBorder() + (320) > collitionBox.getMaxRight()) {
                 Map::TileTypes tile = collitionBox.collide(currentMap, -2, 0);
-                if (tile == Map::MARIO || tile == Map::EMPTY) {
+                if (tile == Map::PLAYER || tile == Map::EMPTY) {
                     collitionBox.moveLeft();
                 }
             } else {
@@ -164,8 +158,10 @@ public:
         }
         if (right) {
             Map::TileTypes tile = collitionBox.collide(currentMap, 2, 0);
-            if(tile == Map::MARIO || tile == Map::EMPTY) {
-                collitionBox.moveRight();//FIXME this updates max right
+            if(tile == Map::PLAYER || tile == Map::EMPTY) {
+                collitionBox.moveRight();
+            } else {
+                std::cout << "right movement not possible because the tile is " << tile << std::endl;
             }
         }
         collitionBox.step(currentMap);
