@@ -147,7 +147,7 @@ int main(int argc, char *argv[]) {//these parameters has to be here or SDL_main 
 
     InputStates input;
     input.quit = false;
-    Mario mario(map0101.getObject(Map::MARIO), ren, SCREEN_WIDTH,
+    Mario mario(map0101.getObject(Map::PLAYER), ren, SCREEN_WIDTH,
                 map0101,
                 error);
     if (error != 0) {
