@@ -9,10 +9,10 @@ Mario::Mario(SDL_Rect mapPosition, SDL_Renderer *ren, int screenWidth, Map curre
         : screenWidth(screenWidth), currentMap(currentMap)
     {
         collitionBox.setAABB(
-                mapPosition.x * 32,
-                mapPosition.x * 32 + collitionBox.representationFactor -1,
-                mapPosition.y * 32,
-                mapPosition.y * 32 + collitionBox.representationFactor -1); //-1 because 32 is not part of box. pixels 0 - 32, 32 excluded
+                mapPosition.x * TILE_SIZE,
+                mapPosition.x * TILE_SIZE + TILE_SIZE -1,
+                mapPosition.y * TILE_SIZE,
+                mapPosition.y * TILE_SIZE + TILE_SIZE -1); //-1 because 32 is not part of box. pixels 0 - TILE_SIZE, TILE_SIZE excluded
 
 
     std::string marioImage = Utils::getResourcePath("mario") + "mario.bmp";

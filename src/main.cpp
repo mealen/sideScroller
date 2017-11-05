@@ -4,9 +4,12 @@
 #include <SDL2/SDL_mixer.h>
 #include <vector>
 #include <map>
+
+#include "Constants.h"
 #include "Utils.h"
 #include "Mario.h"
 #include "Map.h"
+
 
 
 class InputStates {
@@ -78,7 +81,7 @@ int main(int argc, char *argv[]) {//these parameters has to be here or SDL_main 
         return 1;
     }
 
-    SDL_Window *win = SDL_CreateWindow("Hello World!", 100, 100, 640, 480, SDL_WINDOW_SHOWN);
+    SDL_Window *win = SDL_CreateWindow("Hello World!", 100, 100, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN);
     if (win == nullptr) {
         std::cout << "SDL_CreateWindow Error: " << SDL_GetError() << std::endl;
         SDL_Quit();
@@ -119,8 +122,8 @@ int main(int argc, char *argv[]) {//these parameters has to be here or SDL_main 
 
     sourceRect.x = 0;
     sourceRect.y = 0;
-    sourceRect.h = 480;
-    sourceRect.w = 640;
+    sourceRect.h = SCREEN_HEIGHT;
+    sourceRect.w = SCREEN_WIDTH;
 
     int error;
     Map map0101("0101_logic.txt", error);
@@ -144,7 +147,7 @@ int main(int argc, char *argv[]) {//these parameters has to be here or SDL_main 
 
     InputStates input;
     input.quit = false;
-    Mario mario(map0101.getObject(Map::MARIO), ren, 640,
+    Mario mario(map0101.getObject(Map::MARIO), ren, SCREEN_WIDTH,
                 map0101,
                 error);
     if (error != 0) {
@@ -157,8 +160,8 @@ int main(int argc, char *argv[]) {//these parameters has to be here or SDL_main 
     long time;
     AABB marioPos = mario.getPositionRect();
     SDL_Rect marioGrapPos;
-    marioGrapPos.w = 32;
-    marioGrapPos.h = 32;
+    marioGrapPos.w = TILE_SIZE;
+    marioGrapPos.h = TILE_SIZE;
     marioGrapPos.y = marioPos.getUpBorder();
     marioGrapPos.x = marioPos.getLeftBorder();
     Mario::TextureNames marioTextureName = Mario::STAND;
@@ -186,9 +189,9 @@ int main(int argc, char *argv[]) {//these parameters has to be here or SDL_main 
         }
 
         marioGrapPos.y = marioPos.getUpBorder();
-        int middleOfScreenPixel = (640) / 2 -32;
+        int middleOfScreenPixel = (SCREEN_WIDTH) / 2 -TILE_SIZE;
         //determine where the mario should be in screen, and where background should be
-        if (marioPos.getMaxRight() - 32 <= middleOfScreenPixel) {
+        if (marioPos.getMaxRight() - TILE_SIZE <= middleOfScreenPixel) {
             //if mario is not passed middle of the screen
             sourceRect.x = 0;
             marioGrapPos.x = marioPos.getLeftBorder();
@@ -201,18 +204,14 @@ int main(int argc, char *argv[]) {//these parameters has to be here or SDL_main 
                 leftMovementAmount = marioPos.getMaxRight() - marioPos.getRightBorder();
 
             }
-            sourceRect.x = (marioPos.getMaxRight() - 32) - middleOfScreenPixel;
+            sourceRect.x = (marioPos.getMaxRight() - TILE_SIZE) - middleOfScreenPixel;
             marioGrapPos.x = middleOfScreenPixel - leftMovementAmount;
-            if (sourceRect.x > mapWidth - 640) {
+            if (sourceRect.x > mapWidth - SCREEN_WIDTH) {
                 //if end of map, let mario move more, and lock background
-                marioGrapPos.x += sourceRect.x - (mapWidth-640);//re add the difference
-                sourceRect.x = mapWidth - 640;
+                marioGrapPos.x += sourceRect.x - (mapWidth-SCREEN_WIDTH);//re add the difference
+                sourceRect.x = mapWidth - SCREEN_WIDTH;
             }
         }
-
-
-        std::cout << "screen x " << sourceRect.x << " mario x is " << marioGrapPos.x << std::endl;
-
         //Draw the texture
         SDL_RenderCopy(ren, tex, &sourceRect, NULL);
 

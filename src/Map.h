@@ -7,9 +7,9 @@
 
 
 #include <fstream>
-
 #include <SDL_rect.h>
 
+#include "Constants.h"
 #include "Map.h"
 
 
@@ -29,7 +29,7 @@ public:
             while (getline(mapFile, line)) {
                 //std::cout << line << '\n';
                 for (int i = 0; i < line.length(); i++) {
-                    tiles[i][lineNumber] = (TileTypes)(line.at(i) - 48);
+                    tiles[i][lineNumber] = (TileTypes)(line.at(i) - '0');//this removes char 0 to make ascii values match tile numbers
                 }
                 lineNumber++;
             }

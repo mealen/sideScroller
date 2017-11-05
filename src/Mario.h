@@ -13,6 +13,7 @@
 #include <SDL2/SDL.h>
 #include <SDL_rect.h>
 
+#include "Constants.h"
 #include "Utils.h"
 #include "Map.h"
 
@@ -20,8 +21,6 @@ class AABB {
     int x1,y1, x2,y2;
     int maxRight = 0;
 public:
-    int representationFactor = 32;//this is pixel/tile ratio
-
     int upwardSpeed = 0;
 
     /**
