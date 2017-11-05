@@ -147,8 +147,8 @@ int main(int argc, char *argv[]) {//these parameters has to be here or SDL_main 
 
     InputStates input;
     input.quit = false;
-    Mario mario(map0101.getObject(Map::PLAYER), ren, SCREEN_WIDTH,
-                map0101,
+    Mario mario(map0101.getAndRemoveObject(Map::PLAYER), ren, SCREEN_WIDTH,
+                &map0101,
                 error);
     if (error != 0) {
         std::cerr << "Error initializing Mario, Exiting" << std::endl;
@@ -158,60 +158,68 @@ int main(int argc, char *argv[]) {//these parameters has to be here or SDL_main 
 
     SDL_RendererFlip leftRightFlip = SDL_FLIP_NONE;
     long time;
-    AABB marioPos = mario.getPositionRect();
+    long previousTime = 0;
+    const AABB* marioPos = mario.getPositionRect();
     SDL_Rect marioGrapPos;
     marioGrapPos.w = TILE_SIZE;
     marioGrapPos.h = TILE_SIZE;
-    marioGrapPos.y = marioPos.getUpBorder();
-    marioGrapPos.x = marioPos.getLeftBorder();
+    marioGrapPos.y = marioPos->getUpBorder();
+    marioGrapPos.x = marioPos->getLeftBorder();
     Mario::TextureNames marioTextureName = Mario::STAND;
+
     while (!input.quit) {
         if (input.stop) {
+            input.stop =false;
             SDL_Delay(1000);//for debugging
             continue;
         }
         time = SDL_GetTicks();
-        readInput(input);
-        //First clear the renderer
-        SDL_RenderClear(ren);
-        //Take a quick break after all that hard work
-        //SDL_Delay(50);
-        mario.move(input.goLeft, input.goRight, input.jump, false);
-        marioPos = mario.getPositionRect();
-        if (input.goRight) {
-            leftRightFlip = SDL_FLIP_NONE;
-            marioTextureName = mario.MOVE;
-        } else if (input.goLeft) {
-            leftRightFlip = SDL_FLIP_HORIZONTAL;
-            marioTextureName = mario.MOVE;
-        } else {
-            marioTextureName = mario.STAND;
+
+        if(time - previousTime > 1000/60.0f) {
+            readInput(input);
+            //First clear the renderer
+            SDL_RenderClear(ren);
+            //Take a quick break after all that hard work
+            //SDL_Delay(50);
+            mario.move(input.goLeft, input.goRight, input.jump, false);
+            marioPos = mario.getPositionRect();
+            if (input.goRight) {
+                leftRightFlip = SDL_FLIP_NONE;
+                marioTextureName = mario.MOVE;
+            } else if (input.goLeft) {
+                leftRightFlip = SDL_FLIP_HORIZONTAL;
+                marioTextureName = mario.MOVE;
+            } else {
+                marioTextureName = mario.STAND;
+            }
+
+            marioGrapPos.y = marioPos->getUpBorder();
+            int middleOfScreenPixel = (SCREEN_WIDTH) / 2 - TILE_SIZE;
+            //determine where the mario should be in screen, and where background should be
+            if (marioPos->getMaxRight() - TILE_SIZE <= middleOfScreenPixel) {
+                //if mario is not passed middle of the screen
+                sourceRect.x = 0;
+                marioGrapPos.x = marioPos->getLeftBorder();
+            } else {
+                //put mario at middle of the screen, and move background to left
+                //but first check if mario has been right before
+                int leftMovementAmount = 0;
+                if (marioPos->getMaxRight() > marioPos->getRightBorder()) {
+                    //use maxleft instead of left
+                    leftMovementAmount = marioPos->getMaxRight() - marioPos->getRightBorder();
+
+                }
+                sourceRect.x = (marioPos->getMaxRight() - TILE_SIZE) - middleOfScreenPixel;
+                marioGrapPos.x = middleOfScreenPixel - leftMovementAmount;
+                if (sourceRect.x > mapWidth - SCREEN_WIDTH) {
+                    //if end of map, let mario move more, and lock background
+                    marioGrapPos.x += sourceRect.x - (mapWidth - SCREEN_WIDTH);//re add the difference
+                    sourceRect.x = mapWidth - SCREEN_WIDTH;
+                }
+            }
+            previousTime = time;
         }
 
-        marioGrapPos.y = marioPos.getUpBorder();
-        int middleOfScreenPixel = (SCREEN_WIDTH) / 2 -TILE_SIZE;
-        //determine where the mario should be in screen, and where background should be
-        if (marioPos.getMaxRight() - TILE_SIZE <= middleOfScreenPixel) {
-            //if mario is not passed middle of the screen
-            sourceRect.x = 0;
-            marioGrapPos.x = marioPos.getLeftBorder();
-        } else {
-            //put mario at middle of the screen, and move background to left
-            //but first check if mario has been right before
-            int leftMovementAmount = 0;
-            if(marioPos.getMaxRight() > marioPos.getRightBorder()) {
-                //use maxleft instead of left
-                leftMovementAmount = marioPos.getMaxRight() - marioPos.getRightBorder();
-
-            }
-            sourceRect.x = (marioPos.getMaxRight() - TILE_SIZE) - middleOfScreenPixel;
-            marioGrapPos.x = middleOfScreenPixel - leftMovementAmount;
-            if (sourceRect.x > mapWidth - SCREEN_WIDTH) {
-                //if end of map, let mario move more, and lock background
-                marioGrapPos.x += sourceRect.x - (mapWidth-SCREEN_WIDTH);//re add the difference
-                sourceRect.x = mapWidth - SCREEN_WIDTH;
-            }
-        }
         //Draw the texture
         SDL_RenderCopy(ren, tex, &sourceRect, NULL);
 
