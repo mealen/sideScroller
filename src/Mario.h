@@ -21,7 +21,7 @@
 class Mario {
 public:
     enum TextureNames {
-        STAND, MOVE
+        STAND, MOVE, JUMP
     };
 
 private:
@@ -43,6 +43,9 @@ public:
     }
 
     SDL_Texture *getTexture(TextureNames requiredTexture, long time) {
+        if(collitionBox->isHasJumped()) {
+            return textures[JUMP][0];
+        }
         switch (requiredTexture) {
             case STAND:
                 return textures[STAND][0];

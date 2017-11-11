@@ -11,8 +11,9 @@ class AABB {
     int x1,y1, x2,y2;
     Map* map;
     int maxRight = 0;
-public:
+    bool hasJumped = false;
     int upwardSpeed = 0;
+public:
 
     /**
      *
@@ -58,6 +59,7 @@ public:
             }
             y2 = y1 + TILE_SIZE -1;
             upwardSpeed = 0;
+            hasJumped = false;
         } else { //if possible update
             y1 -= upwardSpeed;
             y2 -= upwardSpeed;
@@ -68,8 +70,8 @@ public:
     void jump(int amount) {
         if(collide(0, 1) != Map::EMPTY) {//jump only if you are stepping on something
             upwardSpeed = amount;
+            hasJumped = true;
         }
-
     }
 
     int getLeftBorder() const {
@@ -91,6 +93,11 @@ public:
     int getMaxRight() const {
         return maxRight;
     }
+
+    bool isHasJumped() const {
+        return hasJumped;
+    }
+
 
     AABB(int left, int right, int up, int down, Map* map): map(map) {
         x1 = left;

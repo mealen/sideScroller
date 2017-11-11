@@ -27,10 +27,14 @@ Mario::Mario(SDL_Rect mapPosition, SDL_Renderer *ren, int screenWidth, Map* curr
     marioImage = Utils::getResourcePath("mario") + "mario_move2.bmp";
     textures[MOVE].push_back(Utils::loadTexture(ren, marioImage));
 
+    marioImage = Utils::getResourcePath("mario") + "mario_jump.bmp";
+    textures[JUMP].push_back(Utils::loadTexture(ren, marioImage));
+
     if (textures[STAND][0] == nullptr ||
         textures[MOVE][0] == nullptr ||
         textures[MOVE][1] == nullptr ||
-        textures[MOVE][2] == nullptr) {
+        textures[MOVE][2] == nullptr ||
+        textures[JUMP][0] == nullptr ) {
         std::cerr << "Error loading Mario textures" << std::endl;
         error = 1;
         return;
