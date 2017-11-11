@@ -57,16 +57,21 @@ public:
         return tiles[x][y];
     }
 
+    /**
+     * if returns -1,-1, it means not found.
+     * @param type
+     * @return
+     */
     SDL_Rect getObject(TileTypes type) {
         SDL_Rect position;
-        position.x = 0;
-        position.y = 0;
+        position.x = -1;
+        position.y = -1;
         for (int i = 0; i < 224; i++) {
             for (int j = 0; j < 15; j++) {
                 if (getTileObject(i,j) == type) {
                     position.x = i;
                     position.y = j;
-                    break;
+                    return position;
                 }
             }
         }
@@ -75,7 +80,10 @@ public:
 
     SDL_Rect getAndRemoveObject(TileTypes types) {
         SDL_Rect rect = getObject(types);
-        tiles[rect.x][rect.y] = TileTypes::EMPTY;
+        if(rect.x != -1 && rect.y != -1) {
+            tiles[rect.x][rect.y] = TileTypes::EMPTY;
+        }
+
         return rect;
     }
 };

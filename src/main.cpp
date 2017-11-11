@@ -9,7 +9,8 @@
 #include "Utils.h"
 #include "Mario.h"
 #include "Map.h"
-
+#include "World.h"
+#include "Brick.h"
 
 
 class InputStates {
@@ -155,17 +156,27 @@ int main(int argc, char *argv[]) {//these parameters has to be here or SDL_main 
         return -1;
     }
 
+    World world;
+
 
     SDL_RendererFlip leftRightFlip = SDL_FLIP_NONE;
     long time;
     long previousTime = 0;
-    const AABB* marioPos = mario.getPositionRect();
+    const AABB* marioPos = mario.getPosition();
     SDL_Rect marioGrapPos;
     marioGrapPos.w = TILE_SIZE;
     marioGrapPos.h = TILE_SIZE;
     marioGrapPos.y = marioPos->getUpBorder();
     marioGrapPos.x = marioPos->getLeftBorder();
-    Mario::TextureNames marioTextureName = Mario::STAND;
+
+    Brick* brick;
+    SDL_Rect brickPos = map0101.getAndRemoveObject(Map::BRICK);
+    while (brickPos.x != -1 && brickPos.y != -1) {
+        brick = new Brick(ren, brickPos.x, brickPos.y, &map0101);
+        world.addObject(brick);
+        brickPos = map0101.getAndRemoveObject(Map::BRICK);
+
+    }
 
     while (!input.quit) {
         if (input.stop) {
@@ -182,15 +193,11 @@ int main(int argc, char *argv[]) {//these parameters has to be here or SDL_main 
             //Take a quick break after all that hard work
             //SDL_Delay(50);
             mario.move(input.goLeft, input.goRight, input.jump, false);
-            marioPos = mario.getPositionRect();
+            marioPos = mario.getPosition();
             if (input.goRight) {
                 leftRightFlip = SDL_FLIP_NONE;
-                marioTextureName = mario.MOVE;
             } else if (input.goLeft) {
                 leftRightFlip = SDL_FLIP_HORIZONTAL;
-                marioTextureName = mario.MOVE;
-            } else {
-                marioTextureName = mario.STAND;
             }
 
             marioGrapPos.y = marioPos->getUpBorder();
@@ -225,7 +232,10 @@ int main(int argc, char *argv[]) {//these parameters has to be here or SDL_main 
 
         //draw the mario
         //std::cout << "drawing mario at " << marioGrapPos.x << ", " << marioGrapPos.y << std::endl;
-        SDL_RenderCopyEx(ren, mario.getTexture(marioTextureName, time), 0, &marioGrapPos, 0, 0, leftRightFlip);
+        SDL_RenderCopyEx(ren, mario.getTexture(time), 0, &marioGrapPos, 0, 0, leftRightFlip);
+
+        world.render(ren, sourceRect.x, sourceRect.y, time);
+
         //Update the screen
         SDL_RenderPresent(ren);
 

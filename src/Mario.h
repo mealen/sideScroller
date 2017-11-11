@@ -17,8 +17,10 @@
 #include "Utils.h"
 #include "Map.h"
 #include "AABB.h"
+#include "DynamicObject.h"
 
-class Mario {
+class Mario : DynamicObject {
+
 public:
     enum TextureNames {
         STAND, MOVE, JUMP
@@ -26,6 +28,7 @@ public:
 
 private:
     std::map<TextureNames, std::vector<SDL_Texture *>> textures;
+    TextureNames currentState = STAND;
     int screenWidth;
     Map* currentMap;
     AABB* collitionBox;
@@ -42,22 +45,22 @@ public:
         SDL_DestroyTexture(textures[MOVE][2]);
     }
 
-    SDL_Texture *getTexture(TextureNames requiredTexture, long time) {
+    SDL_Texture *getTexture(long time) const {
         if(collitionBox->isHasJumped()) {
-            return textures[JUMP][0];
+            return textures.at(JUMP).at(0);
         }
-        switch (requiredTexture) {
+        switch (currentState) {
             case STAND:
-                return textures[STAND][0];
+                return textures.at(STAND).at(0);
             case MOVE:
-                return textures[MOVE][(time / 75) % 3];
+                return textures.at(MOVE).at((time / 75) % 3);
             default:
                 std::cerr << "Requested Texture type not found" << std::endl;
                 exit(-1);
         }
     }
 
-    const AABB* getPositionRect() const {
+    const AABB* getPosition() const {
         return collitionBox;
     }
 
@@ -66,22 +69,23 @@ public:
             collitionBox->jump(jumpSpeed);
         }
         if (left) {
+            currentState = MOVE;
             if (collitionBox->getLeftBorder() + (320) > collitionBox->getMaxRight()) {
                 Map::TileTypes tile = collitionBox->collide(-1 * moveSpeed, 0);
                 if (tile == Map::PLAYER || tile == Map::EMPTY) {
                     collitionBox->moveLeft(moveSpeed);
                 }
-            } else {
-                //std::cout <<"max right was " << collitionBox.maxRight << ", " << " while x1 was" << collitionBox.getLeftBorder() << std::endl;
             }
         }
         if (right) {
+            currentState = MOVE;
             Map::TileTypes tile = collitionBox->collide(moveSpeed, 0);
             if(tile == Map::PLAYER || tile == Map::EMPTY) {
                 collitionBox->moveRight(moveSpeed);
-            } else {
-                std::cout << "right movement not possible because the tile is " << tile << std::endl;
             }
+        }
+        if(!left && !right) {
+            currentState = STAND;
         }
         collitionBox->step();
     }
