@@ -73,6 +73,7 @@ static SDL_Texture * loadTexture(SDL_Renderer *ren, std::string imageName) {
         std::cout << "SDL_CreateTextureFromSurface Error: " << SDL_GetError() << std::endl;
         return NULL;
     }
+    return texture;
 }
 
 };

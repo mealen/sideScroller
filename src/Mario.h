@@ -48,6 +48,9 @@ public:
                 return textures[STAND][0];
             case MOVE:
                 return textures[MOVE][(time / 75) % 3];
+            default:
+                std::cerr << "Requested Texture type not found" << std::endl;
+                exit(-1);
         }
     }
 
@@ -55,7 +58,7 @@ public:
         return collitionBox;
     }
 
-    SDL_Rect move(bool left, bool right, bool jump, bool crouch) {
+    void move(bool left, bool right, bool jump, bool crouch) {
         if(jump) {
             collitionBox->jump(jumpSpeed);
         }

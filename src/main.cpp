@@ -236,7 +236,7 @@ int main(int argc, char *argv[]) {//these parameters has to be here or SDL_main 
     SDL_DestroyRenderer(ren);
     SDL_DestroyWindow(win);
     SDL_Quit();
-    //return 0;
+    return 0;
 }
 
 

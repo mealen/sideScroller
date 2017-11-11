@@ -35,13 +35,13 @@ public:
         return tile;
     }
 
-    bool moveRight(int amount) {
+    void moveRight(int amount) {
         x1 += amount;
         x2 += amount;
         maxRight = std::max(x2, maxRight);
     }
 
-    bool moveLeft(int amount) {
+    void moveLeft(int amount) {
         x1 -= amount;
         x2 -= amount;
     }

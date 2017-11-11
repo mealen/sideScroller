@@ -36,7 +36,7 @@ public:
                 }
                 //std::cout << line << '\n';
 
-                for (int i = 0; i < line.length(); i++) {
+                for (unsigned int i = 0; i < line.length(); i++) {
                     tiles[i][lineNumber] = (TileTypes)(line.at(i) - '0');//this removes char 0 to make ascii values match tile numbers
                 }
                 lineNumber++;
