@@ -15,6 +15,7 @@ private:
     bool hasJumped = false;
     bool hasJumpTriggered = false;
     int upwardSpeed = 0;
+    int upwardRequest = 0;
     int horizontalSpeed = 0;
 
 public:
@@ -34,7 +35,7 @@ public:
 
     void jump(int amount) {
         hasJumpTriggered = true;
-        upwardSpeed = amount;
+        upwardRequest = amount;
         hasJumped = true;
     }
 
@@ -105,6 +106,14 @@ public:
 
     void setHorizontalSpeed(int horizontalSpeed) {
         AABB::horizontalSpeed = horizontalSpeed;
+    }
+
+    int getUpwardRequest() const {
+        return upwardRequest;
+    }
+
+    void setUpwardRequest(int upwardRequest) {
+        AABB::upwardRequest = upwardRequest;
     }
 
     AABB(int left, int right, int up, int down) {

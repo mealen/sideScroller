@@ -77,7 +77,7 @@ public:
 
     void step(InteractiveObject* interactiveObject) {
         AABB* aabb = interactiveObject->getPosition();
-        int upwardSpeed = aabb->getUpwardSpeed();
+
         int horizontalSpeed = aabb->getHorizontalSpeed();
 
         Map::TileTypes tile = collide(horizontalSpeed, 0, interactiveObject);
@@ -89,14 +89,16 @@ public:
 
         aabb->setHorizontalSpeed(0);
 
-        if (aabb->getUpwardSpeed() > 0 && aabb->isHasJumpTriggered()) {
+        if (aabb->isHasJumpTriggered()) {
             aabb->setHasJumpTriggered(false);
             tile = collide(0, 1, interactiveObject);
 
-            if (tile == Map::EMPTY) {
-                aabb->setUpwardSpeed(0);
+            if (tile != Map::EMPTY) {
+                aabb->setUpwardSpeed(aabb->getUpwardRequest());
             }
+            aabb->setUpwardRequest(0);
         }
+        int upwardSpeed = aabb->getUpwardSpeed();
         tile = collide(0, -1 * upwardSpeed, interactiveObject);
         //check if moving with upward speed is possible.
         if(tile != Map::EMPTY) {//if not possible, match the tile, and then stop
