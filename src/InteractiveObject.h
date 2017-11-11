@@ -8,11 +8,13 @@
 
 #include <SDL_render.h>
 #include "AABB.h"
+#include "Map.h"
 
-class DynamicObject {
+class InteractiveObject {
 public:
-    virtual const AABB* getPosition() const = 0;
+    virtual AABB* getPosition() const = 0;
     virtual SDL_Texture* getTexture(long time) const= 0;
+    virtual Map::TileTypes getTileType() const = 0;
 };
 
 

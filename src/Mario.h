@@ -17,9 +17,9 @@
 #include "Utils.h"
 #include "Map.h"
 #include "AABB.h"
-#include "DynamicObject.h"
+#include "InteractiveObject.h"
 
-class Mario : DynamicObject {
+class Mario : public InteractiveObject {
 
 public:
     enum TextureNames {
@@ -30,13 +30,12 @@ private:
     std::map<TextureNames, std::vector<SDL_Texture *>> textures;
     TextureNames currentState = STAND;
     int screenWidth;
-    Map* currentMap;
     AABB* collitionBox;
 
 public:
     const int moveSpeed = 4;
     const int jumpSpeed = 16;
-    Mario(SDL_Rect mapPosition, SDL_Renderer *ren, int screenWidth, Map* currentMap, int &error);
+    Mario(SDL_Rect mapPosition, SDL_Renderer *ren, int screenWidth, int &error);
 
     ~Mario() {
         SDL_DestroyTexture(textures[STAND][0]);
@@ -60,7 +59,7 @@ public:
         }
     }
 
-    const AABB* getPosition() const {
+    AABB* getPosition() const {
         return collitionBox;
     }
 
@@ -71,23 +70,20 @@ public:
         if (left) {
             currentState = MOVE;
             if (collitionBox->getLeftBorder() + (320) > collitionBox->getMaxRight()) {
-                Map::TileTypes tile = collitionBox->collide(-1 * moveSpeed, 0);
-                if (tile == Map::PLAYER || tile == Map::EMPTY) {
-                    collitionBox->moveLeft(moveSpeed);
-                }
+                collitionBox->moveLeft(moveSpeed);
             }
         }
         if (right) {
             currentState = MOVE;
-            Map::TileTypes tile = collitionBox->collide(moveSpeed, 0);
-            if(tile == Map::PLAYER || tile == Map::EMPTY) {
-                collitionBox->moveRight(moveSpeed);
-            }
+            collitionBox->moveRight(moveSpeed);
         }
         if(!left && !right) {
             currentState = STAND;
         }
-        collitionBox->step();
+    }
+
+    Map::TileTypes getTileType() const {
+        return Map::PLAYER;
     }
 
 };

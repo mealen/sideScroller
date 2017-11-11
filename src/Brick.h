@@ -10,19 +10,19 @@
 
 #include "AABB.h"
 #include "Utils.h"
-#include "DynamicObject.h"
+#include "InteractiveObject.h"
 
-class Brick : public DynamicObject {
+class Brick : public InteractiveObject {
     SDL_Texture *texture;
     AABB* collisionBox;
 
 public:
-    Brick(SDL_Renderer *ren, int x, int y, Map* map) {//FIXME this should not need  renderer and map
+    Brick(SDL_Renderer *ren, int x, int y) {//FIXME this should not need  renderer and map
         collisionBox = new AABB(
                 x * TILE_SIZE,
                 x * TILE_SIZE + TILE_SIZE -1,
                 y * TILE_SIZE,
-                y * TILE_SIZE + TILE_SIZE -1, map); //-1 because 32 is not part of box. pixels 0 - TILE_SIZE, TILE_SIZE excluded
+                y * TILE_SIZE + TILE_SIZE -1); //-1 because 32 is not part of box. pixels 0 - TILE_SIZE, TILE_SIZE excluded
 
 
         std::string marioImage = Utils::getResourcePath("brick") + "brickred.bmp";
@@ -33,10 +33,13 @@ public:
         return texture;
     };
 
-    const AABB* getPosition() const {
+    AABB* getPosition() const {
         return collisionBox;
     };
 
+    Map::TileTypes getTileType() const {
+        return Map::BRICK;
+    }
 
 };
 

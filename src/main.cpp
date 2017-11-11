@@ -19,12 +19,14 @@ public:
     bool goRight = false;
     bool goLeft = false;
     bool jump = false;
+    bool jumpEvent = false;
     bool stop = false;
 };
 
 
 
 void readInput(InputStates &input) {
+    input.jumpEvent = false;
     SDL_Event e;
     while (SDL_PollEvent(&e)) {
         //If user closes the window
@@ -44,6 +46,9 @@ void readInput(InputStates &input) {
                     input.goLeft = true;
                     break;
                 case SDLK_SPACE:
+                    if(!input.jump) {
+                        input.jumpEvent = true;
+                    }
                     input.jump = true;
                     break;
                 case SDLK_p:
@@ -149,14 +154,13 @@ int main(int argc, char *argv[]) {//these parameters has to be here or SDL_main 
     InputStates input;
     input.quit = false;
     Mario mario(map0101.getAndRemoveObject(Map::PLAYER), ren, SCREEN_WIDTH,
-                &map0101,
                 error);
     if (error != 0) {
         std::cerr << "Error initializing Mario, Exiting" << std::endl;
         return -1;
     }
 
-    World world;
+    World world(&map0101);
 
 
     SDL_RendererFlip leftRightFlip = SDL_FLIP_NONE;
@@ -172,7 +176,7 @@ int main(int argc, char *argv[]) {//these parameters has to be here or SDL_main 
     Brick* brick;
     SDL_Rect brickPos = map0101.getAndRemoveObject(Map::BRICK);
     while (brickPos.x != -1 && brickPos.y != -1) {
-        brick = new Brick(ren, brickPos.x, brickPos.y, &map0101);
+        brick = new Brick(ren, brickPos.x, brickPos.y);
         world.addObject(brick);
         brickPos = map0101.getAndRemoveObject(Map::BRICK);
 
@@ -192,7 +196,7 @@ int main(int argc, char *argv[]) {//these parameters has to be here or SDL_main 
             SDL_RenderClear(ren);
             //Take a quick break after all that hard work
             //SDL_Delay(50);
-            mario.move(input.goLeft, input.goRight, input.jump, false);
+            mario.move(input.goLeft, input.goRight, input.jumpEvent, false);
             marioPos = mario.getPosition();
             if (input.goRight) {
                 leftRightFlip = SDL_FLIP_NONE;
@@ -225,10 +229,12 @@ int main(int argc, char *argv[]) {//these parameters has to be here or SDL_main 
                 }
             }
             previousTime = time;
+            world.step(&mario);
         }
 
         //Draw the texture
         SDL_RenderCopy(ren, tex, &sourceRect, NULL);
+
 
         //draw the mario
         //std::cout << "drawing mario at " << marioGrapPos.x << ", " << marioGrapPos.y << std::endl;
