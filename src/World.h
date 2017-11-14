@@ -6,7 +6,7 @@
 #define MARIO_WORLD_H
 
 
-#include "InteractiveObject.h"
+#include "Objects/InteractiveObject.h"
 
 class World {
     std::vector<InteractiveObject*> objects;
@@ -26,13 +26,7 @@ public:
      */
     void render(SDL_Renderer *ren, int x, int y, long time) {
         for (unsigned int i = 0; i < objects.size(); ++i) {
-            const AABB* pos = objects[i]->getPosition();
-            SDL_Rect screenPos;
-            screenPos.x = pos->getLeftBorder() - x;
-            screenPos.y = pos->getUpBorder() - y;
-            screenPos.w = TILE_SIZE;
-            screenPos.h = TILE_SIZE;
-            SDL_RenderCopyEx(ren, objects[i]->getTexture(time), 0, &screenPos, 0, 0, SDL_FLIP_NONE);
+            objects[i]->render(ren,x,y,time);
         }
     }
 
@@ -46,7 +40,7 @@ public:
      * @param downSpeed 1 for up, -1 for down, 0 for stopped
      * @return true if collides
      */
-    Map::TileTypes collide(int rightSpeed, int downSpeed, InteractiveObject* interactiveObject) {
+    Map::TileTypes collide(int rightSpeed, int downSpeed, InteractiveObject* interactiveObject, long time) {
         Map::TileTypes tile = Map::EMPTY;
         //we need 4 checks, since at any given time, object can be at 4 different places.
 
@@ -54,6 +48,8 @@ public:
         tile = std::max(tile, map->getTileObject((interactiveObject->getPosition()->getLeftBorder() + rightSpeed)/32, (interactiveObject->getPosition()->getDownBorder() + downSpeed)/32));
         tile = std::max(tile, map->getTileObject((interactiveObject->getPosition()->getRightBorder() + rightSpeed)/32, (interactiveObject->getPosition()->getUpBorder() + downSpeed)/32));
         tile = std::max(tile, map->getTileObject((interactiveObject->getPosition()->getRightBorder() + rightSpeed)/32, (interactiveObject->getPosition()->getDownBorder() + downSpeed)/32));
+        InteractiveObject* collidingObject = NULL;
+        int collisionSide = 0;//1 down, 2 up, 3 left 4 right
         for (unsigned int i = 0; i < objects.size(); ++i) {
             if(interactiveObject->getPosition()->getUpBorder() + downSpeed> objects[i]->getPosition()->getDownBorder()) {
                 continue;
@@ -70,17 +66,38 @@ public:
             if(interactiveObject->getPosition()->getLeftBorder() + rightSpeed > objects[i]->getPosition()->getRightBorder()) {
                 continue;
             }
-            tile = std::max(tile, objects[i]->getTileType());
+            if(tile < objects[i]->getTileType()) {
+                tile = objects[i]->getTileType();
+                collidingObject = objects[i];
+                //now we know there is a collition, check what is the direction of collision
+                if(interactiveObject->getPosition()->getUpBorder() > objects[i]->getPosition()->getDownBorder()) {
+                    collisionSide = 1;
+                }
+                if(interactiveObject->getPosition()->getDownBorder() < objects[i]->getPosition()->getUpBorder()) {
+                    collisionSide = 2;
+                }
+
+                if(interactiveObject->getPosition()->getRightBorder() < objects[i]->getPosition()->getLeftBorder()) {
+                    collisionSide = 3;
+                }
+
+                if(interactiveObject->getPosition()->getLeftBorder() > objects[i]->getPosition()->getRightBorder()) {
+                    collisionSide = 4;
+                }
+            }
+        }
+        if(collidingObject != NULL) {
+            collidingObject->interactWithSide(collisionSide, time);
         }
         return tile;
     }
 
-    void step(InteractiveObject* interactiveObject) {
+    void step(InteractiveObject* interactiveObject, long time) {
         AABB* aabb = interactiveObject->getPosition();
 
         int horizontalSpeed = aabb->getHorizontalSpeed();
 
-        Map::TileTypes tile = collide(horizontalSpeed, 0, interactiveObject);
+        Map::TileTypes tile = collide(horizontalSpeed, 0, interactiveObject, time);
 
         if (tile == Map::EMPTY) {
             aabb->setLeftBorder(aabb->getLeftBorder() + horizontalSpeed);
@@ -91,7 +108,7 @@ public:
 
         if (aabb->isHasJumpTriggered()) {
             aabb->setHasJumpTriggered(false);
-            tile = collide(0, 1, interactiveObject);
+            tile = collide(0, 1, interactiveObject, time);
 
             if (tile != Map::EMPTY) {
                 aabb->setUpwardSpeed(aabb->getUpwardRequest());
@@ -99,7 +116,7 @@ public:
             aabb->setUpwardRequest(0);
         }
         int upwardSpeed = aabb->getUpwardSpeed();
-        tile = collide(0, -1 * upwardSpeed, interactiveObject);
+        tile = collide(0, -1 * upwardSpeed, interactiveObject, time);
         //check if moving with upward speed is possible.
         if(tile != Map::EMPTY) {//if not possible, match the tile, and then stop
             aabb->setUpBorder(aabb->getUpBorder() - upwardSpeed);
@@ -115,6 +132,13 @@ public:
             aabb->setUpBorder(aabb->getUpBorder() - aabb->getUpwardSpeed());
             aabb->setDownBorder(aabb->getDownBorder() - aabb->getUpwardSpeed());
             aabb->setUpwardSpeed(aabb->getUpwardSpeed() - 1);
+        }
+
+        for(unsigned int i = 0; i < objects.size(); i++) {
+            if(objects[i]->waitingForDestroy()) {
+                delete objects[i];
+                objects.erase(objects.begin() + i);
+            }
         }
     }
 

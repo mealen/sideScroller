@@ -7,10 +7,10 @@
 
 #include "Constants.h"
 #include "Utils.h"
-#include "Mario.h"
+#include "Objects/Mario.h"
 #include "Map.h"
 #include "World.h"
-#include "Brick.h"
+#include "Objects/Brick.h"
 
 
 class InputStates {
@@ -227,7 +227,7 @@ int main(int argc, char *argv[]) {//these parameters has to be here or SDL_main 
                 }
             }
             previousTime = time;
-            world.step(&mario);
+            world.step(&mario, time);
         }
 
         //Draw the texture
