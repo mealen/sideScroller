@@ -18,7 +18,7 @@
 class Map {
 public:
     enum TileTypes {EMPTY = 0, GROUND = 1, BRICK = 2, BRICK_COIN=3, BRICK_MUSHROOM=4, HIDDEN_MUSHROOM=5, PIPE_EMPTY=6,
-        PIPE_PORTAL=7, PIPE_ENEMY=8, PIPE_ENEMY_PORTAL=9, MINION_MUSHROOM=17, MINION_TURTLE=18, PLAYER=74};
+        PIPE_PORTAL=7, PIPE_ENEMY=8, PIPE_ENEMY_PORTAL=9, MINION_MUSHROOM=17, MINION_TURTLE=18, PLAYER=74, OUT_OF_MAP=19};
 //                                                                        A                 B           z
 private:
     TileTypes tiles[224][15];
@@ -52,7 +52,7 @@ public:
     TileTypes getTileObject(int x,int y) {
         if(x <0 || x >= 224 || y < 0 ||y>=15) {
             std::cerr << "the requested object is out of map range " << x << ", " << y << std::endl;
-            return GROUND;
+            return OUT_OF_MAP;
         }
         return tiles[x][y];
     }

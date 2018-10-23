@@ -45,6 +45,10 @@ public:
         delete collitionBox;
     }
 
+    bool hasDied() {
+        return collitionBox->isHasDied();
+    }
+
     SDL_Texture *getTexture(long time) const {
         if(collitionBox->isHasJumped()) {
             return textures.at(JUMP).at(0);

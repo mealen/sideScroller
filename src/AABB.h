@@ -13,6 +13,7 @@ class AABB {
 private:
     int maxRight = 0;
     bool hasJumped = false;
+    bool hasDied = false;
     bool hasJumpTriggered = false;
     int upwardSpeed = 0;
     int upwardRequest = 0;
@@ -116,12 +117,24 @@ public:
         AABB::upwardRequest = upwardRequest;
     }
 
+    void die() {
+        AABB::hasDied = true;
+    }
+
     AABB(int left, int right, int up, int down) {
         x1 = left;
         x2 = right;
         y1 = up;
         y2 = down;
         maxRight = x2;
+    }
+
+    bool isHasDied() const {
+        return hasDied;
+    }
+
+    void setHasDied(bool hasDied) {
+        AABB::hasDied = hasDied;
     }
 };
 

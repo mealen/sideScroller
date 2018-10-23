@@ -7,6 +7,7 @@
 
 
 #include "Objects/InteractiveObject.h"
+#include <memory>
 
 class World {
     std::vector<InteractiveObject*> objects;
@@ -48,9 +49,17 @@ public:
         tile = std::max(tile, map->getTileObject((interactiveObject->getPosition()->getLeftBorder() + rightSpeed)/32, (interactiveObject->getPosition()->getDownBorder() + downSpeed)/32));
         tile = std::max(tile, map->getTileObject((interactiveObject->getPosition()->getRightBorder() + rightSpeed)/32, (interactiveObject->getPosition()->getUpBorder() + downSpeed)/32));
         tile = std::max(tile, map->getTileObject((interactiveObject->getPosition()->getRightBorder() + rightSpeed)/32, (interactiveObject->getPosition()->getDownBorder() + downSpeed)/32));
+
+        // mario fall down from ground
+        if (tile == Map::TileTypes::OUT_OF_MAP) {
+
+        }
+
+
         InteractiveObject* collidingObject = NULL;
         int collisionSide = 0;//1 down, 2 up, 3 left 4 right
         for (unsigned int i = 0; i < objects.size(); ++i) {
+            // that 4 if finds if that objects collide
             if(interactiveObject->getPosition()->getUpBorder() + downSpeed> objects[i]->getPosition()->getDownBorder()) {
                 continue;
             }
@@ -92,7 +101,7 @@ public:
         return tile;
     }
 
-    void step(InteractiveObject* interactiveObject, long time) {
+    void stepSimulation(InteractiveObject *interactiveObject, long time) {
         AABB* aabb = interactiveObject->getPosition();
 
         int horizontalSpeed = aabb->getHorizontalSpeed();
@@ -117,7 +126,14 @@ public:
         }
         int upwardSpeed = aabb->getUpwardSpeed();
         tile = collide(0, -1 * upwardSpeed, interactiveObject, time);
-        //check if moving with upward speed is possible.
+        //check if moving with upward speed is possible
+        if (tile == Map::OUT_OF_MAP) {
+            if (aabb->getUpwardSpeed() < 0) {
+                // mario dies
+                aabb->die();
+                std::cout << "Mario dies\n";
+            }
+        }
         if(tile != Map::EMPTY) {//if not possible, match the tile, and then stop
             aabb->setUpBorder(aabb->getUpBorder() - upwardSpeed);
             if(aabb->getUpwardSpeed() > 0) {

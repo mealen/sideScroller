@@ -4,6 +4,8 @@
 #include <SDL2/SDL_mixer.h>
 #include <vector>
 #include <map>
+#include <memory>
+#include <bits/shared_ptr.h>
 
 #include "Constants.h"
 #include "Utils.h"
@@ -40,12 +42,15 @@ void readInput(InputStates &input) {
                     input.quit = true;
                     break;
                 case SDLK_d:
+                case SDLK_RIGHT:
                     input.goRight = true;
                     break;
                 case SDLK_a:
+                case SDLK_LEFT:
                     input.goLeft = true;
                     break;
                 case SDLK_SPACE:
+                case SDLK_UP:
                     if(!input.jump) {
                         input.jumpEvent = true;
                     }
@@ -59,12 +64,15 @@ void readInput(InputStates &input) {
         if (e.type == SDL_KEYUP) {
             switch (e.key.keysym.sym) {
                 case SDLK_d:
+                case SDLK_RIGHT:
                     input.goRight = false;
                     break;
                 case SDLK_a:
+                case SDLK_LEFT:
                     input.goLeft = false;
                     break;
                 case SDLK_SPACE:
+                case SDLK_UP:
                     input.jump = false;
                     break;
                 case SDLK_p:
@@ -77,6 +85,41 @@ void readInput(InputStates &input) {
             input.quit = true;
         }
     }
+}
+
+int init(std::shared_ptr<Mario> &mario, std::shared_ptr<Map> &map0101, std::shared_ptr<World> &world, SDL_Renderer *ren) {
+
+
+    int error;
+    map0101 = std::make_shared<Map>(Map("0101_logic.txt", error));
+    if (error != 0) {
+        std::cerr << "Error initializing Map, Exiting" << std::endl;
+        return -1;
+    }
+
+    if (Mix_OpenAudio(22050, MIX_DEFAULT_FORMAT, 2, 4096) == -1) { return false; }
+    Mix_Music *music = NULL;
+    music = Mix_LoadMUS("./res/sounds/overworld.wav");
+    //If there was a problem loading the music
+    if (music == NULL) {
+        return -1;
+    }
+
+    //Play the music
+    if (Mix_PlayMusic(music, -1) == -1) {
+        return 1;
+    }
+
+    mario = std::shared_ptr<Mario>(new Mario(map0101->getAndRemoveObject(Map::PLAYER), ren, SCREEN_WIDTH,
+                error));
+    if (error != 0) {
+        std::cerr << "Error initializing Mario, Exiting" << std::endl;
+        return -1;
+    }
+
+    world = std::shared_ptr<World>(new World(map0101.get()));
+
+    return 0;
 }
 
 int main(int argc, char *argv[]) {//these parameters has to be here or SDL_main linking issue arises
@@ -128,43 +171,25 @@ int main(int argc, char *argv[]) {//these parameters has to be here or SDL_main 
     sourceRect.y = 0;
     sourceRect.h = SCREEN_HEIGHT;
     sourceRect.w = SCREEN_WIDTH;
-
-    int error;
-    Map map0101("0101_logic.txt", error);
-    if (error != 0) {
-        std::cerr << "Error initializing Map, Exiting" << std::endl;
-        return -1;
-    }
-
-    if (Mix_OpenAudio(22050, MIX_DEFAULT_FORMAT, 2, 4096) == -1) { return false; }
-    Mix_Music *music = NULL;
-    music = Mix_LoadMUS("./res/sounds/overworld.wav");
-    //If there was a problem loading the music
-    if (music == NULL) {
-        return false;
-    }
-
-    //Play the music
-    if (Mix_PlayMusic(music, -1) == -1) {
-        return 1;
-    }
-
     InputStates input;
     input.quit = false;
-    Mario mario(map0101.getAndRemoveObject(Map::PLAYER), ren, SCREEN_WIDTH,
-                error);
-    if (error != 0) {
-        std::cerr << "Error initializing Mario, Exiting" << std::endl;
-        return -1;
-    }
+    std::shared_ptr<Mario> mario;
+    std::shared_ptr<Map> map;
+    std::shared_ptr<World> world;
 
-    World world(&map0101);
+    if (init(mario, map, world, ren) == -1) {
+        SDL_DestroyRenderer(ren);
+        SDL_DestroyWindow(win);
+        std::cerr << "Init problem" << std::endl;
+        SDL_Quit();
+        return 1;
+    }
 
 
     SDL_RendererFlip leftRightFlip = SDL_FLIP_NONE;
     long time;
     long previousTime = 0;
-    const AABB* marioPos = mario.getPosition();
+    const AABB* marioPos = mario->getPosition();
     SDL_Rect marioGrapPos;
     marioGrapPos.w = TILE_SIZE;
     marioGrapPos.h = TILE_SIZE;
@@ -172,11 +197,11 @@ int main(int argc, char *argv[]) {//these parameters has to be here or SDL_main 
     marioGrapPos.x = marioPos->getLeftBorder();
 
     Brick* brick;
-    SDL_Rect brickPos = map0101.getAndRemoveObject(Map::BRICK);
+    SDL_Rect brickPos = map->getAndRemoveObject(Map::BRICK);
     while (brickPos.x != -1 && brickPos.y != -1) {
         brick = new Brick(ren, brickPos.x, brickPos.y);
-        world.addObject(brick);
-        brickPos = map0101.getAndRemoveObject(Map::BRICK);
+        world->addObject(brick);
+        brickPos = map->getAndRemoveObject(Map::BRICK);
 
     }
 
@@ -194,8 +219,11 @@ int main(int argc, char *argv[]) {//these parameters has to be here or SDL_main 
             SDL_RenderClear(ren);
             //Take a quick break after all that hard work
             //SDL_Delay(50);
-            mario.move(input.goLeft, input.goRight, input.jumpEvent, false);
-            marioPos = mario.getPosition();
+            if (mario->hasDied()) {
+                init(mario, map, world, ren);
+            }
+            mario->move(input.goLeft, input.goRight, input.jumpEvent, false);
+            marioPos = mario->getPosition();
             if (input.goRight) {
                 leftRightFlip = SDL_FLIP_NONE;
             } else if (input.goLeft) {
@@ -226,8 +254,9 @@ int main(int argc, char *argv[]) {//these parameters has to be here or SDL_main 
                     sourceRect.x = mapWidth - SCREEN_WIDTH;
                 }
             }
+
             previousTime = time;
-            world.step(&mario, time);
+            world->stepSimulation(mario.get(), time);
         }
 
         //Draw the texture
@@ -236,9 +265,9 @@ int main(int argc, char *argv[]) {//these parameters has to be here or SDL_main 
 
         //draw the mario
         //std::cout << "drawing mario at " << marioGrapPos.x << ", " << marioGrapPos.y << std::endl;
-        SDL_RenderCopyEx(ren, mario.getTexture(time), 0, &marioGrapPos, 0, 0, leftRightFlip);
+        SDL_RenderCopyEx(ren, mario->getTexture(time), 0, &marioGrapPos, 0, 0, leftRightFlip);
 
-        world.render(ren, sourceRect.x, sourceRect.y, time);
+        world->render(ren, sourceRect.x, sourceRect.y, time);
 
         //Update the screen
         SDL_RenderPresent(ren);
