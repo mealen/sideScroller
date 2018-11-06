@@ -2,6 +2,7 @@
 #include <fstream>
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_mixer.h>
+#include <SDL2/SDL_ttf.h>
 #include <vector>
 #include <map>
 #include <memory>
@@ -185,6 +186,21 @@ int main(int argc, char *argv[]) {//these parameters has to be here or SDL_main 
         return 1;
     }
 
+    if (TTF_Init() < 0) {
+        std::cerr << "Font Init problem" << std::endl;
+        return 1;
+    }
+
+    TTF_Font* font = TTF_OpenFont("res/fonts/emulogic.ttf", 16);
+    SDL_Color textColor;
+    textColor.r = 1;
+    textColor.g = 1;
+    textColor.b = 1;
+    textColor.a = 0;
+
+    SDL_Surface* deadTextSurface = TTF_RenderText_Solid(font, "Game over! You died!", textColor);
+    SDL_Texture *deadTextTexture = SDL_CreateTextureFromSurface(ren, deadTextSurface);
+
 
     SDL_RendererFlip leftRightFlip = SDL_FLIP_NONE;
     long time;
@@ -220,6 +236,21 @@ int main(int argc, char *argv[]) {//these parameters has to be here or SDL_main 
             //Take a quick break after all that hard work
             //SDL_Delay(50);
             if (mario->hasDied()) {
+                SDL_Rect textRect;
+                textRect.x = 0;
+                textRect.y = 0;
+                textRect.w = 600;
+                textRect.h = 200;
+                while (!input.jump) {
+                    SDL_RenderCopy(ren, tex, &sourceRect, NULL);
+                    SDL_RenderCopyEx(ren, mario->getTexture(time), 0, &marioGrapPos, 0, 0, leftRightFlip);
+                    world->render(ren, sourceRect.x, sourceRect.y, time);
+                    SDL_RenderCopy(ren, deadTextTexture, NULL, &textRect);
+                    SDL_RenderPresent(ren);
+                    readInput(input);
+                }
+                input.jump = false;
+                input.jumpEvent = false;
                 init(mario, map, world, ren);
             }
             mario->move(input.goLeft, input.goRight, input.jumpEvent, false);
@@ -275,6 +306,8 @@ int main(int argc, char *argv[]) {//these parameters has to be here or SDL_main 
 
     }
 
+    TTF_CloseFont(font);
+    TTF_Quit();
     SDL_DestroyTexture(tex);
     SDL_DestroyRenderer(ren);
     SDL_DestroyWindow(win);
