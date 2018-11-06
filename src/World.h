@@ -41,14 +41,13 @@ public:
      * @param downSpeed 1 for up, -1 for down, 0 for stopped
      * @return true if collides
      */
-    Map::TileTypes collide(int rightSpeed, int downSpeed, InteractiveObject* interactiveObject, long time) {
+    Map::TileTypes collide(int rightSpeed, int downSpeed, InteractiveObject* playerObject, long time) {
         Map::TileTypes tile = Map::EMPTY;
         //we need 4 checks, since at any given time, object can be at 4 different places.
-
-        tile = std::max(tile, map->getTileObject((interactiveObject->getPosition()->getLeftBorder() + rightSpeed)/32, (interactiveObject->getPosition()->getUpBorder() + downSpeed)/32));
-        tile = std::max(tile, map->getTileObject((interactiveObject->getPosition()->getLeftBorder() + rightSpeed)/32, (interactiveObject->getPosition()->getDownBorder() + downSpeed)/32));
-        tile = std::max(tile, map->getTileObject((interactiveObject->getPosition()->getRightBorder() + rightSpeed)/32, (interactiveObject->getPosition()->getUpBorder() + downSpeed)/32));
-        tile = std::max(tile, map->getTileObject((interactiveObject->getPosition()->getRightBorder() + rightSpeed)/32, (interactiveObject->getPosition()->getDownBorder() + downSpeed)/32));
+        tile = std::max(tile, map->getTileObject((playerObject->getPosition()->getLeftBorder() + rightSpeed)/32, (playerObject->getPosition()->getUpBorder() + downSpeed)/32));
+        tile = std::max(tile, map->getTileObject((playerObject->getPosition()->getLeftBorder() + rightSpeed)/32, (playerObject->getPosition()->getDownBorder() + downSpeed)/32));
+        tile = std::max(tile, map->getTileObject((playerObject->getPosition()->getRightBorder() + rightSpeed)/32, (playerObject->getPosition()->getUpBorder() + downSpeed)/32));
+        tile = std::max(tile, map->getTileObject((playerObject->getPosition()->getRightBorder() + rightSpeed)/32, (playerObject->getPosition()->getDownBorder() + downSpeed)/32));
 
         // mario fall down from ground
         if (tile == Map::TileTypes::OUT_OF_MAP) {
@@ -60,37 +59,41 @@ public:
         int collisionSide = 0;//1 down, 2 up, 3 left 4 right
         for (unsigned int i = 0; i < objects.size(); ++i) {
             // that 4 if finds if that objects collide
-            if(interactiveObject->getPosition()->getUpBorder() + downSpeed> objects[i]->getPosition()->getDownBorder()) {
+            if(playerObject->getPosition()->getUpBorder() + downSpeed> objects[i]->getPosition()->getDownBorder()) {
                 continue;
             }
 
-            if(interactiveObject->getPosition()->getDownBorder() + downSpeed< objects[i]->getPosition()->getUpBorder()) {
+            if(playerObject->getPosition()->getDownBorder() + downSpeed< objects[i]->getPosition()->getUpBorder()) {
                 continue;
             }
 
-            if(interactiveObject->getPosition()->getRightBorder() + rightSpeed < objects[i]->getPosition()->getLeftBorder()) {
+            if(playerObject->getPosition()->getRightBorder() + rightSpeed < objects[i]->getPosition()->getLeftBorder()) {
                 continue;
             }
 
-            if(interactiveObject->getPosition()->getLeftBorder() + rightSpeed > objects[i]->getPosition()->getRightBorder()) {
+            if(playerObject->getPosition()->getLeftBorder() + rightSpeed > objects[i]->getPosition()->getRightBorder()) {
                 continue;
             }
             if(tile < objects[i]->getTileType()) {
-                tile = objects[i]->getTileType();
+
                 collidingObject = objects[i];
                 //now we know there is a collition, check what is the direction of collision
-                if(interactiveObject->getPosition()->getUpBorder() > objects[i]->getPosition()->getDownBorder()) {
+                if(playerObject->getPosition()->getUpBorder() > objects[i]->getPosition()->getDownBorder()) {
+                    tile = objects[i]->getTileType();
                     collisionSide = 1;
                 }
-                if(interactiveObject->getPosition()->getDownBorder() < objects[i]->getPosition()->getUpBorder()) {
+                if(playerObject->getPosition()->getDownBorder() < objects[i]->getPosition()->getUpBorder()) {
+                    tile = objects[i]->getTileType();
                     collisionSide = 2;
                 }
 
-                if(interactiveObject->getPosition()->getRightBorder() < objects[i]->getPosition()->getLeftBorder()) {
+                if(playerObject->getPosition()->getRightBorder() < objects[i]->getPosition()->getLeftBorder()) {
+                    tile = objects[i]->getTileType();
                     collisionSide = 3;
                 }
 
-                if(interactiveObject->getPosition()->getLeftBorder() > objects[i]->getPosition()->getRightBorder()) {
+                if(playerObject->getPosition()->getLeftBorder() > objects[i]->getPosition()->getRightBorder()) {
+                    tile = objects[i]->getTileType();
                     collisionSide = 4;
                 }
             }
