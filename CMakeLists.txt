@@ -5,7 +5,7 @@ set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
 set(CMAKE_CXX_STANDARD 11)
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall")
-set(SOURCE_FILES src/main.cpp src/Objects/Mario.cpp src/Objects/Mario.h src/Utils.h src/Map.cpp src/Map.h src/Constants.h src/AABB.cpp src/AABB.h src/Objects/Brick.h src/World.cpp src/World.h src/Objects/InteractiveObject.h)
+set(SOURCE_FILES src/main.cpp src/Objects/Mario.cpp src/Objects/Mario.h src/Utils.h src/Map.cpp src/Map.h src/Constants.h src/AABB.cpp src/AABB.h src/Objects/Brick.h src/Objects/BrickCoin.h src/World.cpp src/World.h src/Objects/InteractiveObject.h)
 add_executable(mario ${SOURCE_FILES})
 
 

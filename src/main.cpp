@@ -14,6 +14,7 @@
 #include "Map.h"
 #include "World.h"
 #include "Objects/Brick.h"
+#include "Objects/BrickCoin.h"
 
 
 class InputStates {
@@ -220,6 +221,16 @@ int main(int argc, char *argv[]) {//these parameters has to be here or SDL_main 
         brickPos = map->getAndRemoveObject(Map::BRICK);
 
     }
+
+    BrickCoin* brickCoin;
+    SDL_Rect brickCoinPos = map->getAndRemoveObject(Map::BRICK_COIN);
+    while (brickCoinPos.x != -1 && brickCoinPos.y != -1) {
+        brickCoin = new BrickCoin(ren, brickCoinPos.x, brickCoinPos.y);
+        world->addObject(brickCoin);
+        brickCoinPos = map->getAndRemoveObject(Map::BRICK_COIN);
+
+    }
+
 
     while (!input.quit) {
         if (input.stop) {

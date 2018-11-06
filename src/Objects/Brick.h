@@ -73,7 +73,6 @@ public:
                 animTime=500;//stop animation after 500
             }
             float upSpeed = sin(M_PI * (animTime)/500.0f);
-            std::cerr << "upspeed " << upSpeed << std::endl;
             screenPos.y = screenPos.y - upSpeed*32;
 
             screenPos.x =screenPos.x - animTime / 15;
