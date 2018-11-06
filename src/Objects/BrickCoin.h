@@ -43,7 +43,7 @@ public:
     }
 
     ~BrickCoin() {
-        for (int i = 0; i < texture.size(); i++) {
+        for (size_t i = 0; i < texture.size(); i++) {
             SDL_DestroyTexture(texture[i]);
         }
 
