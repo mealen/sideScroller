@@ -95,7 +95,7 @@ public:
         }
     }
 
-    int interactWithSide(int interactionSide, long time) {
+    int interactWithSide(int interactionSide, long time, InteractiveObject *playerObject) {
         if(breakTime != 0) {
             return 0;//if already interacted, don't allow again
         }

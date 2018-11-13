@@ -17,7 +17,7 @@ public:
     virtual Map::TileTypes getTileType() const = 0;
     virtual void render(SDL_Renderer* renderer, int x, int y, long time) = 0;
 
-    virtual int interactWithSide(int interactionSide, long time) = 0;
+    virtual int interactWithSide(int interactionSide, long time, InteractiveObject *playerObject) = 0;
     virtual void step(long time) = 0;
     virtual bool waitingForDestroy() = 0;
 

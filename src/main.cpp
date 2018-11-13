@@ -1,17 +1,11 @@
 #include <iostream>
-#include <fstream>
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_mixer.h>
 #include <SDL2/SDL_ttf.h>
 #include <vector>
-#include <map>
 #include <memory>
-#include <bits/shared_ptr.h>
 
-#include "Constants.h"
-#include "Utils.h"
 #include "Objects/Mario.h"
-#include "Map.h"
 #include "World.h"
 #include "Objects/Brick.h"
 #include "Objects/BrickCoin.h"
@@ -119,7 +113,7 @@ int init(std::shared_ptr<Mario> &mario, std::shared_ptr<Map> &map0101, std::shar
         return -1;
     }
 
-    world = std::shared_ptr<World>(new World(map0101.get()));
+    world = std::shared_ptr<World>(new World(map0101.get(), ren, mario.get()));
 
     return 0;
 }
@@ -179,6 +173,11 @@ int main(int argc, char *argv[]) {//these parameters has to be here or SDL_main 
     std::shared_ptr<Map> map;
     std::shared_ptr<World> world;
 
+    if (TTF_Init() < 0) {
+        std::cerr << "Font Init problem" << std::endl;
+        return 1;
+    }
+
     if (init(mario, map, world, ren) == -1) {
         SDL_DestroyRenderer(ren);
         SDL_DestroyWindow(win);
@@ -187,10 +186,7 @@ int main(int argc, char *argv[]) {//these parameters has to be here or SDL_main 
         return 1;
     }
 
-    if (TTF_Init() < 0) {
-        std::cerr << "Font Init problem" << std::endl;
-        return 1;
-    }
+
 
     TTF_Font* font = TTF_OpenFont("res/fonts/emulogic.ttf", 16);
     SDL_Color textColor;

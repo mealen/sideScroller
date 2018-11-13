@@ -12,6 +12,7 @@
 #include "../AABB.h"
 #include "../Utils.h"
 #include "InteractiveObject.h"
+#include "Mario.h"
 
 class BrickCoin : public InteractiveObject {
     std::vector<SDL_Texture *> texture;
@@ -87,7 +88,7 @@ public:
             float upSpeed = sin(M_PI * (animTime) / 200.0f);
             screenPos.y = screenPos.y - upSpeed * 8;
 
-            //screenPos.x = screenPos.x - animTime / 15;
+            //coinImgPos.x = coinImgPos.x - animTime / 15;
             SDL_RenderCopyEx(renderer, getTexture(time), 0, &screenPos, 0, 0, SDL_FLIP_NONE);
 
         } else {
@@ -95,7 +96,7 @@ public:
         }
     }
 
-    int interactWithSide(int interactionSide, long time) {
+    int interactWithSide(int interactionSide, long time, InteractiveObject *playerObject) {
         if(hitTime != 0) {
             return 0;//if already interacted, don't allow again
         }
@@ -104,7 +105,19 @@ public:
             //isDestroyed = true;
             Mix_PlayChannel(-1, breakSound, 0);
             hitTime = time;
+
+            if (!isUsed) {
+                Mario *mario = dynamic_cast<Mario *>(playerObject);
+                if (mario != nullptr) {
+                    mario->increaseCoin();
+                } else {
+                    std::cerr << "Unexpected behavior. Player is not Mario. Who the f**K are you;" << std::endl;
+                }
+
+            }
         }
+
+
         return 0;//no interaction yet
     };
 

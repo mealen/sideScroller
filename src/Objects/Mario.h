@@ -30,6 +30,8 @@ private:
     std::map<TextureNames, std::vector<SDL_Texture *>> textures;
     TextureNames currentState = STAND;
     int screenWidth;
+    int score = 0;
+    int coins = 0;
     AABB* collitionBox;
 
 public:
@@ -91,7 +93,7 @@ public:
         return Map::PLAYER;
     }
 
-    int interactWithSide(int interactionSide, long time) {
+    int interactWithSide(int interactionSide, long time, InteractiveObject *playerObject) {
         return 0;//no interaction yet
     };
     bool waitingForDestroy() {
@@ -103,6 +105,24 @@ public:
     };
 
     void step(long time) {};
+
+    int getScore() const {
+        return score;
+    }
+
+    int getCoins() const {
+        return coins;
+    }
+
+    int increaseScore(int amount = 1) {
+        score += amount;
+        return score;
+    }
+
+    int increaseCoin(int amount = 1) {
+        coins += amount;
+        return coins;
+    }
 
 
 };

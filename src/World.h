@@ -7,15 +7,42 @@
 
 
 #include "Objects/InteractiveObject.h"
+#include "Objects/Mario.h"
 #include <memory>
+#include <SDL_ttf.h>
 
 class World {
     std::vector<InteractiveObject*> objects;
     Map* map;
+    SDL_Texture *coinsTextTexture = nullptr;
+    SDL_Texture *scoreTextTexture = nullptr;
+    TTF_Font *font = nullptr;
+    SDL_Color textColor;
+    SDL_Renderer *ren = nullptr;
+    Mario *mario = nullptr;
+    SDL_Rect coinsRect;
+    SDL_Rect coinImgPos;
+    SDL_Texture *coinTexture = nullptr;
+
 
 public:
     void addObject(InteractiveObject* object) {
         objects.push_back(object);
+    }
+
+    void updateCoins() {
+        SDL_DestroyTexture(coinsTextTexture);
+        delete coinsTextTexture;
+        SDL_Surface *coinsTextSurface = TTF_RenderText_Solid(font, ("*" + std::to_string(mario->getCoins())).c_str(),
+                                                             textColor);
+        coinsTextTexture = SDL_CreateTextureFromSurface(ren, coinsTextSurface);
+        SDL_FreeSurface(coinsTextSurface);
+        delete coinsTextSurface;
+    }
+
+    void renderCoins() {
+        SDL_RenderCopy(ren, coinTexture, nullptr, &coinImgPos);
+        SDL_RenderCopy(ren, coinsTextTexture, NULL, &coinsRect);
     }
 
     /**
@@ -29,6 +56,8 @@ public:
         for (unsigned int i = 0; i < objects.size(); ++i) {
             objects[i]->render(ren,x,y,time);
         }
+        updateCoins();
+        renderCoins();
     }
 
     /**
@@ -99,7 +128,7 @@ public:
             }
         }
         if(collidingObject != NULL) {
-            collidingObject->interactWithSide(collisionSide, time);
+            collidingObject->interactWithSide(collisionSide, time, mario);
         }
         return tile;
     }
@@ -161,8 +190,26 @@ public:
         }
     }
 
-    World(Map* map) {
-        this->map = map;
+    World(Map *map, SDL_Renderer *ren, Mario *mario) : map(map), ren(ren), mario(mario) {
+        font = TTF_OpenFont("res/fonts/emulogic.ttf", 8);
+        textColor.r = 255;
+        textColor.g = 255;
+        textColor.b = 255;
+        textColor.a = 1;
+
+        coinsRect.x = 300;
+        coinsRect.y = 10;
+        coinsRect.w = 35;
+        coinsRect.h = 15;
+
+        coinImgPos.x = 290;
+        coinImgPos.y = 10;
+        coinImgPos.w = 10;
+        coinImgPos.h = 16;
+
+        coinTexture = Utils::loadTexture(ren, Utils::getResourcePath() + "coin_text_icon.bmp");
+        updateCoins();
+
     }
 
 };
