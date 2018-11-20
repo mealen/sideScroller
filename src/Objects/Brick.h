@@ -95,7 +95,7 @@ public:
         }
     }
 
-    int interactWithSide(int interactionSide, long time, InteractiveObject *playerObject) {
+    int interactWithSide(std::shared_ptr<Context> context, int interactionSide, long time) {
         if(breakTime != 0) {
             return 0;//if already interacted, don't allow again
         }

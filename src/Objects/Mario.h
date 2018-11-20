@@ -93,7 +93,7 @@ public:
         return Map::PLAYER;
     }
 
-    int interactWithSide(int interactionSide, long time, InteractiveObject *playerObject) {
+    int interactWithSide(std::shared_ptr<Context> context, int interactionSide, long time) {
         return 0;//no interaction yet
     };
     bool waitingForDestroy() {

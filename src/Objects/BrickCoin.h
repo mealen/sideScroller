@@ -13,6 +13,7 @@
 #include "../Utils.h"
 #include "InteractiveObject.h"
 #include "Mario.h"
+#include "HiddenCoin.h"
 
 class BrickCoin : public InteractiveObject {
     std::vector<SDL_Texture *> texture;
@@ -96,30 +97,7 @@ public:
         }
     }
 
-    int interactWithSide(int interactionSide, long time, InteractiveObject *playerObject) {
-        if(hitTime != 0) {
-            return 0;//if already interacted, don't allow again
-        }
-        std::cout << "interaction from side " << interactionSide << std::endl;
-        if(interactionSide == 1) {
-            //isDestroyed = true;
-            Mix_PlayChannel(-1, breakSound, 0);
-            hitTime = time;
-
-            if (!isUsed) {
-                Mario *mario = dynamic_cast<Mario *>(playerObject);
-                if (mario != nullptr) {
-                    mario->increaseCoin();
-                } else {
-                    std::cerr << "Unexpected behavior. Player is not Mario. Who the f**K are you;" << std::endl;
-                }
-
-            }
-        }
-
-
-        return 0;//no interaction yet
-    };
+    int interactWithSide(std::shared_ptr<Context> context, int interactionSide, long time);
 
     bool waitingForDestroy() {
         return false; //there is no case we are expecting removal

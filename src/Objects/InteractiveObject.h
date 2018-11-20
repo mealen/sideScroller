@@ -9,6 +9,8 @@
 #include <SDL_render.h>
 #include "../AABB.h"
 #include "../Map.h"
+#include <memory>
+class Context;
 
 class InteractiveObject {
 public:
@@ -17,7 +19,7 @@ public:
     virtual Map::TileTypes getTileType() const = 0;
     virtual void render(SDL_Renderer* renderer, int x, int y, long time) = 0;
 
-    virtual int interactWithSide(int interactionSide, long time, InteractiveObject *playerObject) = 0;
+    virtual int interactWithSide(std::shared_ptr<Context> context, int interactionSide, long time) = 0;
     virtual void step(long time) = 0;
     virtual bool waitingForDestroy() = 0;
 

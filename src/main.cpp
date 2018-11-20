@@ -9,6 +9,7 @@
 #include "World.h"
 #include "Objects/Brick.h"
 #include "Objects/BrickCoin.h"
+#include "Context.h"
 
 
 class InputStates {
@@ -83,7 +84,7 @@ void readInput(InputStates &input) {
     }
 }
 
-int init(std::shared_ptr<Mario> &mario, std::shared_ptr<Map> &map0101, std::shared_ptr<World> &world, SDL_Renderer *ren) {
+int init(std::shared_ptr<Context> &context, std::shared_ptr<Map> &map0101, SDL_Renderer *ren) {
 
 
     int error;
@@ -106,14 +107,16 @@ int init(std::shared_ptr<Mario> &mario, std::shared_ptr<Map> &map0101, std::shar
         return 1;
     }
 
-    mario = std::shared_ptr<Mario>(new Mario(map0101->getAndRemoveObject(Map::PLAYER), ren, SCREEN_WIDTH,
-                error));
+    const std::shared_ptr<Mario> &mario = std::shared_ptr<Mario>(new Mario(map0101->getAndRemoveObject(Map::PLAYER), ren, SCREEN_WIDTH,
+                                                                           error));
     if (error != 0) {
         std::cerr << "Error initializing Mario, Exiting" << std::endl;
         return -1;
     }
 
-    world = std::shared_ptr<World>(new World(map0101.get(), ren, mario.get()));
+    const std::shared_ptr<World> &world = std::shared_ptr<World>(new World(map0101.get(), ren, mario.get()));
+
+    context = std::shared_ptr<Context>(new Context(world, mario));
 
     return 0;
 }
@@ -169,16 +172,15 @@ int main(int argc, char *argv[]) {//these parameters has to be here or SDL_main 
     sourceRect.w = SCREEN_WIDTH;
     InputStates input;
     input.quit = false;
-    std::shared_ptr<Mario> mario;
     std::shared_ptr<Map> map;
-    std::shared_ptr<World> world;
+    std::shared_ptr<Context> context;
 
     if (TTF_Init() < 0) {
         std::cerr << "Font Init problem" << std::endl;
         return 1;
     }
 
-    if (init(mario, map, world, ren) == -1) {
+    if (init(context, map, ren) == -1) {
         SDL_DestroyRenderer(ren);
         SDL_DestroyWindow(win);
         std::cerr << "Init problem" << std::endl;
@@ -202,7 +204,7 @@ int main(int argc, char *argv[]) {//these parameters has to be here or SDL_main 
     SDL_RendererFlip leftRightFlip = SDL_FLIP_NONE;
     long time;
     long previousTime = 0;
-    const AABB* marioPos = mario->getPosition();
+    const AABB* marioPos = context.get()->getPlayer()->getPosition();
     SDL_Rect marioGrapPos;
     marioGrapPos.w = TILE_SIZE;
     marioGrapPos.h = TILE_SIZE;
@@ -213,16 +215,15 @@ int main(int argc, char *argv[]) {//these parameters has to be here or SDL_main 
     SDL_Rect brickPos = map->getAndRemoveObject(Map::BRICK);
     while (brickPos.x != -1 && brickPos.y != -1) {
         brick = new Brick(ren, brickPos.x, brickPos.y);
-        world->addObject(brick);
+        context.get()->getWorld()->addObject(brick);
         brickPos = map->getAndRemoveObject(Map::BRICK);
-
     }
 
     BrickCoin* brickCoin;
     SDL_Rect brickCoinPos = map->getAndRemoveObject(Map::BRICK_COIN);
     while (brickCoinPos.x != -1 && brickCoinPos.y != -1) {
         brickCoin = new BrickCoin(ren, brickCoinPos.x, brickCoinPos.y);
-        world->addObject(brickCoin);
+        context.get()->getWorld()->addObject(brickCoin);
         brickCoinPos = map->getAndRemoveObject(Map::BRICK_COIN);
 
     }
@@ -242,7 +243,7 @@ int main(int argc, char *argv[]) {//these parameters has to be here or SDL_main 
             SDL_RenderClear(ren);
             //Take a quick break after all that hard work
             //SDL_Delay(50);
-            if (mario->hasDied()) {
+            if (context.get()->getPlayer()->hasDied()) {
                 SDL_Rect textRect;
                 textRect.x = 0;
                 textRect.y = 0;
@@ -250,18 +251,18 @@ int main(int argc, char *argv[]) {//these parameters has to be here or SDL_main 
                 textRect.h = 200;
                 while (!input.jump) {
                     SDL_RenderCopy(ren, tex, &sourceRect, NULL);
-                    SDL_RenderCopyEx(ren, mario->getTexture(time), 0, &marioGrapPos, 0, 0, leftRightFlip);
-                    world->render(ren, sourceRect.x, sourceRect.y, time);
+                    SDL_RenderCopyEx(ren, context.get()->getPlayer()->getTexture(time), 0, &marioGrapPos, 0, 0, leftRightFlip);
+                    context.get()->getWorld()->render(ren, sourceRect.x, sourceRect.y, time);
                     SDL_RenderCopy(ren, deadTextTexture, NULL, &textRect);
                     SDL_RenderPresent(ren);
                     readInput(input);
                 }
                 input.jump = false;
                 input.jumpEvent = false;
-                init(mario, map, world, ren);
+                init(context, map, ren);
             }
-            mario->move(input.goLeft, input.goRight, input.jumpEvent, false);
-            marioPos = mario->getPosition();
+            context.get()->getPlayer()->move(input.goLeft, input.goRight, input.jumpEvent, false);
+            marioPos = context.get()->getPlayer()->getPosition();
             if (input.goRight) {
                 leftRightFlip = SDL_FLIP_NONE;
             } else if (input.goLeft) {
@@ -294,7 +295,7 @@ int main(int argc, char *argv[]) {//these parameters has to be here or SDL_main 
             }
 
             previousTime = time;
-            world->stepSimulation(mario.get(), time);
+            context.get()->getWorld()->stepSimulation(context.get()->getPlayer(), time, context);
         }
 
         //Draw the texture
@@ -303,9 +304,9 @@ int main(int argc, char *argv[]) {//these parameters has to be here or SDL_main 
 
         //draw the mario
         //std::cout << "drawing mario at " << marioGrapPos.x << ", " << marioGrapPos.y << std::endl;
-        SDL_RenderCopyEx(ren, mario->getTexture(time), 0, &marioGrapPos, 0, 0, leftRightFlip);
+        SDL_RenderCopyEx(ren, context.get()->getPlayer()->getTexture(time), 0, &marioGrapPos, 0, 0, leftRightFlip);
 
-        world->render(ren, sourceRect.x, sourceRect.y, time);
+        context.get()->getWorld()->render(ren, sourceRect.x, sourceRect.y, time);
 
         //Update the screen
         SDL_RenderPresent(ren);
