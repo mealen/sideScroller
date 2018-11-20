@@ -13,6 +13,8 @@ class HiddenCoin: public InteractiveObject {
     AABB* collisionBox;
     long firstRenderTime = 0;
     bool isDestroyed = false;
+    const long TOTAL_ANIM_TIME = 600l;
+    const float SHRINK_FACTOR = 0.75f;
 
 public:
     HiddenCoin(SDL_Renderer *ren, int x, int y);

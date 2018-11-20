@@ -10,7 +10,7 @@ AABB *HiddenCoin::getPosition() const {
 }
 
 SDL_Texture *HiddenCoin::getTexture(long time) const {
-    return this->texture[(time / 248) % 4];
+    return this->texture[(time / (TOTAL_ANIM_TIME / 8)) % 4];
 }
 
 Map::TileTypes HiddenCoin::getTileType() const {
@@ -19,10 +19,12 @@ Map::TileTypes HiddenCoin::getTileType() const {
 
 void HiddenCoin::render(SDL_Renderer *renderer, int x, int y, long time) {
     SDL_Rect screenPos;
-    screenPos.x = collisionBox->getLeftBorder() - x;
-    screenPos.y = collisionBox->getUpBorder() - y;
-    screenPos.w = TILE_SIZE-5;
-    screenPos.h = TILE_SIZE-5;
+    // calculate offset and add to x and y positions
+    screenPos.x = collisionBox->getLeftBorder() - x + (((1 - SHRINK_FACTOR) * TILE_SIZE) / 2);
+    screenPos.y = collisionBox->getUpBorder() - y + (((1 - SHRINK_FACTOR) * TILE_SIZE) / 2);
+    // calculate width/height with shrink factor
+    screenPos.w = TILE_SIZE * SHRINK_FACTOR;
+    screenPos.h = TILE_SIZE * SHRINK_FACTOR;
 
     if(firstRenderTime == 0 ) {
         firstRenderTime = time;
@@ -30,13 +32,13 @@ void HiddenCoin::render(SDL_Renderer *renderer, int x, int y, long time) {
 
     long animTime = time - firstRenderTime;
 
-    if(animTime >= 1000) {
+    if(animTime >= TOTAL_ANIM_TIME) {
         isDestroyed = true;
     }
-    float offset = sin(M_PI * (animTime) / 1000.0f);
+    float offset = sin(M_PI * (animTime) / TOTAL_ANIM_TIME);
     screenPos.y = screenPos.y - offset * 3 * TILE_SIZE;
 
-    SDL_RenderCopyEx(renderer, getTexture(time), 0, &screenPos, 0, 0, SDL_FLIP_NONE);
+    SDL_RenderCopyEx(renderer, getTexture(animTime), 0, &screenPos, 0, 0, SDL_FLIP_NONE);
 
 }
 
