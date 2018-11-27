@@ -19,8 +19,7 @@ class BrickCoin : public InteractiveObject {
     std::vector<SDL_Texture *> texture;
     AABB* collisionBox;
     long hitTime = 0;
-    Mix_Chunk *breakSound = NULL;
-    Mix_Chunk *hitSound = NULL;
+    std::vector<Mix_Chunk *>breakSound;
     bool isUsed = false;
 
 public:
@@ -40,8 +39,8 @@ public:
         std::string brickImage = Utils::getResourcePath("brick_coin") + "brick_coin_used.bmp";
         texture.push_back(Utils::loadTexture(ren, brickImage));
 
-        breakSound = Mix_LoadWAV("./res/sounds/blockbreak.wav");
-        hitSound = Mix_LoadWAV("./res/sounds/blockhit.wav");
+        breakSound.push_back(Mix_LoadWAV("./res/sounds/coin.wav"));
+        breakSound.push_back(Mix_LoadWAV("./res/sounds/blockhit.wav"));
     }
 
     ~BrickCoin() {

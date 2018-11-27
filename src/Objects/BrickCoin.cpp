@@ -12,7 +12,10 @@ int BrickCoin::interactWithSide(std::shared_ptr<Context> context, int interactio
     std::cout << "interaction from side " << interactionSide << std::endl;
     if(interactionSide == 1) {
         //isDestroyed = true;
-        Mix_PlayChannel(-1, breakSound, 0);
+        for (uint32_t i = 0; i < breakSound.size(); ++i) {
+            Mix_PlayChannel(-1, breakSound[i], 0);
+        }
+
         hitTime = time;
 
         if (!isUsed) {
