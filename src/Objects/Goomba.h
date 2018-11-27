@@ -74,7 +74,7 @@ public:
         SDL_Rect screenPos;
         screenPos.x = collisionBox->getLeftBorder() - x;
         screenPos.y = collisionBox->getUpBorder() - y;
-ddddddd        screenPos.w = TILE_SIZE;
+        screenPos.w = TILE_SIZE;
         screenPos.h = TILE_SIZE;
 
         SDL_RenderCopyEx(renderer, getTexture(time), 0, &screenPos, 0, 0, SDL_FLIP_NONE);
