@@ -317,7 +317,7 @@ int main(int argc, char *argv[]) {//these parameters has to be here or SDL_main 
         context.get()->getWorld()->render(ren, sourceRect.x, sourceRect.y, time);
 
         //Update the screen
-ddddddddd        SDL_RenderPresent(ren);
+        SDL_RenderPresent(ren);
 
 
     }
