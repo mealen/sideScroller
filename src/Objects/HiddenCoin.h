@@ -27,7 +27,8 @@ public:
 
     void render(SDL_Renderer *renderer, int x, int y, long time) override;
 
-    int interactWithSide(std::shared_ptr<Context> context, int interactionSide, long time) override;
+    Map::TileTypes interactWithSide(std::shared_ptr<Context> context, std::shared_ptr<InteractiveObject> otherObject,
+                                    int interactionSide, long time) override;
 
     void step(long time) override;
 

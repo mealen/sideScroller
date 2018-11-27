@@ -12,13 +12,13 @@
 #include <SDL_ttf.h>
 
 class World {
-    std::vector<InteractiveObject*> objects;
+    std::vector<std::shared_ptr<InteractiveObject>> objects;
     Map* map;
     SDL_Texture *coinsTextTexture = nullptr;
     TTF_Font *font = nullptr;
     SDL_Color textColor;
     SDL_Renderer *ren = nullptr;
-    Mario *mario = nullptr;
+    std::shared_ptr<Mario> mario = nullptr;
     SDL_Rect coinsRect;
     SDL_Rect coinImgPos;
     SDL_Texture *coinTexture = nullptr;
@@ -29,7 +29,7 @@ public:
     }
 
 public:
-    void addObject(InteractiveObject* object) {
+    void addObject(std::shared_ptr<InteractiveObject> object) {
         objects.push_back(object);
     }
 
@@ -71,14 +71,37 @@ public:
      * @param downSpeed 1 for up, -1 for down, 0 for stopped
      * @return true if collides
      */
-    Map::TileTypes collide(int rightSpeed, int downSpeed, long time, std::shared_ptr<Context> context);
+    Map::TileTypes collide(int rightSpeed, int downSpeed, long time, std::shared_ptr<Context> context,
+                           std::shared_ptr<InteractiveObject> interactiveObject);
 
-    void stepSimulation(InteractiveObject *interactiveObject, long time, std::shared_ptr<Context> context) {
-        AABB* aabb = interactiveObject->getPosition();
+    void stepSimulation(long time, std::shared_ptr<Context> context) {
+        for (size_t i = 0; i < this->objects.size(); ++i) {
+            this->objects[i]->step(time);
+        }
+        stepSingleObject(time, context, this->mario);
+        for (size_t i = 0; i < this->objects.size(); ++i) {
+            std::shared_ptr<InteractiveObject> interactiveObject = this->objects[i];
+            stepSingleObject(time, context, interactiveObject);
+        }
+
+        for(unsigned int i = 0; i < objects.size(); i++) {
+            if(objects[i]->waitingForDestroy()) {
+                objects.erase(objects.begin() + i);
+            }
+        }
+    }
+
+    void stepSingleObject(long time, const std::shared_ptr<Context> &context,
+                          const std::shared_ptr<InteractiveObject> interactiveObject) {
+        AABB *aabb = interactiveObject->getPosition();
+
+        if(aabb->getPhysicsState() == AABB::PhysicsState::STATIC) {
+            return;
+        }
 
         int horizontalSpeed = aabb->getHorizontalSpeed();
 
-        Map::TileTypes tile = collide(horizontalSpeed, 0, time, context);
+        Map::TileTypes tile = collide(horizontalSpeed, 0, time, context, interactiveObject);
 
         if (tile == Map::EMPTY) {
             aabb->setLeftBorder(aabb->getLeftBorder() + horizontalSpeed);
@@ -89,7 +112,7 @@ public:
 
         if (aabb->isHasJumpTriggered()) {
             aabb->setHasJumpTriggered(false);
-            tile = collide(0, 1, time, context);
+            tile = collide(0, 1, time, context, interactiveObject);
 
             if (tile != Map::EMPTY) {
                 aabb->setUpwardSpeed(aabb->getUpwardRequest());
@@ -97,7 +120,7 @@ public:
             aabb->setUpwardRequest(0);
         }
         int upwardSpeed = aabb->getUpwardSpeed();
-        tile = collide(0, -1 * upwardSpeed, time, context);
+        tile = collide(0, -1 * upwardSpeed, time, context, interactiveObject);
         //check if moving with upward speed is possible
         if (tile == Map::OUT_OF_MAP) {
             if (aabb->getUpwardSpeed() < 0) {
@@ -106,14 +129,14 @@ public:
                 std::cout << "Mario dies\n";
             }
         }
-        if(tile != Map::EMPTY) {//if not possible, match the tile, and then stop
+        if (tile != Map::EMPTY) {//if not possible, match the tile, and then stop
             aabb->setUpBorder(aabb->getUpBorder() - upwardSpeed);
-            if(aabb->getUpwardSpeed() > 0) {
+            if (aabb->getUpwardSpeed() > 0) {
                 aabb->setUpBorder(((aabb->getUpBorder() + TILE_SIZE) / TILE_SIZE) * TILE_SIZE);
             } else {
                 aabb->setUpBorder((aabb->getUpBorder() / TILE_SIZE) * TILE_SIZE);
             }
-            aabb->setDownBorder(aabb->getUpBorder() + TILE_SIZE -1);
+            aabb->setDownBorder(aabb->getUpBorder() + TILE_SIZE - 1);
             aabb->setUpwardSpeed(0);
             aabb->setHasJumped(false);
         } else { //if possible update
@@ -121,16 +144,9 @@ public:
             aabb->setDownBorder(aabb->getDownBorder() - aabb->getUpwardSpeed());
             aabb->setUpwardSpeed(aabb->getUpwardSpeed() - 1);
         }
-
-        for(unsigned int i = 0; i < objects.size(); i++) {
-            if(objects[i]->waitingForDestroy()) {
-                delete objects[i];
-                objects.erase(objects.begin() + i);
-            }
-        }
     }
 
-    World(Map *map, SDL_Renderer *ren, Mario *mario) : map(map), ren(ren), mario(mario) {
+    World(Map *map, SDL_Renderer *ren, std::shared_ptr<Mario> mario) : map(map), ren(ren), mario(mario) {
         font = TTF_OpenFont("res/fonts/emulogic.ttf", 8);
         textColor.r = 255;
         textColor.g = 255;

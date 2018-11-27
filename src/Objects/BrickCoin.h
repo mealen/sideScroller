@@ -96,7 +96,8 @@ public:
         }
     }
 
-    int interactWithSide(std::shared_ptr<Context> context, int interactionSide, long time);
+    Map::TileTypes interactWithSide(std::shared_ptr<Context> context, std::shared_ptr<InteractiveObject> otherObject,
+                                    int interactionSide, long time);
 
     bool waitingForDestroy() {
         return false; //there is no case we are expecting removal

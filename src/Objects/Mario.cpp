@@ -4,6 +4,8 @@
 
 #include "Mario.h"
 
+const int Mario::MOVE_SPEED = 4;
+const int Mario::JUMP_SPEED = 16;
 
 Mario::Mario(SDL_Rect mapPosition, SDL_Renderer *ren, int screenWidth, int &error)
         : screenWidth(screenWidth)
@@ -14,7 +16,7 @@ Mario::Mario(SDL_Rect mapPosition, SDL_Renderer *ren, int screenWidth, int &erro
                 mapPosition.y * TILE_SIZE,
                 mapPosition.y * TILE_SIZE + TILE_SIZE -1); //-1 because 32 is not part of box. pixels 0 - TILE_SIZE, TILE_SIZE excluded
 
-
+    collitionBox->setPhysicsState(AABB::PhysicsState::DYNAMIC);
     std::string marioImage = Utils::getResourcePath("mario") + "mario.bmp";
     textures[STAND].push_back(Utils::loadTexture(ren, marioImage));
 

@@ -35,8 +35,8 @@ private:
     AABB* collitionBox;
 
 public:
-    const int moveSpeed = 4;
-    const int jumpSpeed = 16;
+    static const int MOVE_SPEED;
+    static const int JUMP_SPEED;
     Mario(SDL_Rect mapPosition, SDL_Renderer *ren, int screenWidth, int &error);
 
     ~Mario() {
@@ -44,6 +44,7 @@ public:
         SDL_DestroyTexture(textures[MOVE][0]);
         SDL_DestroyTexture(textures[MOVE][1]);
         SDL_DestroyTexture(textures[MOVE][2]);
+        SDL_DestroyTexture(textures[JUMP][0]);
         delete collitionBox;
     }
 
@@ -72,17 +73,17 @@ public:
 
     void move(bool left, bool right, bool jump, bool crouch) {
         if(jump) {
-            collitionBox->jump(jumpSpeed);
+            collitionBox->jump(JUMP_SPEED);
         }
         if (left) {
             currentState = MOVE;
             if (collitionBox->getLeftBorder() + (320) > collitionBox->getMaxRight()) {
-                collitionBox->moveLeft(moveSpeed);
+                collitionBox->moveLeft(MOVE_SPEED);
             }
         }
         if (right) {
             currentState = MOVE;
-            collitionBox->moveRight(moveSpeed);
+            collitionBox->moveRight(MOVE_SPEED);
         }
         if(!left && !right) {
             currentState = STAND;
@@ -93,8 +94,9 @@ public:
         return Map::PLAYER;
     }
 
-    int interactWithSide(std::shared_ptr<Context> context, int interactionSide, long time) {
-        return 0;//no interaction yet
+    Map::TileTypes interactWithSide(std::shared_ptr<Context> context, std::shared_ptr<InteractiveObject> otherObject,
+                                    int interactionSide, long time) {
+        return this->getTileType();//no interaction yet
     };
     bool waitingForDestroy() {
         return false; //there is no case we are expecting removal

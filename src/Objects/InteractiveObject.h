@@ -19,7 +19,9 @@ public:
     virtual Map::TileTypes getTileType() const = 0;
     virtual void render(SDL_Renderer* renderer, int x, int y, long time) = 0;
 
-    virtual int interactWithSide(std::shared_ptr<Context> context, int interactionSide, long time) = 0;
+    virtual Map::TileTypes interactWithSide(std::shared_ptr<Context> context,
+                                            std::shared_ptr<InteractiveObject> otherObject, int interactionSide,
+                                            long time) = 0;
     virtual void step(long time) = 0;
     virtual bool waitingForDestroy() = 0;
 

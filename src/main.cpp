@@ -10,6 +10,7 @@
 #include "Objects/Brick.h"
 #include "Objects/BrickCoin.h"
 #include "Context.h"
+#include "Objects/Goomba.h"
 
 
 class InputStates {
@@ -88,7 +89,7 @@ int init(std::shared_ptr<Context> &context, std::shared_ptr<Map> &map0101, SDL_R
 
 
     int error;
-    map0101 = std::make_shared<Map>(Map("0101_logic.txt", error));
+    map0101 = std::make_shared<Map>("0101_logic.txt", error);
     if (error != 0) {
         std::cerr << "Error initializing Map, Exiting" << std::endl;
         return -1;
@@ -107,16 +108,16 @@ int init(std::shared_ptr<Context> &context, std::shared_ptr<Map> &map0101, SDL_R
         return 1;
     }
 
-    const std::shared_ptr<Mario> &mario = std::shared_ptr<Mario>(new Mario(map0101->getAndRemoveObject(Map::PLAYER), ren, SCREEN_WIDTH,
-                                                                           error));
+    std::shared_ptr<Mario> mario = std::make_shared<Mario>(map0101->getAndRemoveObject(Map::PLAYER), ren, SCREEN_WIDTH,
+                                                                           error);
     if (error != 0) {
         std::cerr << "Error initializing Mario, Exiting" << std::endl;
         return -1;
     }
 
-    const std::shared_ptr<World> &world = std::shared_ptr<World>(new World(map0101.get(), ren, mario.get()));
+    std::shared_ptr<World> world = std::make_shared<World>(map0101.get(), ren, mario);
 
-    context = std::shared_ptr<Context>(new Context(world, mario));
+    context = std::make_shared<Context>(world, mario);
 
     return 0;
 }
@@ -211,21 +212,28 @@ int main(int argc, char *argv[]) {//these parameters has to be here or SDL_main 
     marioGrapPos.y = marioPos->getUpBorder();
     marioGrapPos.x = marioPos->getLeftBorder();
 
-    Brick* brick;
+    std::shared_ptr<Brick> brick;
     SDL_Rect brickPos = map->getAndRemoveObject(Map::BRICK);
     while (brickPos.x != -1 && brickPos.y != -1) {
-        brick = new Brick(ren, brickPos.x, brickPos.y);
+        brick = std::make_shared<Brick>(ren, brickPos.x, brickPos.y);
         context.get()->getWorld()->addObject(brick);
         brickPos = map->getAndRemoveObject(Map::BRICK);
     }
 
-    BrickCoin* brickCoin;
+    std::shared_ptr<BrickCoin> brickCoin;
     SDL_Rect brickCoinPos = map->getAndRemoveObject(Map::BRICK_COIN);
     while (brickCoinPos.x != -1 && brickCoinPos.y != -1) {
-        brickCoin = new BrickCoin(ren, brickCoinPos.x, brickCoinPos.y);
+        brickCoin = std::make_shared<BrickCoin>(ren, brickCoinPos.x, brickCoinPos.y);
         context.get()->getWorld()->addObject(brickCoin);
         brickCoinPos = map->getAndRemoveObject(Map::BRICK_COIN);
+    }
 
+    std::shared_ptr<Goomba> goomba;
+    SDL_Rect goombaPos = map->getAndRemoveObject(Map::GOOMBA);
+    while (goombaPos.x != -1 && goombaPos.y != -1) {
+        goomba = std::make_shared<Goomba>(ren, goombaPos.x, goombaPos.y);
+        context.get()->getWorld()->addObject(goomba);
+        goombaPos = map->getAndRemoveObject(Map::GOOMBA);
     }
 
 
@@ -295,7 +303,7 @@ int main(int argc, char *argv[]) {//these parameters has to be here or SDL_main 
             }
 
             previousTime = time;
-            context.get()->getWorld()->stepSimulation(context.get()->getPlayer(), time, context);
+            context.get()->getWorld()->stepSimulation(time, context);//FIXME parameter should be shared ptr or something
         }
 
         //Draw the texture
@@ -309,7 +317,7 @@ int main(int argc, char *argv[]) {//these parameters has to be here or SDL_main 
         context.get()->getWorld()->render(ren, sourceRect.x, sourceRect.y, time);
 
         //Update the screen
-        SDL_RenderPresent(ren);
+ddddddddd        SDL_RenderPresent(ren);
 
 
     }

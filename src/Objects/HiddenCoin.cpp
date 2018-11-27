@@ -42,8 +42,10 @@ void HiddenCoin::render(SDL_Renderer *renderer, int x, int y, long time) {
 
 }
 
-int HiddenCoin::interactWithSide(std::shared_ptr<Context> context, int interactionSide, long time) {
-    return 0;
+Map::TileTypes HiddenCoin::interactWithSide(std::shared_ptr<Context> context,
+                                            std::shared_ptr<InteractiveObject> otherObject, int interactionSide,
+                                            long time) {
+    return this->getTileType();
 }
 
 void HiddenCoin::step(long time) {

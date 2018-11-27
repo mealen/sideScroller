@@ -12,13 +12,14 @@ class Context {
 public:
     Context(std::shared_ptr<World> world, std::shared_ptr<Mario> player);
 
-    World *getWorld() const;
+    std::shared_ptr<World> getWorld() const;
 
-    Mario *getPlayer() const;
+    std::shared_ptr<Mario> getPlayer() const;
 
 private:
     std::shared_ptr<World> world;
     std::shared_ptr<Mario> player;
+
 
 };
 

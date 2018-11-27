@@ -9,8 +9,11 @@
 
 class AABB {
     int x1,y1, x2,y2;
+public:
+    enum PhysicsState { STATIC, KINEMATIC, DYNAMIC };
 
 private:
+    PhysicsState physicsState = STATIC;
     int maxRight = 0;
     bool hasJumped = false;
     bool hasDied = false;
@@ -20,6 +23,14 @@ private:
     int horizontalSpeed = 0;
 
 public:
+
+    PhysicsState getPhysicsState() const {
+        return physicsState;
+    }
+
+    void setPhysicsState(PhysicsState physicsState) {
+        AABB::physicsState = physicsState;
+    }
 
     void moveRight(int amount) {
         //x1 += amount;

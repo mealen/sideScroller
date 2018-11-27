@@ -8,10 +8,10 @@ Context::Context(std::shared_ptr<World> world, std::shared_ptr<Mario> player): w
 
 }
 
-World *Context::getWorld() const {
-    return world.get();
+std::shared_ptr<World> Context::getWorld() const {
+    return world;
 }
 
-Mario *Context::getPlayer() const {
-    return player.get();
+std::shared_ptr<Mario> Context::getPlayer() const {
+    return player;
 }
