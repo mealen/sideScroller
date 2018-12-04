@@ -45,21 +45,21 @@ Map::TileTypes World::collide(int rightSpeed, int downSpeed, long time, std::sha
 
             collidingObject = objects[i];
             //now we know there is a collition, check what is the direction of collision
-            if(interactiveObject->getPosition()->getUpBorder() > objects[i]->getPosition()->getDownBorder()) {
+            if(interactiveObject->getPosition()->getUpBorder() >= objects[i]->getPosition()->getDownBorder()) {
                 tile = objects[i]->getTileType();
                 collisionSide = 1;
             }
-            if(interactiveObject->getPosition()->getDownBorder() < objects[i]->getPosition()->getUpBorder()) {
+            if(interactiveObject->getPosition()->getDownBorder() <= objects[i]->getPosition()->getUpBorder()) {
                 tile = objects[i]->getTileType();
                 collisionSide = 2;
             }
 
-            if(interactiveObject->getPosition()->getRightBorder() < objects[i]->getPosition()->getLeftBorder()) {
+            if(interactiveObject->getPosition()->getRightBorder() <= objects[i]->getPosition()->getLeftBorder()) {
                 tile = objects[i]->getTileType();
                 collisionSide = 3;
             }
 
-            if(interactiveObject->getPosition()->getLeftBorder() > objects[i]->getPosition()->getRightBorder()) {
+            if(interactiveObject->getPosition()->getLeftBorder() >= objects[i]->getPosition()->getRightBorder()) {
                 tile = objects[i]->getTileType();
                 collisionSide = 4;
             }
