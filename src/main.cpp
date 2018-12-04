@@ -250,24 +250,28 @@ int main(int argc, char *argv[]) {//these parameters has to be here or SDL_main 
             SDL_RenderClear(ren);
             //Take a quick break after all that hard work
             //SDL_Delay(50);
-            if (!context.get()->getPlayer()->isDead()) {
+            if (!context->getPlayer()->isDead()) {
                 readInput(input);
-                /*SDL_Rect textRect;
-                textRect.x = 0;
-                textRect.y = 0;
-                textRect.w = 600;
-                textRect.h = 200;
-                while (!input.jump) {
-                    SDL_RenderCopy(ren, tex, &sourceRect, NULL);
-                    SDL_RenderCopyEx(ren, context.get()->getPlayer()->getTexture(time), 0, &marioGrapPos, 0, 0, leftRightFlip);
-                    context.get()->getWorld()->render(ren, sourceRect.x, sourceRect.y, time);
-                    SDL_RenderCopy(ren, deadTextTexture, NULL, &textRect);
-                    SDL_RenderPresent(ren);
-                    readInput(input);
+            } else {
+                if(time - context->getPlayer()->getDeadTime() > 1500) {
+                    SDL_Rect textRect;
+                    textRect.x = 0;
+                    textRect.y = 0;
+                    textRect.w = 600;
+                    textRect.h = 200;
+                    while (!input.jump && !input.quit) {
+                        SDL_RenderCopy(ren, tex, &sourceRect, NULL);
+                        SDL_RenderCopyEx(ren, context.get()->getPlayer()->getTexture(time), 0, &marioGrapPos, 0, 0,
+                                         leftRightFlip);
+                        context.get()->getWorld()->render(ren, sourceRect.x, sourceRect.y, time);
+                        SDL_RenderCopy(ren, deadTextTexture, NULL, &textRect);
+                        SDL_RenderPresent(ren);
+                        readInput(input);
+                    }
+                    input.jump = false;
+                    input.jumpEvent = false;
+                    init(context, map, ren);
                 }
-                input.jump = false;
-                input.jumpEvent = false;
-                init(context, map, ren);*/
             }
             context.get()->getPlayer()->move(input.goLeft, input.goRight, input.jumpEvent, false);
             marioPos = context.get()->getPlayer()->getPosition();

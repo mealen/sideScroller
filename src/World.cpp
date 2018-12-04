@@ -75,3 +75,22 @@ Map::TileTypes World::collide(int rightSpeed, int downSpeed, long time, std::sha
     return tile;
 }
 
+void World::stepSimulation(long time, std::shared_ptr<Context> context) {
+    context->getPlayer()->step(time);
+
+    for (size_t i = 0; i < this->objects.size(); ++i) {
+        this->objects[i]->step(time);
+    }
+    stepSingleObject(time, context, this->mario);
+    for (size_t i = 0; i < this->objects.size(); ++i) {
+        std::shared_ptr<InteractiveObject> interactiveObject = this->objects[i];
+        stepSingleObject(time, context, interactiveObject);
+    }
+
+    for(unsigned int i = 0; i < objects.size(); i++) {
+        if(objects[i]->waitingForDestroy()) {
+            objects.erase(objects.begin() + i);
+        }
+    }
+}
+

@@ -34,7 +34,7 @@ private:
     int coins = 0;
     AABB* collisionBox;
     bool killed = false;
-
+    long lastStepTime = 0;
 public:
     static const int MOVE_SPEED;
     static const int JUMP_SPEED;
@@ -72,6 +72,9 @@ public:
     }
 
     void move(bool left, bool right, bool jump, bool crouch) {
+        if(isDead()) {
+            return;
+        }
         if(jump) {
             collisionBox->jump(JUMP_SPEED);
         }
@@ -109,7 +112,11 @@ public:
         //FIXME this is not used for rendering, but it should have
     };
 
-    void step(long time) {};
+    void step(long time) {
+        if(!isDead()) {
+            lastStepTime = time;
+        }
+    };
 
     int getScore() const {
         return score;
@@ -146,6 +153,10 @@ public:
 
     bool isKilled() const;
 
+    long getDeadTime() const {
+        return lastStepTime;
+
+    }
 
 };
 
