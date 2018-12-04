@@ -103,7 +103,7 @@ public:
 
         Map::TileTypes tile = collide(horizontalSpeed, 0, time, context, interactiveObject);
 
-        if (tile == Map::EMPTY) {
+        if (tile == Map::EMPTY || aabb->getPhysicsState() != AABB::DYNAMIC) {
             aabb->setLeftBorder(aabb->getLeftBorder() + horizontalSpeed);
             aabb->setRightBorder(aabb->getRightBorder() + horizontalSpeed);
         }
@@ -114,7 +114,7 @@ public:
             aabb->setHasJumpTriggered(false);
             tile = collide(0, 1, time, context, interactiveObject);
 
-            if (tile != Map::EMPTY) {
+            if (tile != Map::EMPTY && aabb->getPhysicsState() == AABB::DYNAMIC) {
                 aabb->setUpwardSpeed(aabb->getUpwardRequest());
             }
             aabb->setUpwardRequest(0);
@@ -122,7 +122,7 @@ public:
         int upwardSpeed = aabb->getUpwardSpeed();
         tile = collide(0, -1 * upwardSpeed, time, context, interactiveObject);
         //check if moving with upward speed is possible
-        if (tile == Map::OUT_OF_MAP) {
+        if (tile == Map::OUT_OF_MAP || aabb->getPhysicsState() != AABB::DYNAMIC) {
             if (aabb->getUpwardSpeed() < 0) {
                 // mario dies
                 interactiveObject->die(tile);
