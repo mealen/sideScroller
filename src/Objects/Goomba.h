@@ -23,6 +23,7 @@ class Goomba : public InteractiveObject {
     bool isSquashed = false;
     bool isRemoveWaiting = false;
     bool directionRight = false;
+    bool directionChangeRequested = false;
 
 public:
     Goomba(SDL_Renderer *ren, int x, int y) {//FIXME this should not need  renderer and map
@@ -64,10 +65,7 @@ public:
     };
 
     Map::TileTypes getTileType() const {
-        if (this->isSquashed) {
-            return Map::COIN_TAKEN;
-        }
-        return Map::BRICK_COIN;
+        return Map::GOOMBA;
     }
 
     void render(SDL_Renderer* renderer, int x, int y, long time) {
@@ -80,12 +78,25 @@ public:
         SDL_RenderCopyEx(renderer, getTexture(time), 0, &screenPos, 0, 0, SDL_FLIP_NONE);
 
     }
+
+    void collideWithSide(std::shared_ptr<Context> context, Map::TileTypes tile,
+                                    int interactionSide, long time) override {
+        if (interactionSide == 1) {
+
+        }
+        else if (interactionSide == 3 || interactionSide == 4 || interactionSide == -1) {
+            if(tile != Map::GROUND) {
+                directionRight = !directionRight;
+            }
+        }
+
+    }
+
     Map::TileTypes interactWithSide(std::shared_ptr<Context> context, std::shared_ptr<InteractiveObject> otherObject,
                                     int interactionSide, long time) {
         if(hitTime != 0) {
             return Map::GOOMBA;//if already interacted, don't allow again
         }
-        std::cout << "interaction from side " << interactionSide << std::endl;
 
         // if mario is coming from top, kill
         if (interactionSide == 1) {
@@ -100,10 +111,22 @@ public:
             }
 
             hitTime = time;
+            die(getTileType());
             return Map::EMPTY;
         // swap direction
         } else if (interactionSide == 3 || interactionSide == 4) {
-            directionRight = !directionRight;
+            if (otherObject->getTileType() == Map::TileTypes::PLAYER) {
+                otherObject->die(getTileType());
+            } else {
+                if(!directionChangeRequested) {
+                    directionRight = !directionRight;
+                    if (otherObject->getTileType() == Map::TileTypes::GOOMBA) {
+                        Goomba *otherGoomba = static_cast<Goomba *>(otherObject.get());
+                        otherGoomba->directionChangeRequested = true;
+                    }
+                }
+
+            }
         }
 
 
@@ -115,6 +138,10 @@ public:
     };
 
     void step(long time) {
+        if(directionChangeRequested) {
+            directionRight = !directionRight;
+            directionChangeRequested = false;
+        }
         if(!isSquashed) {
             if (directionRight) {
                 this->getPosition()->moveRight(1);

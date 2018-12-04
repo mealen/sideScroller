@@ -22,11 +22,24 @@ public:
     virtual Map::TileTypes interactWithSide(std::shared_ptr<Context> context,
                                             std::shared_ptr<InteractiveObject> otherObject, int interactionSide,
                                             long time) = 0;
+    virtual void collideWithSide(std::shared_ptr<Context> context,
+                                            Map::TileTypes tile, int interactionSide,
+                                            long time) {};
     virtual void step(long time) = 0;
     virtual bool waitingForDestroy() = 0;
 
     virtual ~InteractiveObject() {};
 
+    bool isDead() const {
+        return dead;
+    }
+
+    virtual void die(Map::TileTypes tile) {
+        this->dead = true;
+    }
+
+private:
+    bool dead = false;
 
 };
 

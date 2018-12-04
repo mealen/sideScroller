@@ -125,7 +125,7 @@ public:
         if (tile == Map::OUT_OF_MAP) {
             if (aabb->getUpwardSpeed() < 0) {
                 // mario dies
-                aabb->die();
+                interactiveObject->die(tile);
                 std::cout << "Mario dies\n";
             }
         }

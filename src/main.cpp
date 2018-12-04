@@ -251,7 +251,7 @@ int main(int argc, char *argv[]) {//these parameters has to be here or SDL_main 
             SDL_RenderClear(ren);
             //Take a quick break after all that hard work
             //SDL_Delay(50);
-            if (context.get()->getPlayer()->hasDied()) {
+            if (context.get()->getPlayer()->isDead()) {
                 SDL_Rect textRect;
                 textRect.x = 0;
                 textRect.y = 0;

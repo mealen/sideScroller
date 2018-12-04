@@ -23,7 +23,7 @@ class Mario : public InteractiveObject {
 
 public:
     enum TextureNames {
-        STAND, MOVE, JUMP
+        STAND, MOVE, JUMP, DEAD
     };
 
 private:
@@ -32,7 +32,7 @@ private:
     int screenWidth;
     int score = 0;
     int coins = 0;
-    AABB* collitionBox;
+    AABB* collisionBox;
 
 public:
     static const int MOVE_SPEED;
@@ -45,16 +45,15 @@ public:
         SDL_DestroyTexture(textures[MOVE][1]);
         SDL_DestroyTexture(textures[MOVE][2]);
         SDL_DestroyTexture(textures[JUMP][0]);
-        delete collitionBox;
-    }
-
-    bool hasDied() {
-        return collitionBox->isHasDied();
+        delete collisionBox;
     }
 
     SDL_Texture *getTexture(long time) const {
-        if(collitionBox->isHasJumped()) {
+        if(collisionBox->isHasJumped()) {
             return textures.at(JUMP).at(0);
+        }
+        if (isDead()) {
+            return textures.at(DEAD).at(0);
         }
         switch (currentState) {
             case STAND:
@@ -68,22 +67,22 @@ public:
     }
 
     AABB* getPosition() const {
-        return collitionBox;
+        return collisionBox;
     }
 
     void move(bool left, bool right, bool jump, bool crouch) {
         if(jump) {
-            collitionBox->jump(JUMP_SPEED);
+            collisionBox->jump(JUMP_SPEED);
         }
         if (left) {
             currentState = MOVE;
-            if (collitionBox->getLeftBorder() + (320) > collitionBox->getMaxRight()) {
-                collitionBox->moveLeft(MOVE_SPEED);
+            if (collisionBox->getLeftBorder() + (320) > collisionBox->getMaxRight()) {
+                collisionBox->moveLeft(MOVE_SPEED);
             }
         }
         if (right) {
             currentState = MOVE;
-            collitionBox->moveRight(MOVE_SPEED);
+            collisionBox->moveRight(MOVE_SPEED);
         }
         if(!left && !right) {
             currentState = STAND;
@@ -124,6 +123,14 @@ public:
     int increaseCoin(int amount = 1) {
         coins += amount;
         return coins;
+    }
+
+    void die(Map::TileTypes type) {
+        InteractiveObject::die(type);
+        if (type == Map::TileTypes::GOOMBA) {
+            getPosition()->setUpBorder(collisionBox->getUpBorder()+TILE_SIZE/2);
+            getPosition()->setUpwardSpeed(Mario::JUMP_SPEED / 2);
+        }
     }
 
 

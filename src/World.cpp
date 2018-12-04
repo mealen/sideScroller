@@ -15,10 +15,7 @@ Map::TileTypes World::collide(int rightSpeed, int downSpeed, long time, std::sha
     tile = std::max(tile, map->getTileObject((interactiveObject->getPosition()->getRightBorder() + rightSpeed)/32, (interactiveObject->getPosition()->getUpBorder() + downSpeed)/32));
     tile = std::max(tile, map->getTileObject((interactiveObject->getPosition()->getRightBorder() + rightSpeed)/32, (interactiveObject->getPosition()->getDownBorder() + downSpeed)/32));
 
-    // mario fall down from ground
-    if (tile == Map::TileTypes::OUT_OF_MAP) {
-
-    }
+    //this tile is the tile that is not interactive object
 
     std::shared_ptr<InteractiveObject> collidingObject = nullptr;
     int collisionSide = 0;//1 down, 2 up, 3 left 4 right
@@ -26,7 +23,7 @@ Map::TileTypes World::collide(int rightSpeed, int downSpeed, long time, std::sha
         if(objects[i] == interactiveObject) {
             continue;
         }
-        // that 4 if finds if that objects collide
+        // that 4 finds if that object collide with caller
         if(interactiveObject->getPosition()->getUpBorder() + downSpeed> objects[i]->getPosition()->getDownBorder()) {
             continue;
         }
@@ -42,6 +39,8 @@ Map::TileTypes World::collide(int rightSpeed, int downSpeed, long time, std::sha
         if(interactiveObject->getPosition()->getLeftBorder() + rightSpeed > objects[i]->getPosition()->getRightBorder()) {
             continue;
         }
+
+        //this part makes sure colliding object has the highest priority by tile type
         if(tile < objects[i]->getTileType()) {
 
             collidingObject = objects[i];
@@ -68,6 +67,10 @@ Map::TileTypes World::collide(int rightSpeed, int downSpeed, long time, std::sha
     }
     if(collidingObject != NULL) {
         tile = collidingObject->interactWithSide(context, interactiveObject, collisionSide, time);
+    } else {
+        if(tile!= Map::EMPTY) {
+            interactiveObject->collideWithSide(context, tile, -1, time);//FIXME -1 means unknown, this method should be removed and everything should be object
+        }
     }
     return tile;
 }
