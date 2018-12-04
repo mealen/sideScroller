@@ -246,13 +246,13 @@ int main(int argc, char *argv[]) {//these parameters has to be here or SDL_main 
         time = SDL_GetTicks();
 
         if(time - previousTime > 1000/60.0f) {
-            readInput(input);
             //First clear the renderer
             SDL_RenderClear(ren);
             //Take a quick break after all that hard work
             //SDL_Delay(50);
-            if (context.get()->getPlayer()->isDead()) {
-                SDL_Rect textRect;
+            if (!context.get()->getPlayer()->isDead()) {
+                readInput(input);
+                /*SDL_Rect textRect;
                 textRect.x = 0;
                 textRect.y = 0;
                 textRect.w = 600;
@@ -267,7 +267,7 @@ int main(int argc, char *argv[]) {//these parameters has to be here or SDL_main 
                 }
                 input.jump = false;
                 input.jumpEvent = false;
-                init(context, map, ren);
+                init(context, map, ren);*/
             }
             context.get()->getPlayer()->move(input.goLeft, input.goRight, input.jumpEvent, false);
             marioPos = context.get()->getPlayer()->getPosition();
