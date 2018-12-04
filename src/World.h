@@ -99,6 +99,10 @@ public:
             return;
         }
 
+        if (aabb->getPhysicsState() == AABB::PhysicsState::DYNAMIC && mario.get()->isKilled()) {
+            return;
+        }
+
         int horizontalSpeed = aabb->getHorizontalSpeed();
 
         Map::TileTypes tile = collide(horizontalSpeed, 0, time, context, interactiveObject);
@@ -129,7 +133,7 @@ public:
                 std::cout << "Mario dies\n";
             }
         }
-        if (tile != Map::EMPTY) {//if not possible, match the tile, and then stop
+        if (tile != Map::EMPTY && aabb->getPhysicsState() == AABB::DYNAMIC) {//if not possible, match the tile, and then stop
             aabb->setUpBorder(aabb->getUpBorder() - upwardSpeed);
             if (aabb->getUpwardSpeed() > 0) {
                 aabb->setUpBorder(((aabb->getUpBorder() + TILE_SIZE) / TILE_SIZE) * TILE_SIZE);

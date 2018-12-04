@@ -33,6 +33,7 @@ private:
     int score = 0;
     int coins = 0;
     AABB* collisionBox;
+    bool killed = false;
 
 public:
     static const int MOVE_SPEED;
@@ -95,6 +96,9 @@ public:
 
     Map::TileTypes interactWithSide(std::shared_ptr<Context> context, std::shared_ptr<InteractiveObject> otherObject,
                                     int interactionSide, long time) {
+        if (otherObject->getTileType() == Map::TileTypes::GOOMBA) {
+            die(otherObject->getTileType());
+        }
         return this->getTileType();//no interaction yet
     };
     bool waitingForDestroy() {
@@ -126,12 +130,21 @@ public:
     }
 
     void die(Map::TileTypes type) {
+        if (isDead()) {
+            return;
+        }
         InteractiveObject::die(type);
         if (type == Map::TileTypes::GOOMBA) {
-            getPosition()->setUpBorder(collisionBox->getUpBorder()+TILE_SIZE/2);
-            getPosition()->setUpwardSpeed(Mario::JUMP_SPEED / 2);
+            //getPosition()->setUpBorder(collisionBox->getUpBorder()+TILE_SIZE);
+            getPosition()->setUpwardSpeed(Mario::JUMP_SPEED);
+            //collisionBox->jump(JUMP_SPEED);
+            killed = true;
+            getPosition()->setPhysicsState(AABB::KINEMATIC);
+            getPosition()->setHorizontalSpeed(0);
         }
     }
+
+    bool isKilled() const;
 
 
 };

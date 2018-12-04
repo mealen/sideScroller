@@ -47,3 +47,7 @@ Mario::Mario(SDL_Rect mapPosition, SDL_Renderer *ren, int screenWidth, int &erro
 
     error = 0;
 }
+
+bool Mario::isKilled() const {
+    return killed;
+}
