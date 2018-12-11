@@ -15,12 +15,18 @@
 #include "Mario.h"
 #include "HiddenCoin.h"
 
+class World;
+class Mushroom;
+
 class BrickMushroom : public InteractiveObject {
     std::vector<SDL_Texture *> texture;
     AABB* collisionBox;
     long hitTime = 0;
     std::vector<Mix_Chunk *>breakSound;
     bool isUsed = false;
+    bool mushroomCreated = false;
+    std::shared_ptr<World> worldTemp = nullptr;
+    std::shared_ptr<Mushroom> mushroomTemp = nullptr;
 
 public:
     BrickMushroom(SDL_Renderer *ren, int x, int y) {//FIXME this should not need  renderer and map
@@ -39,8 +45,8 @@ public:
         std::string brickImage = Utils::getResourcePath("brick_coin") + "brick_coin_used.bmp";
         texture.push_back(Utils::loadTexture(ren, brickImage));
 
-        breakSound.push_back(Mix_LoadWAV("./res/sounds/coin.wav"));
         breakSound.push_back(Mix_LoadWAV("./res/sounds/blockhit.wav"));
+        breakSound.push_back(Mix_LoadWAV("./res/sounds/mushroomappear.wav"));
     }
 
     ~BrickMushroom() {
@@ -71,30 +77,7 @@ public:
         return Map::BRICK_MUSHROOM;
     }
 
-    void render(SDL_Renderer* renderer, int x, int y, long time) {
-        SDL_Rect screenPos;
-        screenPos.x = collisionBox->getLeftBorder() - x;
-        screenPos.y = collisionBox->getUpBorder() - y;
-        screenPos.w = TILE_SIZE;
-        screenPos.h = TILE_SIZE;
-        if(hitTime != 0 && hitTime != time) {
-
-
-            long animTime = time - hitTime;
-            if(animTime > 200) {
-                isUsed = true;
-                animTime = 200;//stop animation after 500
-            }
-            float upSpeed = sin(M_PI * (animTime) / 200.0f);
-            screenPos.y = screenPos.y - upSpeed * 8;
-
-            //coinImgPos.x = coinImgPos.x - animTime / 15;
-            SDL_RenderCopyEx(renderer, getTexture(time), 0, &screenPos, 0, 0, SDL_FLIP_NONE);
-
-        } else {
-            SDL_RenderCopyEx(renderer, getTexture(time), 0, &screenPos, 0, 0, SDL_FLIP_NONE);
-        }
-    }
+    void render(SDL_Renderer* renderer, int x, int y, long time);
 
     Map::TileTypes interactWithSide(std::shared_ptr<Context> context, std::shared_ptr<InteractiveObject> otherObject,
                                     int interactionSide, long time);
