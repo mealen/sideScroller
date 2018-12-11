@@ -99,7 +99,7 @@ public:
 
     Map::TileTypes interactWithSide(std::shared_ptr<Context> context, std::shared_ptr<InteractiveObject> otherObject,
                                     int interactionSide, long time) {
-        if (otherObject->getTileType() == Map::TileTypes::GOOMBA) {
+        if (otherObject->getTileType() == Map::TileTypes::GOOMBA && interactionSide != 1) {
             die(otherObject->getTileType());
         }
         return this->getTileType();//no interaction yet

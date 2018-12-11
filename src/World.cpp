@@ -67,6 +67,14 @@ Map::TileTypes World::collide(int rightSpeed, int downSpeed, long time, std::sha
     }
     if(collidingObject != NULL ) {
         tile = collidingObject->interactWithSide(context, interactiveObject, collisionSide, time);
+        int reverseCollisionSide;
+        switch (collisionSide) {
+            case 1: reverseCollisionSide = 2; break;
+            case 2: reverseCollisionSide = 1; break;
+            case 3: reverseCollisionSide = 4; break;
+            case 4: reverseCollisionSide = 3; break;
+        }
+        interactiveObject->interactWithSide(context, collidingObject, reverseCollisionSide, time);
     } else {
         if(tile!= Map::EMPTY) {
             interactiveObject->collideWithSide(context, tile, -1, time);//FIXME -1 means unknown, this method should be removed and everything should be object
