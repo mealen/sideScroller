@@ -11,7 +11,6 @@ Map::TileTypes BrickCoin::interactWithSide(std::shared_ptr<Context> context,
     if(hitTime != 0) {
         return this->getTileType();//if already interacted, don't allow again
     }
-    std::cout << "interaction from side " << interactionSide << std::endl;
     if(interactionSide == 1) {
         //isDestroyed = true;
         for (uint32_t i = 0; i < breakSound.size(); ++i) {

@@ -100,7 +100,6 @@ public:
         if(breakTime != 0) {
             return this->getTileType();//if already interacted, don't allow again
         }
-        std::cout << "interaction from side " << interactionSide << std::endl;
         if(interactionSide == 1) {
             //isDestroyed = true;
             Mix_PlayChannel(-1, breakSound, 0);
