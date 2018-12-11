@@ -10,15 +10,15 @@ Map::TileTypes World::collide(int rightSpeed, int downSpeed, long time, std::sha
                               std::shared_ptr<InteractiveObject> interactiveObject) {
     Map::TileTypes tile = Map::EMPTY;
     //we need 4 checks, since at any given time, object can be at 4 different places.
-    tile = std::max(tile, map->getTileObject((interactiveObject->getPosition()->getLeftBorder() + rightSpeed)/32,  (interactiveObject->getPosition()->getUpBorder() + downSpeed)/32));
-    tile = std::max(tile, map->getTileObject((interactiveObject->getPosition()->getLeftBorder() + rightSpeed)/32,  (interactiveObject->getPosition()->getDownBorder() + downSpeed)/32));
-    tile = std::max(tile, map->getTileObject((interactiveObject->getPosition()->getRightBorder() + rightSpeed)/32, (interactiveObject->getPosition()->getUpBorder() + downSpeed)/32));
-    tile = std::max(tile, map->getTileObject((interactiveObject->getPosition()->getRightBorder() + rightSpeed)/32, (interactiveObject->getPosition()->getDownBorder() + downSpeed)/32));
+    tile = std::max(tile, map->getTileObject((interactiveObject->getPosition()->getLeftBorder() + rightSpeed)/TILE_SIZE,  (interactiveObject->getPosition()->getUpBorder() + downSpeed)/TILE_SIZE));
+    tile = std::max(tile, map->getTileObject((interactiveObject->getPosition()->getLeftBorder() + rightSpeed)/TILE_SIZE,  (interactiveObject->getPosition()->getDownBorder() + downSpeed)/TILE_SIZE));
+    tile = std::max(tile, map->getTileObject((interactiveObject->getPosition()->getRightBorder() + rightSpeed)/TILE_SIZE, (interactiveObject->getPosition()->getUpBorder() + downSpeed)/TILE_SIZE));
+    tile = std::max(tile, map->getTileObject((interactiveObject->getPosition()->getRightBorder() + rightSpeed)/TILE_SIZE, (interactiveObject->getPosition()->getDownBorder() + downSpeed)/TILE_SIZE));
 
     //this tile is the tile that is not interactive object
-
     std::shared_ptr<InteractiveObject> collidingObject = nullptr;
-    int collisionSide = 0;//1 down, 2 up, 3 left 4 right
+    std::shared_ptr<InteractiveObject> testingObject = nullptr;
+    int collisionSide = 5;//1 down, 2 up, 3 left 4 right
     for (unsigned int i = 0; i < objects.size(); ++i) {
         if(objects[i] == interactiveObject) {
             continue;
@@ -40,28 +40,38 @@ Map::TileTypes World::collide(int rightSpeed, int downSpeed, long time, std::sha
             continue;
         }
 
+        // collision are prioritized as following 1 = 2 > 3 = 4
         //this part makes sure colliding object has the highest priority by tile type
-        if(tile < objects[i]->getTileType()) {
+        if(tile <= objects[i]->getTileType()) {
 
-            collidingObject = objects[i];
+            testingObject = objects[i];
             //now we know there is a collision, check what is the direction of collision
             if(interactiveObject->getPosition()->getUpBorder() >= objects[i]->getPosition()->getDownBorder()) {
+                collidingObject = testingObject;
                 tile = objects[i]->getTileType();
                 collisionSide = 1;
+
             }
             if(interactiveObject->getPosition()->getDownBorder() <= objects[i]->getPosition()->getUpBorder()) {
+                collidingObject = testingObject;
                 tile = objects[i]->getTileType();
                 collisionSide = 2;
             }
 
             if(interactiveObject->getPosition()->getRightBorder() <= objects[i]->getPosition()->getLeftBorder()) {
-                tile = objects[i]->getTileType();
-                collisionSide = 3;
+                if(collisionSide > 2 ) {
+                    tile = objects[i]->getTileType();
+                    collisionSide = 3;
+                    collidingObject = testingObject;
+                }
             }
 
             if(interactiveObject->getPosition()->getLeftBorder() >= objects[i]->getPosition()->getRightBorder()) {
-                tile = objects[i]->getTileType();
-                collisionSide = 4;
+                if(collisionSide > 2 ) {
+                    tile = objects[i]->getTileType();
+                    collisionSide = 4;
+                    collidingObject = testingObject;
+                }
             }
         }
     }
