@@ -119,13 +119,14 @@ public:
             }
         }
         if (tile != Map::EMPTY && aabb->getPhysicsState() == AABB::DYNAMIC) {//if not possible, match the tile, and then stop
+            int curSize = (aabb->getDownBorder() - aabb->getUpBorder());
             aabb->setUpBorder(aabb->getUpBorder() - upwardSpeed);
             if (aabb->getUpwardSpeed() > 0) {
                 aabb->setUpBorder(((aabb->getUpBorder() + TILE_SIZE) / TILE_SIZE) * TILE_SIZE);
             } else {
                 aabb->setUpBorder((aabb->getUpBorder() / TILE_SIZE) * TILE_SIZE);
             }
-            aabb->setDownBorder(aabb->getUpBorder() + TILE_SIZE - 1);
+            aabb->setDownBorder(aabb->getUpBorder() + curSize);
             aabb->setUpwardSpeed(0);
             aabb->setHasJumped(false);
         } else { //if possible update

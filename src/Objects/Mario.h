@@ -22,18 +22,23 @@
 class Mario : public InteractiveObject {
 
 public:
+    enum Status {
+        SMALL, BIG
+    };
     enum TextureNames {
         STAND, MOVE, JUMP, DEAD
     };
 
 private:
-    std::map<TextureNames, std::vector<SDL_Texture *>> textures;
+    std::map<Status, std::map<TextureNames, std::vector<SDL_Texture *>>> textures;
     TextureNames currentState = STAND;
     int screenWidth;
     int score = 0;
     int coins = 0;
     AABB* collisionBox;
     bool killed = false;
+    bool isBig = false;
+    int growStartTime = 0;
     long lastStepTime = 0;
 public:
     static const int MOVE_SPEED;
@@ -41,26 +46,37 @@ public:
     Mario(SDL_Rect mapPosition, SDL_Renderer *ren, int screenWidth, int &error);
 
     ~Mario() {
-        SDL_DestroyTexture(textures[STAND][0]);
-        SDL_DestroyTexture(textures[MOVE][0]);
-        SDL_DestroyTexture(textures[MOVE][1]);
-        SDL_DestroyTexture(textures[MOVE][2]);
-        SDL_DestroyTexture(textures[JUMP][0]);
+        SDL_DestroyTexture(textures[SMALL][STAND][0]);
+        SDL_DestroyTexture(textures[SMALL][MOVE][0]);
+        SDL_DestroyTexture(textures[SMALL][MOVE][1]);
+        SDL_DestroyTexture(textures[SMALL][MOVE][2]);
+        SDL_DestroyTexture(textures[SMALL][JUMP][0]);
+        SDL_DestroyTexture(textures[BIG][STAND][0]);
+        SDL_DestroyTexture(textures[BIG][MOVE][0]);
+        SDL_DestroyTexture(textures[BIG][MOVE][1]);
+        SDL_DestroyTexture(textures[BIG][MOVE][2]);
+        SDL_DestroyTexture(textures[BIG][JUMP][0]);
         delete collisionBox;
     }
 
     SDL_Texture *getTexture(long time) const {
+        Status curStatus;
+        if (isBig) {
+            curStatus = BIG;
+        } else {
+            curStatus = SMALL;
+        }
         if(collisionBox->isHasJumped()) {
-            return textures.at(JUMP).at(0);
+            return textures.at(curStatus).at(JUMP).at(0);
         }
         if (isDead()) {
-            return textures.at(DEAD).at(0);
+            return textures.at(curStatus).at(DEAD).at(0);
         }
         switch (currentState) {
             case STAND:
-                return textures.at(STAND).at(0);
+                return textures.at(curStatus).at(STAND).at(0);
             case MOVE:
-                return textures.at(MOVE).at((time / 75) % 3);
+                return textures.at(curStatus).at(MOVE).at((time / 75) % 3);
             default:
                 std::cerr << "Requested Texture type not found" << std::endl;
                 exit(-1);
@@ -101,6 +117,9 @@ public:
                                     int interactionSide, long time) {
         if (otherObject->getTileType() == Map::TileTypes::GOOMBA && interactionSide != 1) {
             die(otherObject->getTileType());
+        }
+        if (otherObject->getTileType() == Map::TileTypes::MUSHROOM) {
+            grow();
         }
         return this->getTileType();//no interaction yet
     };
@@ -156,6 +175,20 @@ public:
     long getDeadTime() const {
         return lastStepTime;
 
+    }
+
+    bool grow() {
+        if (!isBig) {
+            isBig = true;
+            getPosition()->setUpBorder(getPosition()->getUpBorder() - TILE_SIZE);
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    bool getBig() {
+        return isBig;
     }
 
 };

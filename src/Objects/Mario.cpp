@@ -17,29 +17,54 @@ Mario::Mario(SDL_Rect mapPosition, SDL_Renderer *ren, int screenWidth, int &erro
                 mapPosition.y * TILE_SIZE + TILE_SIZE -1); //-1 because 32 is not part of box. pixels 0 - TILE_SIZE, TILE_SIZE excluded
 
     collisionBox->setPhysicsState(AABB::PhysicsState::DYNAMIC);
+
     std::string marioImage = Utils::getResourcePath("mario") + "mario.bmp";
-    textures[STAND].push_back(Utils::loadTexture(ren, marioImage));
+    textures[SMALL][STAND].push_back(Utils::loadTexture(ren, marioImage));
 
     marioImage = Utils::getResourcePath("mario") + "mario_move0.bmp";
-    textures[MOVE].push_back(Utils::loadTexture(ren, marioImage));
+    textures[SMALL][MOVE].push_back(Utils::loadTexture(ren, marioImage));
 
     marioImage = Utils::getResourcePath("mario") + "mario_move1.bmp";
-    textures[MOVE].push_back(Utils::loadTexture(ren, marioImage));
+    textures[SMALL][MOVE].push_back(Utils::loadTexture(ren, marioImage));
 
     marioImage = Utils::getResourcePath("mario") + "mario_move2.bmp";
-    textures[MOVE].push_back(Utils::loadTexture(ren, marioImage));
+    textures[SMALL][MOVE].push_back(Utils::loadTexture(ren, marioImage));
 
     marioImage = Utils::getResourcePath("mario") + "mario_jump.bmp";
-    textures[JUMP].push_back(Utils::loadTexture(ren, marioImage));
+    textures[SMALL][JUMP].push_back(Utils::loadTexture(ren, marioImage));
 
     marioImage = Utils::getResourcePath("mario") + "mario_death.bmp";
-    textures[DEAD].push_back(Utils::loadTexture(ren, marioImage));
+    textures[SMALL][DEAD].push_back(Utils::loadTexture(ren, marioImage));
 
-    if (textures[STAND][0] == nullptr ||
-        textures[MOVE][0] == nullptr ||
-        textures[MOVE][1] == nullptr ||
-        textures[MOVE][2] == nullptr ||
-        textures[JUMP][0] == nullptr ) {
+
+    marioImage = Utils::getResourcePath("mario/big") + "mario.bmp";
+    textures[BIG][STAND].push_back(Utils::loadTexture(ren, marioImage));
+
+    marioImage = Utils::getResourcePath("mario/big") + "mario_move0.bmp";
+    textures[BIG][MOVE].push_back(Utils::loadTexture(ren, marioImage));
+
+    marioImage = Utils::getResourcePath("mario/big") + "mario_move1.bmp";
+    textures[BIG][MOVE].push_back(Utils::loadTexture(ren, marioImage));
+
+    marioImage = Utils::getResourcePath("mario/big") + "mario_move2.bmp";
+    textures[BIG][MOVE].push_back(Utils::loadTexture(ren, marioImage));
+
+    marioImage = Utils::getResourcePath("mario/big") + "mario_jump.bmp";
+    textures[BIG][JUMP].push_back(Utils::loadTexture(ren, marioImage));
+
+    marioImage = Utils::getResourcePath("mario/big") + "mario_death.bmp";
+    textures[BIG][DEAD].push_back(Utils::loadTexture(ren, marioImage));
+
+    if (textures[SMALL][STAND][0] == nullptr ||
+        textures[SMALL][MOVE][0] == nullptr ||
+        textures[SMALL][MOVE][1] == nullptr ||
+        textures[SMALL][MOVE][2] == nullptr ||
+        textures[SMALL][JUMP][0] == nullptr ||
+        textures[BIG][STAND][0] == nullptr ||
+        textures[BIG][MOVE][0] == nullptr ||
+        textures[BIG][MOVE][1] == nullptr ||
+        textures[BIG][MOVE][2] == nullptr ||
+        textures[BIG][JUMP][0] == nullptr ) {
         std::cerr << "Error loading Mario textures" << std::endl;
         error = 1;
         return;

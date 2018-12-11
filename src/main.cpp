@@ -9,6 +9,7 @@
 #include "World.h"
 #include "Objects/Brick.h"
 #include "Objects/BrickCoin.h"
+#include "Objects/BrickMushroom.h"
 #include "Context.h"
 #include "Objects/Goomba.h"
 
@@ -236,6 +237,14 @@ int main(int argc, char *argv[]) {//these parameters has to be here or SDL_main 
         goombaPos = map->getAndRemoveObject(Map::GOOMBA);
     }
 
+    std::shared_ptr<BrickMushroom> brickMushroom;
+    SDL_Rect brickMushroomPos = map->getAndRemoveObject(Map::BRICK_MUSHROOM);
+    while (brickMushroomPos.x != -1 && brickMushroomPos.y != -1) {
+        brickMushroom = std::make_shared<BrickMushroom>(ren, brickMushroomPos.x, brickMushroomPos.y);
+        context.get()->getWorld()->addObject(brickMushroom);
+        brickMushroomPos = map->getAndRemoveObject(Map::BRICK_MUSHROOM);
+    }
+
 
     while (!input.quit) {
         if (input.stop) {
@@ -273,7 +282,7 @@ int main(int argc, char *argv[]) {//these parameters has to be here or SDL_main 
                     init(context, map, ren);
                 }
             }
-            context.get()->getPlayer()->move(input.goLeft, input.goRight, input.jumpEvent, false);
+            context->getPlayer()->move(input.goLeft, input.goRight, input.jumpEvent, false);
             marioPos = context.get()->getPlayer()->getPosition();
             if (input.goRight) {
                 leftRightFlip = SDL_FLIP_NONE;
@@ -282,6 +291,11 @@ int main(int argc, char *argv[]) {//these parameters has to be here or SDL_main 
             }
 
             marioGrapPos.y = marioPos->getUpBorder();
+            if (context->getPlayer()->getBig()) {
+                marioGrapPos.h = TILE_SIZE * 2;
+            } else {
+                marioGrapPos.h = TILE_SIZE;
+            }
             int middleOfScreenPixel = (SCREEN_WIDTH) / 2 - TILE_SIZE;
             //determine where the mario should be in screen, and where background should be
             if (marioPos->getMaxRight() - TILE_SIZE <= middleOfScreenPixel) {

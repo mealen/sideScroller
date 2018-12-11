@@ -18,8 +18,8 @@
 class Map {
 public:
     enum TileTypes {EMPTY = 0, GROUND = 1, COIN_TAKEN = 2, BRICK = 3, BRICK_COIN=4, BRICK_MUSHROOM=5, HIDDEN_MUSHROOM=6, PIPE_EMPTY=7,
-        PIPE_PORTAL=8, PIPE_ENEMY=9, PIPE_ENEMY_PORTAL=17, GOOMBA=18, MINION_TURTLE=19, PLAYER=74, OUT_OF_MAP=20};
-//                                                     A                   B                 C           z
+        PIPE_PORTAL=8, PIPE_ENEMY=9, PIPE_ENEMY_PORTAL=17, GOOMBA=18, MINION_TURTLE=19, OUT_OF_MAP=20, MUSHROOM=21, PLAYER=74, };
+//                                                     A                   B                 C               D           z
 private:
     TileTypes tiles[224][15];
 public:
