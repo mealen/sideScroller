@@ -77,9 +77,12 @@ Map::TileTypes World::collide(int rightSpeed, int downSpeed, long time, std::sha
 
 void World::stepSimulation(long time, std::shared_ptr<Context> context) {
     context->getPlayer()->step(time);
+    int middleOfScreenPixel = SCREEN_WIDTH / 2;
 
     for (size_t i = 0; i < this->objects.size(); ++i) {
-        this->objects[i]->step(time);
+        if (context->getPlayer()->getPosition()->getMaxRight() + middleOfScreenPixel > this->objects[i]->getPosition()->getLeftBorder()) {
+            this->objects[i]->step(time);
+        }
     }
     stepSingleObject(time, context, this->mario);
     for (size_t i = 0; i < this->objects.size(); ++i) {
