@@ -38,7 +38,8 @@ private:
     AABB* collisionBox;
     bool killed = false;
     bool isBig = false;
-    int growStartTime = 0;
+    bool growStarted = false;
+    long growStartTime = 0;
     long lastStepTime = 0;
 public:
     static const int MOVE_SPEED;
@@ -135,6 +136,22 @@ public:
         if(!isDead()) {
             lastStepTime = time;
         }
+        if (growStarted && growStartTime == 0) {
+            growStartTime = time;
+        }
+
+        if (growStarted) {
+            if (((time - growStartTime) / 100 ) % 2) {
+                shrink();
+            } else {
+                grow();
+            }
+        }
+
+        if (time - growStartTime > 1000) {
+            growStarted = false;
+            growStartTime = 0;
+        }
     };
 
     int getScore() const {
@@ -156,6 +173,10 @@ public:
     }
 
     void die(Map::TileTypes type) {
+        if (getBig()) {
+            shrink();
+            return;
+        }
         if (isDead()) {
             return;
         }
@@ -179,8 +200,19 @@ public:
 
     bool grow() {
         if (!isBig) {
+            growStarted = true;
             isBig = true;
             getPosition()->setUpBorder(getPosition()->getUpBorder() - TILE_SIZE);
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    bool shrink() {
+        if (isBig) {
+            isBig = false;
+            getPosition()->setUpBorder(getPosition()->getUpBorder() + TILE_SIZE);
             return true;
         } else {
             return false;

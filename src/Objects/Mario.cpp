@@ -52,9 +52,6 @@ Mario::Mario(SDL_Rect mapPosition, SDL_Renderer *ren, int screenWidth, int &erro
     marioImage = Utils::getResourcePath("mario/big") + "mario_jump.bmp";
     textures[BIG][JUMP].push_back(Utils::loadTexture(ren, marioImage));
 
-    marioImage = Utils::getResourcePath("mario/big") + "mario_death.bmp";
-    textures[BIG][DEAD].push_back(Utils::loadTexture(ren, marioImage));
-
     if (textures[SMALL][STAND][0] == nullptr ||
         textures[SMALL][MOVE][0] == nullptr ||
         textures[SMALL][MOVE][1] == nullptr ||
