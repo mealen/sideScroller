@@ -3,7 +3,7 @@ project(mario)
 
 set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
 set(CMAKE_CXX_STANDARD 11)
-¨
+
 IF(APPLE)
     set(CMAKE_APPLE_FLAGS "-I/usr/local/include")
 ENDIF()
