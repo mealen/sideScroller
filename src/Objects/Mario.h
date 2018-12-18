@@ -11,6 +11,7 @@
 #include <algorithm>
 
 #include <SDL2/SDL.h>
+#include <SDL_mixer.h>
 #include <SDL_rect.h>
 
 #include "../Constants.h"
@@ -42,6 +43,7 @@ private:
     long growStartTime = 0;
     long lastStepTime = 0;
     bool moveRight = true;
+    Mix_Chunk *growSound;
 public:
     static const int MOVE_SPEED;
     static const int JUMP_SPEED;
@@ -141,6 +143,7 @@ public:
             lastStepTime = time;
         }
         if (growStarted && growStartTime == 0) {
+            Mix_PlayChannel(-1, growSound, 0);
             growStartTime = time;
         }
 

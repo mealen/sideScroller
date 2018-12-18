@@ -2,6 +2,7 @@
 // Created by engin on 29.10.2017.
 //
 
+#include <SDL_mixer.h>
 #include "Mario.h"
 
 const int Mario::MOVE_SPEED = 4;
@@ -52,7 +53,9 @@ Mario::Mario(SDL_Rect mapPosition, SDL_Renderer *ren, int screenWidth, int &erro
     marioImage = Utils::getResourcePath("mario/big") + "mario_jump.bmp";
     textures[BIG][JUMP].push_back(Utils::loadTexture(ren, marioImage));
 
-    if (textures[SMALL][STAND][0] == nullptr ||
+    growSound = Mix_LoadWAV("./res/sounds/mushroomeat.wav");
+
+        if (textures[SMALL][STAND][0] == nullptr ||
         textures[SMALL][MOVE][0] == nullptr ||
         textures[SMALL][MOVE][1] == nullptr ||
         textures[SMALL][MOVE][2] == nullptr ||
