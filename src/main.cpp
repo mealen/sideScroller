@@ -25,6 +25,7 @@ public:
 };
 
 
+void logFrameRate();
 
 void readInput(InputStates &input) {
     input.jumpEvent = false;
@@ -335,6 +336,7 @@ int main(int argc, char *argv[]) {//these parameters has to be here or SDL_main 
         context.get()->getWorld()->render(ren, sourceRect.x, sourceRect.y, time);
 
         //Update the screen
+        logFrameRate();
         SDL_RenderPresent(ren);
 
 
@@ -347,6 +349,19 @@ int main(int argc, char *argv[]) {//these parameters has to be here or SDL_main 
     SDL_DestroyWindow(win);
     SDL_Quit();
     return 0;
+}
+
+void logFrameRate() {
+    static uint32_t totalFrames = 0;
+    static long lastLogTime = 0;
+    totalFrames++;
+    long currentTime = SDL_GetTicks();
+
+    if(currentTime > (lastLogTime + 1000)) {
+        lastLogTime = currentTime;
+        std::cout << totalFrames <<" fps" << std::endl;
+        totalFrames = 0;
+    }
 }
 
 
