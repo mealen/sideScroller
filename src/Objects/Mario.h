@@ -151,7 +151,7 @@ public:
             } else {
                 grow();
             }
-        } else {
+        } else if (!killed) {
             getPosition()->setPhysicsState(AABB::DYNAMIC);
 
         }
@@ -191,7 +191,7 @@ public:
         InteractiveObject::die(type);
         if (type == Map::TileTypes::GOOMBA) {
             //getPosition()->setUpBorder(collisionBox->getUpBorder()+TILE_SIZE);
-            getPosition()->setUpwardSpeed(Mario::JUMP_SPEED);
+            getPosition()->setUpwardSpeed(Mario::JUMP_SPEED / 2);
             //collisionBox->jump(JUMP_SPEED);
             killed = true;
             getPosition()->setPhysicsState(AABB::KINEMATIC);

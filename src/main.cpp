@@ -267,8 +267,6 @@ int main(int argc, char *argv[]) {//these parameters has to be here or SDL_main 
                     textRect.h = 200;
                     while (!input.jump && !input.quit) {
                         SDL_RenderCopy(ren, tex, &sourceRect, NULL);
-                        //SDL_RenderCopyEx(ren, context.get()->getPlayer()->getTexture(time), 0, &marioGrapPos, 0, 0,
-                        //                 leftRightFlip);
                         context.get()->getWorld()->render(ren, sourceRect.x, sourceRect.y, time);
                         SDL_RenderCopy(ren, deadTextTexture, NULL, &textRect);
                         SDL_RenderPresent(ren);
