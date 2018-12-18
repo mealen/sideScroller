@@ -114,7 +114,7 @@ public:
                 return Map::EMPTY;
             }
             // swap direction
-        } else if (interactionSide == 1 || interactionSide == 3 || interactionSide == 4) {
+        } else if (interactionSide == 3 || interactionSide == 4) {
             if (otherObject->getTileType() == Map::TileTypes::PLAYER) {
                 otherObject->die(getTileType());
             } else {
