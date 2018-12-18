@@ -97,7 +97,7 @@ int init(std::shared_ptr<Context> &context, std::shared_ptr<Map> &map0101, SDL_R
         return -1;
     }
 
-    if (Mix_OpenAudio(22050, MIX_DEFAULT_FORMAT, 2, 4096) == -1) { return false; }
+    if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048) == -1) { return false; }
     Mix_Music *music = NULL;
     music = Mix_LoadMUS("./res/sounds/overworld.wav");
     //If there was a problem loading the music
@@ -204,7 +204,6 @@ int main(int argc, char *argv[]) {//these parameters has to be here or SDL_main 
     SDL_Texture *deadTextTexture = SDL_CreateTextureFromSurface(ren, deadTextSurface);
 
 
-    SDL_RendererFlip leftRightFlip = SDL_FLIP_NONE;
     long time;
     long previousTime = 0;
     const AABB* marioPos = context.get()->getPlayer()->getPosition();
