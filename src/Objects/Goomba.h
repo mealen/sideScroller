@@ -102,7 +102,8 @@ public:
         if(interactionSide == 2 && otherObject->getTileType() == Map::TileTypes::PLAYER) {
             if(!otherObject->isDead()) {
                 isSquashed = true;
-                collisionBox->setUpBorder(collisionBox->getUpBorder() + TILE_SIZE / 2);
+                collisionBox->setDownBorder(collisionBox->getDownBorder() - TILE_SIZE / 2);
+                collisionBox->setPhysicsState(AABB::PhysicsState::STATIC);
                 otherObject->getPosition()->setUpwardSpeed(Mario::JUMP_SPEED / 2);
 
                 for (uint32_t i = 0; i < deadSound.size(); ++i) {
