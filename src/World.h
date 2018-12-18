@@ -55,8 +55,9 @@ public:
      */
     void render(SDL_Renderer *ren, int x, int y, long time) {
         for (unsigned int i = 0; i < objects.size(); ++i) {
-            objects[i]->render(ren,x,y,time);
+            objects[i]->render(ren, x, y ,time);
         }
+        mario->render(ren, x, y, time);
         updateCoins();
         renderCoins();
     }

@@ -70,6 +70,58 @@ Mario::Mario(SDL_Rect mapPosition, SDL_Renderer *ren, int screenWidth, int &erro
     error = 0;
 }
 
+void Mario::render(SDL_Renderer *renderer, int x, int y, long time) {
+    AABB *marioPos = getPosition();
+    SDL_RendererFlip leftRightFlip;
+
+    SDL_Rect marioGrapPos;
+    marioGrapPos.w = TILE_SIZE;
+    marioGrapPos.h = TILE_SIZE;
+    marioGrapPos.y = marioPos->getUpBorder();
+    marioGrapPos.x = marioPos->getLeftBorder();
+
+
+    if (moveRight) {
+        leftRightFlip = SDL_FLIP_NONE;
+    } else {
+        leftRightFlip = SDL_FLIP_HORIZONTAL;
+    }
+
+    marioGrapPos.y = marioPos->getUpBorder();
+    if (getBig()) {
+        marioGrapPos.h = TILE_SIZE * 2;
+    } else {
+        marioGrapPos.h = TILE_SIZE;
+    }
+    int middleOfScreenPixel = (SCREEN_WIDTH) / 2 - TILE_SIZE;
+    //determine where the mario should be in screen, and where background should be
+    if (marioPos->getMaxRight() - TILE_SIZE <= middleOfScreenPixel) {
+        //if mario is not passed middle of the screen
+        marioGrapPos.x = marioPos->getLeftBorder();
+    } else {
+        //put mario at middle of the screen, and move background to left
+        //but first check if mario has been right before
+        int leftMovementAmount = 0;
+        if (marioPos->getMaxRight() > marioPos->getRightBorder()) {
+            //use maxleft instead of left
+            leftMovementAmount = marioPos->getMaxRight() - marioPos->getRightBorder();
+
+        }
+        marioGrapPos.x = middleOfScreenPixel - leftMovementAmount;
+
+    }
+
+    //FIXME: we should check if we are at the end of the level and move only mario
+
+
+    //draw the mario
+    SDL_RenderCopyEx(renderer, getTexture(time), 0, &marioGrapPos, 0, 0, leftRightFlip);
+}
+
 bool Mario::isKilled() const {
     return killed;
+}
+
+bool Mario::isGrowStarted() const {
+    return growStarted;
 }

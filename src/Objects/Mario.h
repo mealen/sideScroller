@@ -41,10 +41,12 @@ private:
     bool growStarted = false;
     long growStartTime = 0;
     long lastStepTime = 0;
+    bool moveRight = true;
 public:
     static const int MOVE_SPEED;
     static const int JUMP_SPEED;
     Mario(SDL_Rect mapPosition, SDL_Renderer *ren, int screenWidth, int &error);
+    void render(SDL_Renderer *renderer, int x, int y, long time) override;
 
     ~Mario() {
         SDL_DestroyTexture(textures[SMALL][STAND][0]);
@@ -89,6 +91,9 @@ public:
     }
 
     void move(bool left, bool right, bool jump, bool crouch) {
+        if (growStarted) {
+            return;
+        }
         if(isDead()) {
             return;
         }
@@ -96,12 +101,14 @@ public:
             collisionBox->jump(JUMP_SPEED);
         }
         if (left) {
+            moveRight = false;
             currentState = MOVE;
             if (collisionBox->getLeftBorder() + (320) > collisionBox->getMaxRight()) {
                 collisionBox->moveLeft(MOVE_SPEED);
             }
         }
         if (right) {
+            moveRight = true;
             currentState = MOVE;
             collisionBox->moveRight(MOVE_SPEED);
         }
@@ -128,9 +135,6 @@ public:
         return false; //there is no case we are expecting removal
     };
 
-    void render(SDL_Renderer* renderer, int x, int y, long time) {
-        //FIXME this is not used for rendering, but it should have
-    };
 
     void step(long time) {
         if(!isDead()) {
@@ -141,11 +145,15 @@ public:
         }
 
         if (growStarted) {
+            getPosition()->setPhysicsState(AABB::STATIC);
             if (((time - growStartTime) / 100 ) % 2) {
                 shrink();
             } else {
                 grow();
             }
+        } else {
+            getPosition()->setPhysicsState(AABB::DYNAMIC);
+
         }
 
         if (time - growStartTime > 1000) {
@@ -222,6 +230,8 @@ public:
     bool getBig() {
         return isBig;
     }
+
+    bool isGrowStarted() const;
 
 };
 

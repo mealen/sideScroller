@@ -208,11 +208,7 @@ int main(int argc, char *argv[]) {//these parameters has to be here or SDL_main 
     long time;
     long previousTime = 0;
     const AABB* marioPos = context.get()->getPlayer()->getPosition();
-    SDL_Rect marioGrapPos;
-    marioGrapPos.w = TILE_SIZE;
-    marioGrapPos.h = TILE_SIZE;
-    marioGrapPos.y = marioPos->getUpBorder();
-    marioGrapPos.x = marioPos->getLeftBorder();
+
 
     std::shared_ptr<Brick> brick;
     SDL_Rect brickPos = map->getAndRemoveObject(Map::BRICK);
@@ -271,8 +267,8 @@ int main(int argc, char *argv[]) {//these parameters has to be here or SDL_main 
                     textRect.h = 200;
                     while (!input.jump && !input.quit) {
                         SDL_RenderCopy(ren, tex, &sourceRect, NULL);
-                        SDL_RenderCopyEx(ren, context.get()->getPlayer()->getTexture(time), 0, &marioGrapPos, 0, 0,
-                                         leftRightFlip);
+                        //SDL_RenderCopyEx(ren, context.get()->getPlayer()->getTexture(time), 0, &marioGrapPos, 0, 0,
+                        //                 leftRightFlip);
                         context.get()->getWorld()->render(ren, sourceRect.x, sourceRect.y, time);
                         SDL_RenderCopy(ren, deadTextTexture, NULL, &textRect);
                         SDL_RenderPresent(ren);
@@ -283,43 +279,24 @@ int main(int argc, char *argv[]) {//these parameters has to be here or SDL_main 
                     init(context, map, ren);
                 }
             }
-            context->getPlayer()->move(input.goLeft, input.goRight, input.jumpEvent, false);
-            marioPos = context.get()->getPlayer()->getPosition();
-            if (input.goRight) {
-                leftRightFlip = SDL_FLIP_NONE;
-            } else if (input.goLeft) {
-                leftRightFlip = SDL_FLIP_HORIZONTAL;
-            }
 
-            marioGrapPos.y = marioPos->getUpBorder();
-            if (context->getPlayer()->getBig()) {
-                marioGrapPos.h = TILE_SIZE * 2;
-            } else {
-                marioGrapPos.h = TILE_SIZE;
-            }
             int middleOfScreenPixel = (SCREEN_WIDTH) / 2 - TILE_SIZE;
-            //determine where the mario should be in screen, and where background should be
+
+
             if (marioPos->getMaxRight() - TILE_SIZE <= middleOfScreenPixel) {
                 //if mario is not passed middle of the screen
                 sourceRect.x = 0;
-                marioGrapPos.x = marioPos->getLeftBorder();
             } else {
                 //put mario at middle of the screen, and move background to left
                 //but first check if mario has been right before
-                int leftMovementAmount = 0;
-                if (marioPos->getMaxRight() > marioPos->getRightBorder()) {
-                    //use maxleft instead of left
-                    leftMovementAmount = marioPos->getMaxRight() - marioPos->getRightBorder();
-
-                }
                 sourceRect.x = (marioPos->getMaxRight() - TILE_SIZE) - middleOfScreenPixel;
-                marioGrapPos.x = middleOfScreenPixel - leftMovementAmount;
                 if (sourceRect.x > mapWidth - SCREEN_WIDTH) {
                     //if end of map, let mario move more, and lock background
-                    marioGrapPos.x += sourceRect.x - (mapWidth - SCREEN_WIDTH);//re add the difference
                     sourceRect.x = mapWidth - SCREEN_WIDTH;
                 }
             }
+            context->getPlayer()->move(input.goLeft, input.goRight, input.jumpEvent, false);
+
 
             previousTime = time;
             context.get()->getWorld()->stepSimulation(time, context);//FIXME parameter should be shared ptr or something
@@ -329,9 +306,6 @@ int main(int argc, char *argv[]) {//these parameters has to be here or SDL_main 
         SDL_RenderCopy(ren, tex, &sourceRect, NULL);
 
 
-        //draw the mario
-        //std::cout << "drawing mario at " << marioGrapPos.x << ", " << marioGrapPos.y << std::endl;
-        SDL_RenderCopyEx(ren, context.get()->getPlayer()->getTexture(time), 0, &marioGrapPos, 0, 0, leftRightFlip);
 
         context.get()->getWorld()->render(ren, sourceRect.x, sourceRect.y, time);
 
