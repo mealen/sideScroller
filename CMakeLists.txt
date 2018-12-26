@@ -15,7 +15,7 @@ ENDIF()
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wnon-virtual-dtor -pedantic ${CMAKE_APPLE_FLAGS} ${CMAKE_WIN32_FLAGS}")
 
-set(SOURCE_FILES src/main.cpp src/Objects/Mario.cpp src/Objects/Mario.h src/Utils.h src/Map.cpp src/Map.h src/Constants.h src/AABB.cpp src/AABB.h src/Objects/Brick.h src/Objects/CoinBox.h src/World.cpp src/World.h src/Objects/InteractiveObject.h src/Objects/Coin.cpp src/Objects/Coin.h src/Context.cpp src/Context.h src/Objects/CoinBox.cpp src/Objects/Goomba.h src/Objects/MushroomBox.cpp)
+set(SOURCE_FILES src/main.cpp src/Objects/Mario.cpp src/Objects/Mario.h src/Utils.h src/Map.cpp src/Map.h src/Constants.h src/AABB.cpp src/AABB.h src/Objects/Brick.h src/Objects/CoinBox.h src/World.cpp src/World.h src/Objects/InteractiveObject.h src/Objects/Coin.cpp src/Objects/Coin.h src/Context.cpp src/Context.h src/Objects/CoinBox.cpp src/Objects/Goomba.cpp src/Objects/MushroomBox.cpp src/Objects/Mushroom.cpp)
 add_executable(mario ${SOURCE_FILES})
 
 

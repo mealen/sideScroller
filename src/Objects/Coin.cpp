@@ -42,9 +42,9 @@ void Coin::render(SDL_Renderer *renderer, int x, int y, long time) {
 
 }
 
-Map::TileTypes Coin::interactWithSide(std::shared_ptr<Context> context,
-                                            std::shared_ptr<InteractiveObject> otherObject, int interactionSide,
-                                            long time) {
+Map::TileTypes Coin::interactWithSide(std::shared_ptr<Context> context __attribute((unused)),
+                                            std::shared_ptr<InteractiveObject> otherObject __attribute((unused)), int interactionSide __attribute((unused)),
+                                            long time __attribute((unused))) {
     return this->getTileType();
 }
 

@@ -10,7 +10,7 @@
 #include "../Utils.h"
 #include "InteractiveObject.h"
 #include "Mario.h"
-#include "HiddenCoin.h"
+#include "CoinBox.h"
 #include "Goomba.h"
 
 Goomba::Goomba(SDL_Renderer *ren, int x, int y) {//FIXME this should not need  renderer and map
