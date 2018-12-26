@@ -15,7 +15,7 @@
 #include "Mario.h"
 #include "Coin.h"
 
-class BrickCoin : public InteractiveObject {
+class CoinBox : public InteractiveObject {
     std::vector<SDL_Texture *> texture;
     AABB* collisionBox;
     long hitTime = 0;
@@ -23,7 +23,7 @@ class BrickCoin : public InteractiveObject {
     bool isUsed = false;
 
 public:
-    BrickCoin(SDL_Renderer *ren, int x, int y) {//FIXME this should not need  renderer and map
+    CoinBox(SDL_Renderer *ren, int x, int y) {//FIXME this should not need  renderer and map
         collisionBox = new AABB(
                 x * TILE_SIZE,
                 x * TILE_SIZE + TILE_SIZE -1,
@@ -43,7 +43,7 @@ public:
         breakSound.push_back(Mix_LoadWAV("./res/sounds/blockhit.wav"));
     }
 
-    ~BrickCoin() {
+    ~CoinBox() {
         for (size_t i = 0; i < texture.size(); i++) {
             SDL_DestroyTexture(texture[i]);
         }
@@ -68,7 +68,7 @@ public:
         if (this->isUsed) {
             return Map::COIN_TAKEN;
         }
-        return Map::BRICK_COIN;
+        return Map::COIN_BOX;
     }
 
     void render(SDL_Renderer* renderer, int x, int y, long time) {

@@ -8,7 +8,7 @@
 #include "Objects/Mario.h"
 #include "World.h"
 #include "Objects/Brick.h"
-#include "Objects/BrickCoin.h"
+#include "Objects/CoinBox.h"
 #include "Objects/BrickMushroom.h"
 #include "Context.h"
 #include "Objects/Goomba.h"
@@ -217,12 +217,12 @@ int main(int argc, char *argv[]) {//these parameters has to be here or SDL_main 
         brickPos = map->getAndRemoveObject(Map::BRICK);
     }
 
-    std::shared_ptr<BrickCoin> brickCoin;
-    SDL_Rect brickCoinPos = map->getAndRemoveObject(Map::BRICK_COIN);
+    std::shared_ptr<CoinBox> brickCoin;
+    SDL_Rect brickCoinPos = map->getAndRemoveObject(Map::COIN_BOX);
     while (brickCoinPos.x != -1 && brickCoinPos.y != -1) {
-        brickCoin = std::make_shared<BrickCoin>(ren, brickCoinPos.x, brickCoinPos.y);
+        brickCoin = std::make_shared<CoinBox>(ren, brickCoinPos.x, brickCoinPos.y);
         context.get()->getWorld()->addObject(brickCoin);
-        brickCoinPos = map->getAndRemoveObject(Map::BRICK_COIN);
+        brickCoinPos = map->getAndRemoveObject(Map::COIN_BOX);
     }
 
     std::shared_ptr<Goomba> goomba;

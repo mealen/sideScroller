@@ -2,10 +2,10 @@
 // Created by mesutcan on 11/20/18.
 //
 
-#include "BrickCoin.h"
+#include "CoinBox.h"
 #include "../Context.h"
 
-Map::TileTypes BrickCoin::interactWithSide(std::shared_ptr<Context> context,
+Map::TileTypes CoinBox::interactWithSide(std::shared_ptr<Context> context,
                                            std::shared_ptr<InteractiveObject> otherObject, int interactionSide,
                                            long time) {
     if(hitTime != 0) {
