@@ -13,12 +13,12 @@
 #include "../Utils.h"
 #include "InteractiveObject.h"
 #include "Mario.h"
-#include "HiddenCoin.h"
+#include "Coin.h"
 
 class World;
 class Mushroom;
 
-class BrickMushroom : public InteractiveObject {
+class MushroomBox : public InteractiveObject {
     std::vector<SDL_Texture *> texture;
     AABB* collisionBox;
     long hitTime = 0;
@@ -29,7 +29,7 @@ class BrickMushroom : public InteractiveObject {
     std::shared_ptr<Mushroom> mushroomTemp = nullptr;
 
 public:
-    BrickMushroom(SDL_Renderer *ren, int x, int y) {//FIXME this should not need  renderer and map
+    MushroomBox(SDL_Renderer *ren, int x, int y) {//FIXME this should not need  renderer and map
         collisionBox = new AABB(
                 x * TILE_SIZE,
                 x * TILE_SIZE + TILE_SIZE -1,
@@ -49,7 +49,7 @@ public:
         breakSound.push_back(Mix_LoadWAV("./res/sounds/mushroomappear.wav"));
     }
 
-    ~BrickMushroom() {
+    ~MushroomBox() {
         for (size_t i = 0; i < texture.size(); i++) {
             SDL_DestroyTexture(texture[i]);
         }
@@ -74,7 +74,7 @@ public:
         if (this->isUsed) {
             return Map::COIN_TAKEN;
         }
-        return Map::BRICK_MUSHROOM;
+        return Map::MUSHROOM_BOX;
     }
 
     void render(SDL_Renderer* renderer, int x, int y, long time);

@@ -2,10 +2,10 @@
 // Created by mesutcan on 11/20/18.
 //
 
-#include "BrickCoin.h"
+#include "CoinBox.h"
 #include "../Context.h"
 
-Map::TileTypes BrickCoin::interactWithSide(std::shared_ptr<Context> context,
+Map::TileTypes CoinBox::interactWithSide(std::shared_ptr<Context> context,
                                            std::shared_ptr<InteractiveObject> otherObject __attribute((unused)), int interactionSide,
                                            long time) {
     if(hitTime != 0) {
@@ -23,7 +23,7 @@ Map::TileTypes BrickCoin::interactWithSide(std::shared_ptr<Context> context,
             std::shared_ptr<Mario> mario = context->getPlayer();
             if (mario != nullptr) {
                 mario->increaseCoin();
-                std::shared_ptr<HiddenCoin> hiddenCoin = std::make_shared<HiddenCoin>(context->getWorld()->getRen(),
+                std::shared_ptr<Coin> hiddenCoin = std::make_shared<Coin>(context->getWorld()->getRen(),
                         this->getPosition()->getLeftBorder() / TILE_SIZE,
                         (this->getPosition()->getUpBorder() / TILE_SIZE) - 1);
                 context->getWorld()->addObject(hiddenCoin);

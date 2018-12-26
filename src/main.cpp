@@ -8,8 +8,8 @@
 #include "Objects/Mario.h"
 #include "World.h"
 #include "Objects/Brick.h"
-#include "Objects/BrickCoin.h"
-#include "Objects/BrickMushroom.h"
+#include "Objects/CoinBox.h"
+#include "Objects/MushroomBox.h"
 #include "Context.h"
 #include "Objects/Goomba.h"
 
@@ -217,12 +217,12 @@ int main(int argc __attribute((unused)), char *argv[] __attribute((unused))) {//
         brickPos = map->getAndRemoveObject(Map::BRICK);
     }
 
-    std::shared_ptr<BrickCoin> brickCoin;
-    SDL_Rect brickCoinPos = map->getAndRemoveObject(Map::BRICK_COIN);
+    std::shared_ptr<CoinBox> brickCoin;
+    SDL_Rect brickCoinPos = map->getAndRemoveObject(Map::COIN_BOX);
     while (brickCoinPos.x != -1 && brickCoinPos.y != -1) {
-        brickCoin = std::make_shared<BrickCoin>(ren, brickCoinPos.x, brickCoinPos.y);
+        brickCoin = std::make_shared<CoinBox>(ren, brickCoinPos.x, brickCoinPos.y);
         context.get()->getWorld()->addObject(brickCoin);
-        brickCoinPos = map->getAndRemoveObject(Map::BRICK_COIN);
+        brickCoinPos = map->getAndRemoveObject(Map::COIN_BOX);
     }
 
     std::shared_ptr<Goomba> goomba;
@@ -233,12 +233,12 @@ int main(int argc __attribute((unused)), char *argv[] __attribute((unused))) {//
         goombaPos = map->getAndRemoveObject(Map::GOOMBA);
     }
 
-    std::shared_ptr<BrickMushroom> brickMushroom;
-    SDL_Rect brickMushroomPos = map->getAndRemoveObject(Map::BRICK_MUSHROOM);
+    std::shared_ptr<MushroomBox> brickMushroom;
+    SDL_Rect brickMushroomPos = map->getAndRemoveObject(Map::MUSHROOM_BOX);
     while (brickMushroomPos.x != -1 && brickMushroomPos.y != -1) {
-        brickMushroom = std::make_shared<BrickMushroom>(ren, brickMushroomPos.x, brickMushroomPos.y);
+        brickMushroom = std::make_shared<MushroomBox>(ren, brickMushroomPos.x, brickMushroomPos.y);
         context.get()->getWorld()->addObject(brickMushroom);
-        brickMushroomPos = map->getAndRemoveObject(Map::BRICK_MUSHROOM);
+        brickMushroomPos = map->getAndRemoveObject(Map::MUSHROOM_BOX);
     }
 
 
