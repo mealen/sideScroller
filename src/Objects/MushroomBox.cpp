@@ -2,11 +2,11 @@
 // Created by mesutcan on 11/20/18.
 //
 
-#include "BrickMushroom.h"
+#include "MushroomBox.h"
 #include "Mushroom.h"
 #include "../Context.h"
 
-Map::TileTypes BrickMushroom::interactWithSide(std::shared_ptr<Context> context,
+Map::TileTypes MushroomBox::interactWithSide(std::shared_ptr<Context> context,
                                            std::shared_ptr<InteractiveObject> otherObject, int interactionSide,
                                            long time) {
     if(hitTime != 0) {
@@ -31,7 +31,7 @@ Map::TileTypes BrickMushroom::interactWithSide(std::shared_ptr<Context> context,
     return this->getTileType();//no interaction yet
 };
 
-void BrickMushroom::render(SDL_Renderer* renderer, int x, int y, long time) {
+void MushroomBox::render(SDL_Renderer* renderer, int x, int y, long time) {
     SDL_Rect screenPos;
     screenPos.x = collisionBox->getLeftBorder() - x;
     screenPos.y = collisionBox->getUpBorder() - y;

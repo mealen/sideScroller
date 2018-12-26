@@ -9,7 +9,7 @@
 #include "World.h"
 #include "Objects/Brick.h"
 #include "Objects/CoinBox.h"
-#include "Objects/BrickMushroom.h"
+#include "Objects/MushroomBox.h"
 #include "Context.h"
 #include "Objects/Goomba.h"
 
@@ -233,12 +233,12 @@ int main(int argc, char *argv[]) {//these parameters has to be here or SDL_main 
         goombaPos = map->getAndRemoveObject(Map::GOOMBA);
     }
 
-    std::shared_ptr<BrickMushroom> brickMushroom;
-    SDL_Rect brickMushroomPos = map->getAndRemoveObject(Map::BRICK_MUSHROOM);
+    std::shared_ptr<MushroomBox> brickMushroom;
+    SDL_Rect brickMushroomPos = map->getAndRemoveObject(Map::MUSHROOM_BOX);
     while (brickMushroomPos.x != -1 && brickMushroomPos.y != -1) {
-        brickMushroom = std::make_shared<BrickMushroom>(ren, brickMushroomPos.x, brickMushroomPos.y);
+        brickMushroom = std::make_shared<MushroomBox>(ren, brickMushroomPos.x, brickMushroomPos.y);
         context.get()->getWorld()->addObject(brickMushroom);
-        brickMushroomPos = map->getAndRemoveObject(Map::BRICK_MUSHROOM);
+        brickMushroomPos = map->getAndRemoveObject(Map::MUSHROOM_BOX);
     }
 
 
