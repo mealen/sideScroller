@@ -6,7 +6,7 @@
 #include "../Context.h"
 
 Map::TileTypes BrickCoin::interactWithSide(std::shared_ptr<Context> context,
-                                           std::shared_ptr<InteractiveObject> otherObject, int interactionSide,
+                                           std::shared_ptr<InteractiveObject> otherObject __attribute((unused)), int interactionSide,
                                            long time) {
     if(hitTime != 0) {
         return this->getTileType();//if already interacted, don't allow again

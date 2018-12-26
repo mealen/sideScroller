@@ -110,7 +110,7 @@ int init(std::shared_ptr<Context> &context, std::shared_ptr<Map> &map0101, SDL_R
         return 1;
     }
 
-    std::shared_ptr<Mario> mario = std::make_shared<Mario>(map0101->getAndRemoveObject(Map::PLAYER), ren, SCREEN_WIDTH,
+    std::shared_ptr<Mario> mario = std::make_shared<Mario>(map0101->getAndRemoveObject(Map::PLAYER), ren,
                                                                            error);
     if (error != 0) {
         std::cerr << "Error initializing Mario, Exiting" << std::endl;
@@ -124,7 +124,7 @@ int init(std::shared_ptr<Context> &context, std::shared_ptr<Map> &map0101, SDL_R
     return 0;
 }
 
-int main(int argc, char *argv[]) {//these parameters has to be here or SDL_main linking issue arises
+int main(int argc __attribute((unused)), char *argv[] __attribute((unused))) {//these parameters has to be here or SDL_main linking issue arises
     if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) != 0) {
         std::cout << "SDL_Init Error: " << SDL_GetError() << std::endl;
         return 1;

@@ -86,7 +86,7 @@ public:
         return false; //there is no case we are expecting removal
     };
 
-    void step(long time) {};
+    void step(long time __attribute((unused))) {};
 
 };
 

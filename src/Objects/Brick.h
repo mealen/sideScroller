@@ -42,7 +42,7 @@ public:
 
     }
 
-    SDL_Texture* getTexture(long time) const {
+    SDL_Texture* getTexture(long time  __attribute((unused))) const {
         return texture;
     };
 
@@ -95,7 +95,7 @@ public:
         }
     }
 
-    Map::TileTypes interactWithSide(std::shared_ptr<Context> context, std::shared_ptr<InteractiveObject> otherObject,
+    Map::TileTypes interactWithSide(std::shared_ptr<Context> context __attribute((unused)), std::shared_ptr<InteractiveObject> otherObject __attribute((unused)),
                                     int interactionSide, long time) {
         if(breakTime != 0) {
             return this->getTileType();//if already interacted, don't allow again
@@ -112,7 +112,7 @@ public:
         return isDestroyed; //there is no case we are expecting removal
     };
 
-    void step(long time) {};
+    void step(long time __attribute((unused))) {};
 
 };
 

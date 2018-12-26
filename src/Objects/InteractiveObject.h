@@ -22,9 +22,9 @@ public:
     virtual Map::TileTypes interactWithSide(std::shared_ptr<Context> context,
                                             std::shared_ptr<InteractiveObject> otherObject, int interactionSide,
                                             long time) = 0;
-    virtual void collideWithSide(std::shared_ptr<Context> context,
-                                            Map::TileTypes tile, int interactionSide,
-                                            long time) {};
+    virtual void collideWithSide(std::shared_ptr<Context> context __attribute((unused)),
+                                            Map::TileTypes tile __attribute((unused)), int interactionSide __attribute((unused)),
+                                            long time __attribute((unused))) {};
     virtual void step(long time) = 0;
     virtual bool waitingForDestroy() = 0;
 
@@ -34,7 +34,7 @@ public:
         return dead;
     }
 
-    virtual void die(Map::TileTypes tile) {
+    virtual void die(Map::TileTypes tile __attribute((unused))) {
         this->dead = true;
     }
 
