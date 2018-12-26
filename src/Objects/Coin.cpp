@@ -2,22 +2,22 @@
 // Created by mesutcan on 11/20/18.
 //
 
-#include "HiddenCoin.h"
+#include "Coin.h"
 #include "../Utils.h"
 
-AABB *HiddenCoin::getPosition() const {
+AABB *Coin::getPosition() const {
     return this->collisionBox;
 }
 
-SDL_Texture *HiddenCoin::getTexture(long time) const {
+SDL_Texture *Coin::getTexture(long time) const {
     return this->texture[(time / (TOTAL_ANIM_TIME / 8)) % 4];
 }
 
-Map::TileTypes HiddenCoin::getTileType() const {
+Map::TileTypes Coin::getTileType() const {
     return Map::TileTypes::EMPTY;
 }
 
-void HiddenCoin::render(SDL_Renderer *renderer, int x, int y, long time) {
+void Coin::render(SDL_Renderer *renderer, int x, int y, long time) {
     SDL_Rect screenPos;
     // calculate offset and add to x and y positions
     screenPos.x = collisionBox->getLeftBorder() - x + (((1 - SHRINK_FACTOR) * TILE_SIZE) / 2);
@@ -42,21 +42,21 @@ void HiddenCoin::render(SDL_Renderer *renderer, int x, int y, long time) {
 
 }
 
-Map::TileTypes HiddenCoin::interactWithSide(std::shared_ptr<Context> context,
+Map::TileTypes Coin::interactWithSide(std::shared_ptr<Context> context,
                                             std::shared_ptr<InteractiveObject> otherObject, int interactionSide,
                                             long time) {
     return this->getTileType();
 }
 
-void HiddenCoin::step(long time) {
+void Coin::step(long time) {
 
 }
 
-bool HiddenCoin::waitingForDestroy() {
+bool Coin::waitingForDestroy() {
     return isDestroyed;
 }
 
-HiddenCoin::HiddenCoin(SDL_Renderer *ren, int x, int y) {
+Coin::Coin(SDL_Renderer *ren, int x, int y) {
     collisionBox = new AABB(
             x * TILE_SIZE,
             x * TILE_SIZE + TILE_SIZE -1,

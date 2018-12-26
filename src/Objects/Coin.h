@@ -8,7 +8,7 @@
 
 #include "InteractiveObject.h"
 
-class HiddenCoin: public InteractiveObject {
+class Coin: public InteractiveObject {
     std::vector<SDL_Texture*> texture;
     AABB* collisionBox;
     long firstRenderTime = 0;
@@ -17,7 +17,7 @@ class HiddenCoin: public InteractiveObject {
     const float SHRINK_FACTOR = 0.75f;
 
 public:
-    HiddenCoin(SDL_Renderer *ren, int x, int y);
+    Coin(SDL_Renderer *ren, int x, int y);
 
     AABB *getPosition() const override;
 

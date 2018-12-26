@@ -13,7 +13,7 @@
 #include "../Utils.h"
 #include "InteractiveObject.h"
 #include "Mario.h"
-#include "HiddenCoin.h"
+#include "Coin.h"
 
 class BrickCoin : public InteractiveObject {
     std::vector<SDL_Texture *> texture;

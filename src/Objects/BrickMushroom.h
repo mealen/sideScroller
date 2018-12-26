@@ -13,7 +13,7 @@
 #include "../Utils.h"
 #include "InteractiveObject.h"
 #include "Mario.h"
-#include "HiddenCoin.h"
+#include "Coin.h"
 
 class World;
 class Mushroom;
