@@ -37,11 +37,11 @@ Mushroom::~Mushroom() {
 
 SDL_Texture* Mushroom::getTexture(long time __attribute((unused))) const {
     return texture[0];
-};
+}
 
 AABB* Mushroom::getPosition() const {
     return collisionBox;
-};
+}
 
 Map::TileTypes Mushroom::getTileType() const {
     return Map::MUSHROOM;
@@ -100,7 +100,7 @@ Map::TileTypes Mushroom::interactWithSide(std::shared_ptr<Context> context __att
 
 bool Mushroom::waitingForDestroy() {
     return isDead(); //there is no case we are expecting removal
-};
+}
 
 void Mushroom::step(long time __attribute((unused))) {
     if(directionChangeRequested) {
@@ -115,4 +115,4 @@ void Mushroom::step(long time __attribute((unused))) {
         }
     }
 
-};
+}

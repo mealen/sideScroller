@@ -199,7 +199,7 @@ void Mario::step(long time) {
         growStarted = false;
         growStartTime = 0;
     }
-};
+}
 
 void Mario::die(Map::TileTypes type) {
     if (getBig()) {
