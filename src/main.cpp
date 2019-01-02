@@ -12,6 +12,7 @@
 #include "Objects/MushroomBox.h"
 #include "Context.h"
 #include "Objects/Goomba.h"
+#include "Objects/HiddenCoinBox.h"
 
 
 class InputStates {
@@ -239,6 +240,14 @@ int main(int argc __attribute((unused)), char *argv[] __attribute((unused))) {//
         brickMushroom = std::make_shared<MushroomBox>(ren, brickMushroomPos.x, brickMushroomPos.y);
         context.get()->getWorld()->addObject(brickMushroom);
         brickMushroomPos = map->getAndRemoveObject(Map::MUSHROOM_BOX);
+    }
+
+    std::shared_ptr<HiddenCoinBox> hiddenCoinBox;
+    SDL_Rect hiddenCoinBoxPos = map->getAndRemoveObject(Map::HIDDEN_COIN_BOX);
+    while (hiddenCoinBoxPos.x != -1 && hiddenCoinBoxPos.y != -1) {
+        hiddenCoinBox = std::make_shared<HiddenCoinBox>(ren, hiddenCoinBoxPos.x, hiddenCoinBoxPos.y);
+        context.get()->getWorld()->addObject(hiddenCoinBox);
+        hiddenCoinBoxPos = map->getAndRemoveObject(Map::HIDDEN_COIN_BOX);
     }
 
 
