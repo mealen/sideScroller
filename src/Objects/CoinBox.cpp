@@ -30,7 +30,6 @@ Map::TileTypes CoinBox::interactWithSide(std::shared_ptr<Context> context,
             } else {
                 std::cerr << "Unexpected behavior. Player is not Mario. Who the f**K are you;" << std::endl;
             }
-
         }
     }
 
