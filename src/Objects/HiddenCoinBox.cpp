@@ -22,7 +22,9 @@ HiddenCoinBox::interactWithSide(std::shared_ptr<Context> context, std::shared_pt
     if(otherObject->getTileType() == Map::PLAYER && interactionSide == 1) {
         if(isUsed) {
             //destroy logic
-            breakTime = time;
+            if(breakTime == 0) {
+                breakTime = time;
+            }
         } else {
             if(firstHitTime == 0) {
                 firstHitTime = time;
