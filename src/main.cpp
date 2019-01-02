@@ -119,6 +119,8 @@ int init(std::shared_ptr<Context> &context, std::shared_ptr<Map> &map0101, SDL_R
 
     std::shared_ptr<World> world = std::make_shared<World>(map0101.get(), ren, mario);
 
+    world->addObject(mario);
+
     context = std::make_shared<Context>(world, mario);
 
     return 0;
@@ -213,7 +215,7 @@ int main(int argc __attribute((unused)), char *argv[] __attribute((unused))) {//
     SDL_Rect brickPos = map->getAndRemoveObject(Map::BRICK);
     while (brickPos.x != -1 && brickPos.y != -1) {
         brick = std::make_shared<Brick>(ren, brickPos.x, brickPos.y);
-        context.get()->getWorld()->addObject(brick);
+        context->getWorld()->addObject(brick);
         brickPos = map->getAndRemoveObject(Map::BRICK);
     }
 
@@ -221,7 +223,7 @@ int main(int argc __attribute((unused)), char *argv[] __attribute((unused))) {//
     SDL_Rect brickCoinPos = map->getAndRemoveObject(Map::COIN_BOX);
     while (brickCoinPos.x != -1 && brickCoinPos.y != -1) {
         brickCoin = std::make_shared<CoinBox>(ren, brickCoinPos.x, brickCoinPos.y);
-        context.get()->getWorld()->addObject(brickCoin);
+        context->getWorld()->addObject(brickCoin);
         brickCoinPos = map->getAndRemoveObject(Map::COIN_BOX);
     }
 
@@ -229,7 +231,7 @@ int main(int argc __attribute((unused)), char *argv[] __attribute((unused))) {//
     SDL_Rect goombaPos = map->getAndRemoveObject(Map::GOOMBA);
     while (goombaPos.x != -1 && goombaPos.y != -1) {
         goomba = std::make_shared<Goomba>(ren, goombaPos.x, goombaPos.y);
-        context.get()->getWorld()->addObject(goomba);
+        context->getWorld()->addObject(goomba);
         goombaPos = map->getAndRemoveObject(Map::GOOMBA);
     }
 
@@ -237,7 +239,7 @@ int main(int argc __attribute((unused)), char *argv[] __attribute((unused))) {//
     SDL_Rect brickMushroomPos = map->getAndRemoveObject(Map::MUSHROOM_BOX);
     while (brickMushroomPos.x != -1 && brickMushroomPos.y != -1) {
         brickMushroom = std::make_shared<MushroomBox>(ren, brickMushroomPos.x, brickMushroomPos.y);
-        context.get()->getWorld()->addObject(brickMushroom);
+        context->getWorld()->addObject(brickMushroom);
         brickMushroomPos = map->getAndRemoveObject(Map::MUSHROOM_BOX);
     }
 

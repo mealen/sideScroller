@@ -75,6 +75,10 @@ Map::TileTypes World::collide(int rightSpeed, int downSpeed, long time, std::sha
             }
         }
     }
+
+    if (collidingObject == interactiveObject) {
+        return Map::EMPTY;
+    }
     if(collidingObject != NULL ) {
         tile = collidingObject->interactWithSide(context, interactiveObject, collisionSide, time);
         int reverseCollisionSide;
@@ -102,7 +106,7 @@ void World::stepSimulation(long time, std::shared_ptr<Context> context) {
             this->objects[i]->step(time);
         }
     }
-    stepSingleObject(time, context, this->mario);
+
     for (size_t i = 0; i < this->objects.size(); ++i) {
         std::shared_ptr<InteractiveObject> interactiveObject = this->objects[i];
         stepSingleObject(time, context, interactiveObject);
