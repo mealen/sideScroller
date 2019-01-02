@@ -139,7 +139,11 @@ SDL_Texture * Mario::getTexture(long time) const {
         curStatus = SMALL;
     }
     if(collisionBox->isHasJumped()) {
-        return textures.at(curStatus).at(JUMP).at(0);
+        if (isGrowStarted()) {
+            return textures.at(curStatus).at(STAND).at(0);
+        } else {
+            return textures.at(curStatus).at(JUMP).at(0);
+        }
     }
     if (isDead()) {
         return textures.at(curStatus).at(DEAD).at(0);
@@ -149,6 +153,8 @@ SDL_Texture * Mario::getTexture(long time) const {
             return textures.at(curStatus).at(STAND).at(0);
         case MOVE:
             return textures.at(curStatus).at(MOVE).at((time / 75) % 3);
+        case JUMP:
+            return textures.at(curStatus).at(JUMP).at(0);
         default:
             std::cerr << "Requested Texture type not found" << std::endl;
             exit(-1);
@@ -255,6 +261,7 @@ void Mario::move(bool left, bool right, bool jump, bool crouch __attribute((unus
         return;
     }
     if(jump) {
+        currentState = JUMP;
         collisionBox->jump(JUMP_SPEED);
     }
     if (left) {
@@ -291,6 +298,7 @@ Mario::~Mario() {
 bool Mario::grow() {
     if (!isBig) {
         growStarted = true;
+        currentState = STAND;
         isBig = true;
         getPosition()->setUpBorder(getPosition()->getUpBorder() - TILE_SIZE);
         return true;
@@ -302,6 +310,7 @@ bool Mario::grow() {
 bool Mario::shrink() {
     if (isBig) {
         isBig = false;
+        currentState = STAND;
         getPosition()->setUpBorder(getPosition()->getUpBorder() + TILE_SIZE);
         return true;
     } else {
