@@ -142,4 +142,7 @@ void Goomba::step(long time) {
     }
 };
 
+void Goomba::die(Map::TileTypes type) {
+    this->isRemoveWaiting = true;
+}
 

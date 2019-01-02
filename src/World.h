@@ -116,7 +116,6 @@ public:
             if (aabb->getUpwardSpeed() < 0) {
                 // mario dies
                 interactiveObject->die(tile);
-                std::cout << "Mario dies\n";
             }
         }
         if (tile != Map::EMPTY && aabb->getPhysicsState() == AABB::DYNAMIC) {//if not possible, match the tile, and then stop

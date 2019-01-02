@@ -48,6 +48,9 @@ public:
 
     void step(long time) override;
 
+    void die(Map::TileTypes type) override;
+
+
 };
 
 
