@@ -40,6 +40,8 @@ private:
     bool isBig = false;
     bool growStarted = false;
     long growStartTime = 0;
+    bool shrinkStarted = false;
+    long shrinkStartTime = 0;
     long lastStepTime = 0;
     bool moveRight = true;
     Mix_Chunk *growSound;
@@ -85,6 +87,8 @@ public:
     bool getBig();
 
     bool isGrowStarted() const;
+
+    bool isShrinkStarted() const;
 
 };
 

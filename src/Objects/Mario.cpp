@@ -72,6 +72,10 @@ Mario::Mario(SDL_Rect mapPosition, SDL_Renderer *ren, int &error) {
 }
 
 void Mario::render(SDL_Renderer *renderer, int x __attribute((unused)), int y __attribute((unused)), long time) {
+    if (shrinkStarted && ((time - shrinkStartTime) / 100 ) % 2) {
+        return;
+    }
+
     AABB *marioPos = getPosition();
     SDL_RendererFlip leftRightFlip;
 
@@ -162,7 +166,11 @@ Map::TileTypes Mario::getTileType() const {
 Map::TileTypes Mario::interactWithSide(std::shared_ptr<Context> context __attribute((unused)), std::shared_ptr<InteractiveObject> otherObject,
                                 int interactionSide, long time __attribute((unused))) {
     if (otherObject->getTileType() == Map::TileTypes::GOOMBA && interactionSide != 1) {
-        die(otherObject->getTileType());
+        if (isShrinkStarted()) {
+            return Map::EMPTY;
+        } else {
+            die(otherObject->getTileType());
+        }
     }
     if (otherObject->getTileType() == Map::TileTypes::MUSHROOM) {
         grow();
@@ -183,6 +191,10 @@ void Mario::step(long time) {
         growStartTime = time;
     }
 
+    if (shrinkStarted && shrinkStartTime == 0) {
+        shrinkStartTime = time;
+    }
+
     if (growStarted) {
         getPosition()->setPhysicsState(AABB::STATIC);
         if (((time - growStartTime) / 100 ) % 2) {
@@ -190,10 +202,21 @@ void Mario::step(long time) {
         } else {
             grow();
         }
+
+    } else if (shrinkStarted) {
+        if (((time - growStartTime) / 100 ) % 2) {
+            shrink();
+        }
     } else if (!killed) {
         getPosition()->setPhysicsState(AABB::DYNAMIC);
 
-}
+    }
+
+
+    if (time - shrinkStartTime > 2000) {
+        shrinkStarted = false;
+        shrinkStartTime = 0;
+    }
 
     if (time - growStartTime > 1000) {
         growStarted = false;
@@ -202,8 +225,12 @@ void Mario::step(long time) {
 }
 
 void Mario::die(Map::TileTypes type) {
-    if (getBig()) {
+    if (shrinkStarted) {
+        return;
+    }
+    if (getBig() && !shrinkStarted) {
         shrink();
+        shrinkStarted = true;
         return;
     }
     if (isDead()) {
@@ -299,4 +326,8 @@ int Mario::getCoins() const {
 int Mario::increaseCoin(int amount) {
     coins += amount;
     return coins;
+}
+
+bool Mario::isShrinkStarted() const {
+    return shrinkStarted;
 }
