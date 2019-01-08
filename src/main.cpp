@@ -24,6 +24,7 @@ public:
     bool jump = false;
     bool jumpEvent = false;
     bool stop = false;
+    bool run = false;
 };
 
 
@@ -42,6 +43,9 @@ void readInput(InputStates &input) {
             switch (e.key.keysym.sym) {
                 case SDLK_ESCAPE:
                     input.quit = true;
+                    break;
+                case SDLK_LSHIFT:
+                    input.run = true;
                     break;
                 case SDLK_d:
                 case SDLK_RIGHT:
@@ -65,6 +69,9 @@ void readInput(InputStates &input) {
         }
         if (e.type == SDL_KEYUP) {
             switch (e.key.keysym.sym) {
+                case SDLK_LSHIFT:
+                    input.run = true;
+                    break;
                 case SDLK_d:
                 case SDLK_RIGHT:
                     input.goRight = false;
@@ -307,7 +314,7 @@ int main(int argc __attribute((unused)), char *argv[] __attribute((unused))) {//
                     sourceRect.x = mapWidth - SCREEN_WIDTH;
                 }
             }
-            context->getPlayer()->move(input.goLeft, input.goRight, input.jumpEvent, false);
+            context->getPlayer()->move(input.goLeft, input.goRight, input.jumpEvent, false, input.run);
 
 
             previousTime = time;
