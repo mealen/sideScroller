@@ -35,7 +35,6 @@ private:
     int score = 0;
     int coins = 0;
     int moveSpeed = 4;
-    int jumpSpeed = 16;
     AABB* collisionBox;
     bool killed = false;
     bool isBig = false;

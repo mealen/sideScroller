@@ -70,7 +70,7 @@ void readInput(InputStates &input) {
         if (e.type == SDL_KEYUP) {
             switch (e.key.keysym.sym) {
                 case SDLK_LSHIFT:
-                    input.run = true;
+                    input.run = false;
                     break;
                 case SDLK_d:
                 case SDLK_RIGHT:
