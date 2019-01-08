@@ -6,6 +6,7 @@
 #define MARIO_BRICK_H
 
 
+
 #include <SDL_render.h>
 #include <SDL_mixer.h>
 
@@ -17,9 +18,11 @@ class Brick : public InteractiveObject {
     SDL_Texture *texture;
     AABB* collisionBox;
     long breakTime = 0;
+    long hitTime = 0;
     Mix_Chunk *breakSound = NULL;
     Mix_Chunk *hitSound = NULL;
     bool isDestroyed = false;
+    const int HIT_ANIMATION_TIME = 250;
 
 public:
     Brick(SDL_Renderer *ren, int x, int y) {//FIXME this should not need  renderer and map
@@ -90,6 +93,21 @@ public:
             screenPos.x -= TILE_SIZE/2 + 2 *(animTime / 16);
             //down left
             SDL_RenderCopyEx(renderer, getTexture(time), &texturePos, &screenPos, -animTime, 0, SDL_FLIP_NONE);
+        } else if(hitTime != 0 && hitTime != time) {
+
+            SDL_Rect texturePos;
+            screenPos.w = texturePos.w = TILE_SIZE;
+            screenPos.h = texturePos.h = TILE_SIZE;
+            texturePos.x = 0;
+            texturePos.y = 0;
+            long animTime = time - hitTime;
+            if(animTime > HIT_ANIMATION_TIME) {
+                animTime = HIT_ANIMATION_TIME;//stop animation after 500
+            }
+            float upSpeed = sin(M_PI * (animTime) / HIT_ANIMATION_TIME);
+            screenPos.y = screenPos.y - upSpeed * (TILE_SIZE / 4);
+
+            SDL_RenderCopyEx(renderer, getTexture(time), 0, &screenPos, 0, 0, SDL_FLIP_NONE);
         } else {
             SDL_RenderCopyEx(renderer, getTexture(time), 0, &screenPos, 0, 0, SDL_FLIP_NONE);
         }
@@ -101,9 +119,14 @@ public:
             return this->getTileType();//if already interacted, don't allow again
         }
         if(interactionSide == CollisionSide::DOWN) {
-            //isDestroyed = true;
-            Mix_PlayChannel(-1, breakSound, 0);
-            breakTime = time;
+            if (otherObject.get()->getTileType() == TileTypes::PLAYER && (static_cast<Mario *>(otherObject.get()))->getBig()) {
+                //isDestroyed = true;
+                Mix_PlayChannel(-1, breakSound, 0);
+                breakTime = time;
+            } else {
+                Mix_PlayChannel(-1, hitSound, 0);
+                hitTime = time;
+            }
         }
         return this->getTileType();//no interaction yet
     };
