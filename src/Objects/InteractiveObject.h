@@ -8,7 +8,7 @@
 
 #include <SDL_render.h>
 #include "../AABB.h"
-#include "../Map.h"
+#include "../Constants.h"
 #include <memory>
 class Context;
 
@@ -16,14 +16,14 @@ class InteractiveObject {
 public:
     virtual AABB* getPosition() const = 0;
     virtual SDL_Texture* getTexture(long time) const= 0;
-    virtual Map::TileTypes getTileType() const = 0;
+    virtual TileTypes getTileType() const = 0;
     virtual void render(SDL_Renderer* renderer, int x, int y, long time) = 0;
 
-    virtual Map::TileTypes interactWithSide(std::shared_ptr<Context> context,
+    virtual TileTypes interactWithSide(std::shared_ptr<Context> context,
                                             std::shared_ptr<InteractiveObject> otherObject, int interactionSide,
                                             long time) = 0;
     virtual void collideWithSide(std::shared_ptr<Context> context __attribute((unused)),
-                                            Map::TileTypes tile __attribute((unused)), int interactionSide __attribute((unused)),
+                                 TileTypes tile __attribute((unused)), int interactionSide __attribute((unused)),
                                             long time __attribute((unused))) {};
     virtual void step(long time) = 0;
     virtual bool waitingForDestroy() = 0;
@@ -34,7 +34,7 @@ public:
         return dead;
     }
 
-    virtual void die(Map::TileTypes tile __attribute((unused))) {
+    virtual void die(TileTypes tile __attribute((unused))) {
         this->dead = true;
     }
 

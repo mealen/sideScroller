@@ -50,8 +50,8 @@ public:
         return collisionBox;
     };
 
-    Map::TileTypes getTileType() const {
-        return Map::BRICK;
+    TileTypes getTileType() const {
+        return TileTypes::BRICK;
     }
 
     void render(SDL_Renderer* renderer, int x, int y, long time) {
@@ -95,7 +95,7 @@ public:
         }
     }
 
-    Map::TileTypes interactWithSide(std::shared_ptr<Context> context __attribute((unused)), std::shared_ptr<InteractiveObject> otherObject __attribute((unused)),
+    TileTypes interactWithSide(std::shared_ptr<Context> context __attribute((unused)), std::shared_ptr<InteractiveObject> otherObject __attribute((unused)),
                                     int interactionSide, long time) {
         if(breakTime != 0) {
             return this->getTileType();//if already interacted, don't allow again

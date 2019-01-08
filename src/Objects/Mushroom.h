@@ -33,14 +33,14 @@ public:
 
     AABB* getPosition() const override;
 
-    Map::TileTypes getTileType() const override;
+    TileTypes getTileType() const override;
 
     void render(SDL_Renderer* renderer, int x, int y, long time) override;
 
-    void collideWithSide(std::shared_ptr<Context> context __attribute((unused)), Map::TileTypes tile,
+    void collideWithSide(std::shared_ptr<Context> context __attribute((unused)), TileTypes tile,
                                     int interactionSide, long time __attribute((unused))) override;
 
-    Map::TileTypes interactWithSide(std::shared_ptr<Context> context __attribute((unused)), std::shared_ptr<InteractiveObject> otherObject,
+    TileTypes interactWithSide(std::shared_ptr<Context> context __attribute((unused)), std::shared_ptr<InteractiveObject> otherObject,
                                     int interactionSide, long time __attribute((unused))) override;
 
     bool waitingForDestroy() override;

@@ -7,6 +7,7 @@
 
 
 #include <SDL_mixer.h>
+#include <vector>
 #include "InteractiveObject.h"
 #include "../Utils.h"
 
@@ -20,7 +21,7 @@ class HiddenCoinBox : public InteractiveObject {
     long lastHitTime = 0;
     long breakTime = 0;
     const long activeFor = 5000;//after first hit, active for this many seconds
-    std::vector<Mix_Chunk *>breakSound;
+    std::vector<Mix_Chunk *> breakSound;
     bool isUsed = false;
     bool isBroken = false;
 
@@ -54,11 +55,11 @@ public:
         return collisionBox;
     };
 
-    Map::TileTypes getTileType() const {
+    TileTypes getTileType() const {
         if (this->isUsed) {
-            return Map::BRICK;
+            return TileTypes::BRICK;
         }
-        return Map::HIDDEN_COIN_BOX;
+        return TileTypes::HIDDEN_COIN_BOX;
     }
 
     void render(SDL_Renderer* renderer, int x, int y, long time) {
@@ -117,7 +118,7 @@ public:
         }
     }
 
-    Map::TileTypes interactWithSide(std::shared_ptr<Context> context, std::shared_ptr<InteractiveObject> otherObject,
+    TileTypes interactWithSide(std::shared_ptr<Context> context, std::shared_ptr<InteractiveObject> otherObject,
                                     int interactionSide, long time) override;
 
     bool waitingForDestroy() override {

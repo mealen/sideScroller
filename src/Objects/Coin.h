@@ -5,6 +5,7 @@
 #ifndef MARIO_COIN_H
 #define MARIO_COIN_H
 
+#include <vector>
 
 #include "InteractiveObject.h"
 
@@ -23,11 +24,11 @@ public:
 
     SDL_Texture *getTexture(long time) const override;
 
-    Map::TileTypes getTileType() const override;
+    TileTypes getTileType() const override;
 
     void render(SDL_Renderer *renderer, int x, int y, long time) override;
 
-    Map::TileTypes interactWithSide(std::shared_ptr<Context> context, std::shared_ptr<InteractiveObject> otherObject,
+    TileTypes interactWithSide(std::shared_ptr<Context> context, std::shared_ptr<InteractiveObject> otherObject,
                                     int interactionSide, long time) override;
 
     void step(long time) override;

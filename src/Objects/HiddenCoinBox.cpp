@@ -16,10 +16,9 @@ void HiddenCoinBox::step(long time) {
     }
 }
 
-Map::TileTypes
-HiddenCoinBox::interactWithSide(std::shared_ptr<Context> context, std::shared_ptr<InteractiveObject> otherObject,
+TileTypes HiddenCoinBox::interactWithSide(std::shared_ptr<Context> context, std::shared_ptr<InteractiveObject> otherObject,
                                 int interactionSide, long time) {
-    if(otherObject->getTileType() == Map::PLAYER && interactionSide == 1) {
+    if(otherObject->getTileType() == TileTypes::PLAYER && interactionSide == 1) {
         if(isUsed) {
             //destroy logic
             if(breakTime == 0) {
@@ -51,5 +50,5 @@ HiddenCoinBox::interactWithSide(std::shared_ptr<Context> context, std::shared_pt
             }
         }
     }
-    return Map::HIDDEN_COIN_BOX;
+    return TileTypes::HIDDEN_COIN_BOX;
 }

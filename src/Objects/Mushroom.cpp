@@ -43,8 +43,8 @@ AABB* Mushroom::getPosition() const {
     return collisionBox;
 }
 
-Map::TileTypes Mushroom::getTileType() const {
-    return Map::MUSHROOM;
+TileTypes Mushroom::getTileType() const {
+    return TileTypes::MUSHROOM;
 }
 
 void Mushroom::render(SDL_Renderer* renderer, int x, int y, long time) {
@@ -58,34 +58,34 @@ void Mushroom::render(SDL_Renderer* renderer, int x, int y, long time) {
 
 }
 
-void Mushroom::collideWithSide(std::shared_ptr<Context> context __attribute((unused)), Map::TileTypes tile,
+void Mushroom::collideWithSide(std::shared_ptr<Context> context __attribute((unused)), TileTypes tile,
                                 int interactionSide, long time __attribute((unused))) {
     if (interactionSide == 1) {
 
     }
     else if (interactionSide == 3 || interactionSide == 4 || interactionSide == -1) {
-        if(tile != Map::GROUND) {
+        if(tile != TileTypes::GROUND) {
             directionRight = !directionRight;
         }
     }
 
 }
 
-Map::TileTypes Mushroom::interactWithSide(std::shared_ptr<Context> context __attribute((unused)), std::shared_ptr<InteractiveObject> otherObject,
+TileTypes Mushroom::interactWithSide(std::shared_ptr<Context> context __attribute((unused)), std::shared_ptr<InteractiveObject> otherObject,
                                 int interactionSide, long time __attribute((unused))) {
     if(hitTime != 0) {
-        return Map::MUSHROOM;//if already interacted, don't allow again
+        return TileTypes::MUSHROOM;//if already interacted, don't allow again
     }
 
     // if mario is coming from top, kill
-    if(otherObject->getTileType() == Map::TileTypes::PLAYER) {
+    if(otherObject->getTileType() == TileTypes::PLAYER) {
         if(!otherObject->isDead()) {
             isSquashed = true;
 
             die(getTileType());
             Mario *player = static_cast<Mario *>(otherObject.get());
             player->grow();
-            return Map::EMPTY;
+            return TileTypes::EMPTY;
         }
         // swap direction
     } else if (interactionSide == 3 || interactionSide == 4) {
@@ -95,7 +95,7 @@ Map::TileTypes Mushroom::interactWithSide(std::shared_ptr<Context> context __att
     }
 
 
-    return Map::MUSHROOM;//no interaction yet
+    return TileTypes::MUSHROOM;//no interaction yet
 }
 
 bool Mushroom::waitingForDestroy() {

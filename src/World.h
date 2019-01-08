@@ -8,12 +8,14 @@
 
 #include "Objects/InteractiveObject.h"
 #include "Objects/Mario.h"
+#include "Constants.h"
 #include <memory>
 #include <SDL_ttf.h>
 
 class World {
+
+private:
     std::vector<std::shared_ptr<InteractiveObject>> objects;
-    Map* map;
     SDL_Texture *coinsTextTexture = nullptr;
     TTF_Font *font = nullptr;
     SDL_Color textColor;
@@ -22,13 +24,17 @@ class World {
     SDL_Rect coinsRect;
     SDL_Rect coinImgPos;
     SDL_Texture *coinTexture = nullptr;
+    TileTypes tiles[224][15];
 
 public:
+
     SDL_Renderer *getRen() const {
         return ren;
     }
-
-public:
+    void load(std::string logicFile, int &error);
+    TileTypes getTileObject(int x, int y);
+    SDL_Rect getAndRemoveObject(TileTypes types);
+    SDL_Rect getObject(TileTypes type);
     void addObject(std::shared_ptr<InteractiveObject> object) {
         objects.push_back(object);
     }
@@ -67,12 +73,11 @@ public:
      * Checks if the box is at collition with given tile coordinates.
      * The coordinates are not graphical, but logical.
      *
-     * @param map
      * @param rightSpeed 1 for right, -1 for left, 0 for stopped
      * @param downSpeed 1 for up, -1 for down, 0 for stopped
      * @return true if collides
      */
-    Map::TileTypes collide(int rightSpeed, int downSpeed, long time, std::shared_ptr<Context> context,
+    TileTypes collide(int rightSpeed, int downSpeed, long time, std::shared_ptr<Context> context,
                            std::shared_ptr<InteractiveObject> interactiveObject);
 
     void stepSimulation(long time, std::shared_ptr<Context> context);
@@ -91,9 +96,9 @@ public:
 
         int horizontalSpeed = aabb->getHorizontalSpeed();
 
-        Map::TileTypes tile = collide(horizontalSpeed, 0, time, context, interactiveObject);
+        TileTypes tile = collide(horizontalSpeed, 0, time, context, interactiveObject);
 
-        if (tile == Map::EMPTY || aabb->getPhysicsState() != AABB::DYNAMIC) {
+        if (tile == TileTypes::EMPTY || aabb->getPhysicsState() != AABB::DYNAMIC) {
             aabb->setLeftBorder(aabb->getLeftBorder() + horizontalSpeed);
             aabb->setRightBorder(aabb->getRightBorder() + horizontalSpeed);
         }
@@ -104,7 +109,7 @@ public:
             aabb->setHasJumpTriggered(false);
             tile = collide(0, 1, time, context, interactiveObject);
 
-            if (tile != Map::EMPTY && aabb->getPhysicsState() == AABB::DYNAMIC) {
+            if (tile != TileTypes::EMPTY && aabb->getPhysicsState() == AABB::DYNAMIC) {
                 aabb->setUpwardSpeed(aabb->getUpwardRequest());
             }
             aabb->setUpwardRequest(0);
@@ -112,13 +117,13 @@ public:
         int upwardSpeed = aabb->getUpwardSpeed();
         tile = collide(0, -1 * upwardSpeed, time, context, interactiveObject);
         //check if moving with upward speed is possible
-        if (tile == Map::OUT_OF_MAP || aabb->getPhysicsState() != AABB::DYNAMIC) {
+        if (tile == TileTypes::OUT_OF_MAP || aabb->getPhysicsState() != AABB::DYNAMIC) {
             if (aabb->getUpwardSpeed() < 0) {
                 // mario dies
                 interactiveObject->die(tile);
             }
         }
-        if (tile != Map::EMPTY && aabb->getPhysicsState() == AABB::DYNAMIC) {//if not possible, match the tile, and then stop
+        if (tile != TileTypes::EMPTY && aabb->getPhysicsState() == AABB::DYNAMIC) {//if not possible, match the tile, and then stop
             int curSize = (aabb->getDownBorder() - aabb->getUpBorder());
             aabb->setUpBorder(aabb->getUpBorder() - upwardSpeed);
             if (aabb->getUpwardSpeed() > 0) {
@@ -136,7 +141,7 @@ public:
         }
     }
 
-    World(Map *map, SDL_Renderer *ren, std::shared_ptr<Mario> mario) : map(map), ren(ren), mario(mario) {
+    World(SDL_Renderer *ren) : ren(ren) {
         font = TTF_OpenFont("res/fonts/emulogic.ttf", 8);
         textColor.r = 255;
         textColor.g = 255;
@@ -154,8 +159,10 @@ public:
         coinImgPos.h = 16;
 
         coinTexture = Utils::loadTexture(ren, Utils::getResourcePath() + "coin_text_icon.bmp");
-        updateCoins();
+    }
 
+    void setMario(std::shared_ptr<Mario> mario) {
+        this->mario = mario;
     }
 
 };

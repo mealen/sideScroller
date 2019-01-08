@@ -14,8 +14,9 @@
 #include "InteractiveObject.h"
 #include "Mario.h"
 #include "Coin.h"
+#include "../World.h"
+#include "../Constants.h"
 
-class World;
 class Mushroom;
 
 class MushroomBox : public InteractiveObject {
@@ -70,16 +71,16 @@ public:
         return collisionBox;
     };
 
-    Map::TileTypes getTileType() const {
+    TileTypes getTileType() const {
         if (this->isUsed) {
-            return Map::COIN_TAKEN;
+            return TileTypes::COIN_TAKEN;
         }
-        return Map::MUSHROOM_BOX;
+        return TileTypes::MUSHROOM_BOX;
     }
 
     void render(SDL_Renderer* renderer, int x, int y, long time);
 
-    Map::TileTypes interactWithSide(std::shared_ptr<Context> context, std::shared_ptr<InteractiveObject> otherObject,
+    TileTypes interactWithSide(std::shared_ptr<Context> context, std::shared_ptr<InteractiveObject> otherObject,
                                     int interactionSide, long time);
 
     bool waitingForDestroy() {

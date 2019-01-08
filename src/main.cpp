@@ -11,6 +11,7 @@
 #include "Objects/CoinBox.h"
 #include "Objects/MushroomBox.h"
 #include "Context.h"
+#include "Constants.h"
 #include "Objects/Goomba.h"
 #include "Objects/HiddenCoinBox.h"
 
@@ -88,11 +89,16 @@ void readInput(InputStates &input) {
     }
 }
 
-int init(std::shared_ptr<Context> &context, std::shared_ptr<Map> &map0101, SDL_Renderer *ren) {
+int init(std::shared_ptr<Context> &context, SDL_Renderer *ren) {
 
 
     int error;
-    map0101 = std::make_shared<Map>("0101_logic.txt", error);
+
+
+    std::shared_ptr<World> world = std::make_shared<World>(ren);
+
+    world->load("0101_logic.txt", error);
+
     if (error != 0) {
         std::cerr << "Error initializing Map, Exiting" << std::endl;
         return -1;
@@ -111,15 +117,14 @@ int init(std::shared_ptr<Context> &context, std::shared_ptr<Map> &map0101, SDL_R
         return 1;
     }
 
-    std::shared_ptr<Mario> mario = std::make_shared<Mario>(map0101->getAndRemoveObject(Map::PLAYER), ren,
+    std::shared_ptr<Mario> mario = std::make_shared<Mario>(world->getAndRemoveObject(TileTypes::PLAYER), ren,
                                                                            error);
     if (error != 0) {
         std::cerr << "Error initializing Mario, Exiting" << std::endl;
         return -1;
     }
 
-    std::shared_ptr<World> world = std::make_shared<World>(map0101.get(), ren, mario);
-
+    world->setMario(mario);
     world->addObject(mario);
 
     context = std::make_shared<Context>(world, mario);
@@ -178,7 +183,6 @@ int main(int argc __attribute((unused)), char *argv[] __attribute((unused))) {//
     sourceRect.w = SCREEN_WIDTH;
     InputStates input;
     input.quit = false;
-    std::shared_ptr<Map> map;
     std::shared_ptr<Context> context;
 
     if (TTF_Init() < 0) {
@@ -186,7 +190,7 @@ int main(int argc __attribute((unused)), char *argv[] __attribute((unused))) {//
         return 1;
     }
 
-    if (init(context, map, ren) == -1) {
+    if (init(context, ren) == -1) {
         SDL_DestroyRenderer(ren);
         SDL_DestroyWindow(win);
         std::cerr << "Init problem" << std::endl;
@@ -213,43 +217,43 @@ int main(int argc __attribute((unused)), char *argv[] __attribute((unused))) {//
 
 
     std::shared_ptr<Brick> brick;
-    SDL_Rect brickPos = map->getAndRemoveObject(Map::BRICK);
+    SDL_Rect brickPos = context->getWorld()->getAndRemoveObject(TileTypes::BRICK);
     while (brickPos.x != -1 && brickPos.y != -1) {
         brick = std::make_shared<Brick>(ren, brickPos.x, brickPos.y);
         context->getWorld()->addObject(brick);
-        brickPos = map->getAndRemoveObject(Map::BRICK);
+        brickPos = context->getWorld()->getAndRemoveObject(TileTypes::BRICK);
     }
 
     std::shared_ptr<CoinBox> brickCoin;
-    SDL_Rect brickCoinPos = map->getAndRemoveObject(Map::COIN_BOX);
+    SDL_Rect brickCoinPos = context->getWorld()->getAndRemoveObject(TileTypes::COIN_BOX);
     while (brickCoinPos.x != -1 && brickCoinPos.y != -1) {
         brickCoin = std::make_shared<CoinBox>(ren, brickCoinPos.x, brickCoinPos.y);
         context->getWorld()->addObject(brickCoin);
-        brickCoinPos = map->getAndRemoveObject(Map::COIN_BOX);
+        brickCoinPos = context->getWorld()->getAndRemoveObject(TileTypes::COIN_BOX);
     }
 
     std::shared_ptr<Goomba> goomba;
-    SDL_Rect goombaPos = map->getAndRemoveObject(Map::GOOMBA);
+    SDL_Rect goombaPos = context->getWorld()->getAndRemoveObject(TileTypes::GOOMBA);
     while (goombaPos.x != -1 && goombaPos.y != -1) {
         goomba = std::make_shared<Goomba>(ren, goombaPos.x, goombaPos.y);
         context->getWorld()->addObject(goomba);
-        goombaPos = map->getAndRemoveObject(Map::GOOMBA);
+        goombaPos = context->getWorld()->getAndRemoveObject(TileTypes::GOOMBA);
     }
 
     std::shared_ptr<MushroomBox> brickMushroom;
-    SDL_Rect brickMushroomPos = map->getAndRemoveObject(Map::MUSHROOM_BOX);
+    SDL_Rect brickMushroomPos = context->getWorld()->getAndRemoveObject(TileTypes::MUSHROOM_BOX);
     while (brickMushroomPos.x != -1 && brickMushroomPos.y != -1) {
         brickMushroom = std::make_shared<MushroomBox>(ren, brickMushroomPos.x, brickMushroomPos.y);
         context->getWorld()->addObject(brickMushroom);
-        brickMushroomPos = map->getAndRemoveObject(Map::MUSHROOM_BOX);
+        brickMushroomPos = context->getWorld()->getAndRemoveObject(TileTypes::MUSHROOM_BOX);
     }
 
     std::shared_ptr<HiddenCoinBox> hiddenCoinBox;
-    SDL_Rect hiddenCoinBoxPos = map->getAndRemoveObject(Map::HIDDEN_COIN_BOX);
+    SDL_Rect hiddenCoinBoxPos = context->getWorld()->getAndRemoveObject(TileTypes::HIDDEN_COIN_BOX);
     while (hiddenCoinBoxPos.x != -1 && hiddenCoinBoxPos.y != -1) {
         hiddenCoinBox = std::make_shared<HiddenCoinBox>(ren, hiddenCoinBoxPos.x, hiddenCoinBoxPos.y);
         context.get()->getWorld()->addObject(hiddenCoinBox);
-        hiddenCoinBoxPos = map->getAndRemoveObject(Map::HIDDEN_COIN_BOX);
+        hiddenCoinBoxPos = context->getWorld()->getAndRemoveObject(TileTypes::HIDDEN_COIN_BOX);
     }
 
 
@@ -284,7 +288,7 @@ int main(int argc __attribute((unused)), char *argv[] __attribute((unused))) {//
                     }
                     input.jump = false;
                     input.jumpEvent = false;
-                    init(context, map, ren);
+                    init(context, ren);
                 }
             }
 
@@ -345,6 +349,3 @@ void logFrameRate() {
         totalFrames = 0;
     }
 }
-
-
-

@@ -13,8 +13,8 @@ SDL_Texture *Coin::getTexture(long time) const {
     return this->texture[(time / (TOTAL_ANIM_TIME / 8)) % 4];
 }
 
-Map::TileTypes Coin::getTileType() const {
-    return Map::TileTypes::EMPTY;
+TileTypes Coin::getTileType() const {
+    return TileTypes::EMPTY;
 }
 
 void Coin::render(SDL_Renderer *renderer, int x, int y, long time) {
@@ -42,7 +42,7 @@ void Coin::render(SDL_Renderer *renderer, int x, int y, long time) {
 
 }
 
-Map::TileTypes Coin::interactWithSide(std::shared_ptr<Context> context __attribute((unused)),
+TileTypes Coin::interactWithSide(std::shared_ptr<Context> context __attribute((unused)),
                                             std::shared_ptr<InteractiveObject> otherObject __attribute((unused)), int interactionSide __attribute((unused)),
                                             long time __attribute((unused))) {
     return this->getTileType();

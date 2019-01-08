@@ -165,20 +165,20 @@ AABB* Mario::getPosition() const {
     return collisionBox;
 }
 
-Map::TileTypes Mario::getTileType() const {
-    return Map::PLAYER;
+TileTypes Mario::getTileType() const {
+    return TileTypes::PLAYER;
 }
 
-Map::TileTypes Mario::interactWithSide(std::shared_ptr<Context> context __attribute((unused)), std::shared_ptr<InteractiveObject> otherObject,
+TileTypes Mario::interactWithSide(std::shared_ptr<Context> context __attribute((unused)), std::shared_ptr<InteractiveObject> otherObject,
                                 int interactionSide, long time __attribute((unused))) {
-    if (otherObject->getTileType() == Map::TileTypes::GOOMBA && interactionSide != 1) {
+    if (otherObject->getTileType() == TileTypes::GOOMBA && interactionSide != 1) {
         if (isShrinkStarted()) {
-            return Map::EMPTY;
+            return TileTypes::EMPTY;
         } else {
             die(otherObject->getTileType());
         }
     }
-    if (otherObject->getTileType() == Map::TileTypes::MUSHROOM) {
+    if (otherObject->getTileType() == TileTypes::MUSHROOM) {
         grow();
     }
     return this->getTileType();//no interaction yet
@@ -230,7 +230,7 @@ void Mario::step(long time) {
     }
 }
 
-void Mario::die(Map::TileTypes type) {
+void Mario::die(TileTypes type) {
     if (shrinkStarted) {
         return;
     }
@@ -243,7 +243,7 @@ void Mario::die(Map::TileTypes type) {
         return;
     }
     InteractiveObject::die(type);
-    if (type == Map::TileTypes::GOOMBA) {
+    if (type == TileTypes::GOOMBA) {
         //getPosition()->setUpBorder(collisionBox->getUpBorder()+TILE_SIZE);
         getPosition()->setUpwardSpeed(Mario::JUMP_SPEED / 2);
         //collisionBox->jump(JUMP_SPEED);
@@ -303,7 +303,7 @@ bool Mario::grow() {
         getPosition()->setUpBorder(getPosition()->getUpBorder() - TILE_SIZE);
         return true;
     } else {
-        return false;
+        return isBig;
     }
 }
 

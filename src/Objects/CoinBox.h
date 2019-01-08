@@ -12,6 +12,7 @@
 #include "../AABB.h"
 #include "../Utils.h"
 #include "InteractiveObject.h"
+#include "../Constants.h"
 #include "Mario.h"
 #include "Coin.h"
 
@@ -64,11 +65,11 @@ public:
         return collisionBox;
     };
 
-    Map::TileTypes getTileType() const {
+    TileTypes getTileType() const {
         if (this->isUsed) {
-            return Map::COIN_TAKEN;
+            return TileTypes::COIN_TAKEN;
         }
-        return Map::COIN_BOX;
+        return TileTypes::COIN_BOX;
     }
 
     void render(SDL_Renderer* renderer, int x, int y, long time) {
@@ -96,7 +97,7 @@ public:
         }
     }
 
-    Map::TileTypes interactWithSide(std::shared_ptr<Context> context, std::shared_ptr<InteractiveObject> otherObject,
+    TileTypes interactWithSide(std::shared_ptr<Context> context, std::shared_ptr<InteractiveObject> otherObject,
                                     int interactionSide, long time);
 
     bool waitingForDestroy() {

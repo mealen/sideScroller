@@ -16,7 +16,6 @@
 
 #include "../Constants.h"
 #include "../Utils.h"
-#include "../Map.h"
 #include "../AABB.h"
 #include "InteractiveObject.h"
 
@@ -59,9 +58,9 @@ public:
 
     void move(bool left, bool right, bool jump, bool crouch __attribute((unused)));
 
-    Map::TileTypes getTileType() const override;
+    TileTypes getTileType() const override;
 
-    Map::TileTypes interactWithSide(std::shared_ptr<Context> context __attribute((unused)), std::shared_ptr<InteractiveObject> otherObject,
+    TileTypes interactWithSide(std::shared_ptr<Context> context __attribute((unused)), std::shared_ptr<InteractiveObject> otherObject,
                                     int interactionSide, long time __attribute((unused))) override;
 
     bool waitingForDestroy() override;
@@ -74,7 +73,7 @@ public:
 
     int increaseCoin(int amount = 1);
 
-    void die(Map::TileTypes type) override;
+    void die(TileTypes type) override;
 
     bool isKilled() const;
 
