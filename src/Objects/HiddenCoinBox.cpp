@@ -17,8 +17,8 @@ void HiddenCoinBox::step(long time) {
 }
 
 TileTypes HiddenCoinBox::interactWithSide(std::shared_ptr<Context> context, std::shared_ptr<InteractiveObject> otherObject,
-                                int interactionSide, long time) {
-    if(otherObject->getTileType() == TileTypes::PLAYER && interactionSide == 1) {
+                                          CollisionSide interactionSide, long time) {
+    if(otherObject->getTileType() == TileTypes::PLAYER && interactionSide == CollisionSide::DOWN) {
         if(isUsed) {
             //destroy logic
             if(breakTime == 0) {

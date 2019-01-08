@@ -119,7 +119,7 @@ public:
     }
 
     TileTypes interactWithSide(std::shared_ptr<Context> context, std::shared_ptr<InteractiveObject> otherObject,
-                                    int interactionSide, long time) override;
+                               CollisionSide interactionSide, long time) override;
 
     bool waitingForDestroy() override {
         return isBroken;

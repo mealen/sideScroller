@@ -170,8 +170,8 @@ TileTypes Mario::getTileType() const {
 }
 
 TileTypes Mario::interactWithSide(std::shared_ptr<Context> context __attribute((unused)), std::shared_ptr<InteractiveObject> otherObject,
-                                int interactionSide, long time __attribute((unused))) {
-    if (otherObject->getTileType() == TileTypes::GOOMBA && interactionSide != 1) {
+                                  CollisionSide interactionSide, long time __attribute((unused))) {
+    if (otherObject->getTileType() == TileTypes::GOOMBA && interactionSide != CollisionSide::DOWN) {
         if (isShrinkStarted()) {
             return TileTypes::EMPTY;
         } else {

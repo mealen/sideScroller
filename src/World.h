@@ -13,8 +13,6 @@
 #include <SDL_ttf.h>
 
 class World {
-
-private:
     std::vector<std::shared_ptr<InteractiveObject>> objects;
     SDL_Texture *coinsTextTexture = nullptr;
     TTF_Font *font = nullptr;

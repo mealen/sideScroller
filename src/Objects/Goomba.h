@@ -39,10 +39,10 @@ public:
     void render(SDL_Renderer* renderer, int x, int y, long time) override;
 
     void collideWithSide(std::shared_ptr<Context> context, TileTypes tile,
-                                    int interactionSide, long time) override;
+                         CollisionSide interactionSide, long time) override;
 
     TileTypes interactWithSide(std::shared_ptr<Context> context, std::shared_ptr<InteractiveObject> otherObject,
-                                    int interactionSide, long time) override;
+                               CollisionSide interactionSide, long time) override;
 
     bool waitingForDestroy() override;
 

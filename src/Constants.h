@@ -15,4 +15,6 @@ enum TileTypes {EMPTY = 0, GROUND = 1, COIN_TAKEN = 2, BRICK = 3, COIN_BOX=4, MU
     PLAYER=74, };
 //     z
 
+enum class CollisionSide { INVALID, DOWN, UP, LEFT, RIGHT};
+
 #endif //MARIO_CONSTANTS_H

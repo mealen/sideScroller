@@ -81,7 +81,7 @@ public:
     void render(SDL_Renderer* renderer, int x, int y, long time);
 
     TileTypes interactWithSide(std::shared_ptr<Context> context, std::shared_ptr<InteractiveObject> otherObject,
-                                    int interactionSide, long time);
+                               CollisionSide interactionSide, long time);
 
     bool waitingForDestroy() {
         return false; //there is no case we are expecting removal

@@ -45,11 +45,11 @@ SDL_Texture* Goomba::getTexture(long time) const {
     }
 
     return texture[(time / 250) % 2];
-};
+}
 
 AABB* Goomba::getPosition() const {
     return collisionBox;
-};
+}
 
 TileTypes Goomba::getTileType() const {
     return TileTypes::GOOMBA;
@@ -67,11 +67,11 @@ void Goomba::render(SDL_Renderer* renderer, int x, int y, long time) {
 }
 
 void Goomba::collideWithSide(std::shared_ptr<Context> context __attribute((unused)), TileTypes tile,
-                                int interactionSide, long time __attribute((unused))) {
-    if (interactionSide == 1) {
+                             CollisionSide interactionSide, long time __attribute((unused))) {
+    if (interactionSide == CollisionSide::DOWN) {
 
     }
-    else if (interactionSide == 3 || interactionSide == 4 || interactionSide == -1) {
+    else if (interactionSide == CollisionSide::LEFT || interactionSide == CollisionSide::RIGHT || interactionSide == CollisionSide::INVALID) {
         if(tile != TileTypes::GROUND) {
             directionRight = !directionRight;
         }
@@ -80,13 +80,13 @@ void Goomba::collideWithSide(std::shared_ptr<Context> context __attribute((unuse
 }
 
 TileTypes Goomba::interactWithSide(std::shared_ptr<Context> context __attribute((unused)), std::shared_ptr<InteractiveObject> otherObject,
-                                int interactionSide, long time) {
+                                   CollisionSide interactionSide, long time) {
     if(hitTime != 0) {
         return TileTypes::GOOMBA;//if already interacted, don't allow again
     }
 
     // if mario is coming from top, kill
-    if(interactionSide == 2 && otherObject->getTileType() == TileTypes::PLAYER) {
+    if(interactionSide == CollisionSide::UP && otherObject->getTileType() == TileTypes::PLAYER) {
         if(!otherObject->isDead()) {
             isSquashed = true;
             collisionBox->setDownBorder(collisionBox->getDownBorder() - TILE_SIZE / 2);
@@ -102,7 +102,7 @@ TileTypes Goomba::interactWithSide(std::shared_ptr<Context> context __attribute(
             return TileTypes::EMPTY;
         }
         // swap direction
-    } else if (interactionSide == 3 || interactionSide == 4) {
+    } else if (interactionSide == CollisionSide::LEFT || interactionSide == CollisionSide::RIGHT) {
         if (otherObject->getTileType() == TileTypes::PLAYER) {
             otherObject->die(getTileType());
         } else {
@@ -123,7 +123,7 @@ TileTypes Goomba::interactWithSide(std::shared_ptr<Context> context __attribute(
 
 bool Goomba::waitingForDestroy() {
     return isRemoveWaiting; //there is no case we are expecting removal
-};
+}
 
 void Goomba::step(long time) {
     if(directionChangeRequested) {
@@ -140,7 +140,7 @@ void Goomba::step(long time) {
     if(hitTime != 0 && time - hitTime >= 250) {
         isRemoveWaiting = true;
     }
-};
+}
 
 void Goomba::die(TileTypes type) {
     if (type == TileTypes::OUT_OF_MAP) {

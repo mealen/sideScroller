@@ -20,11 +20,13 @@ public:
     virtual void render(SDL_Renderer* renderer, int x, int y, long time) = 0;
 
     virtual TileTypes interactWithSide(std::shared_ptr<Context> context,
-                                            std::shared_ptr<InteractiveObject> otherObject, int interactionSide,
-                                            long time) = 0;
+                                       std::shared_ptr<InteractiveObject> otherObject,
+                                       CollisionSide interactionSide,
+                                       long time) = 0;
     virtual void collideWithSide(std::shared_ptr<Context> context __attribute((unused)),
-                                 TileTypes tile __attribute((unused)), int interactionSide __attribute((unused)),
-                                            long time __attribute((unused))) {};
+                                 TileTypes tile __attribute((unused)),
+                                 CollisionSide interactionSide __attribute((unused)),
+                                 long time __attribute((unused))) {};
     virtual void step(long time) = 0;
     virtual bool waitingForDestroy() = 0;
 

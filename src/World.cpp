@@ -7,6 +7,7 @@
 
 #include "World.h"
 #include "Context.h"
+#include "Constants.h"
 
 
 TileTypes World::collide(int rightSpeed, int downSpeed, long time, std::shared_ptr<Context> context,
@@ -29,7 +30,7 @@ TileTypes World::collide(int rightSpeed, int downSpeed, long time, std::shared_p
     //this tile is the tile that is not interactive object
     std::shared_ptr<InteractiveObject> collidingObject = nullptr;
     std::shared_ptr<InteractiveObject> testingObject = nullptr;
-    int collisionSide = 5;//1 down, 2 up, 3 left 4 right
+    CollisionSide collisionSide = CollisionSide::INVALID;//1 down, 2 up, 3 left 4 right
     for (unsigned int i = 0; i < objects.size(); ++i) {
         if (objects[i] == interactiveObject) {
             continue;
@@ -62,27 +63,27 @@ TileTypes World::collide(int rightSpeed, int downSpeed, long time, std::shared_p
             if (interactiveObject->getPosition()->getUpBorder() >= objects[i]->getPosition()->getDownBorder()) {
                 collidingObject = testingObject;
                 tile = objects[i]->getTileType();
-                collisionSide = 1;
+                collisionSide = CollisionSide::DOWN;
 
             }
             if (interactiveObject->getPosition()->getDownBorder() <= objects[i]->getPosition()->getUpBorder()) {
                 collidingObject = testingObject;
                 tile = objects[i]->getTileType();
-                collisionSide = 2;
+                collisionSide = CollisionSide::UP;
             }
 
             if (interactiveObject->getPosition()->getRightBorder() <= objects[i]->getPosition()->getLeftBorder()) {
-                if (collisionSide > 2) {
+                if (collisionSide == CollisionSide::LEFT || collisionSide == CollisionSide::RIGHT || collisionSide == CollisionSide::INVALID) {
                     tile = objects[i]->getTileType();
-                    collisionSide = 3;
+                    collisionSide = CollisionSide::LEFT;
                     collidingObject = testingObject;
                 }
             }
 
             if (interactiveObject->getPosition()->getLeftBorder() >= objects[i]->getPosition()->getRightBorder()) {
-                if (collisionSide > 2) {
+                if (collisionSide == CollisionSide::LEFT || collisionSide == CollisionSide::RIGHT || collisionSide == CollisionSide::INVALID) {
                     tile = objects[i]->getTileType();
-                    collisionSide = 4;
+                    collisionSide = CollisionSide::RIGHT;
                     collidingObject = testingObject;
                 }
             }
@@ -94,25 +95,27 @@ TileTypes World::collide(int rightSpeed, int downSpeed, long time, std::shared_p
     }
     if (collidingObject != NULL) {
         tile = collidingObject->interactWithSide(context, interactiveObject, collisionSide, time);
-        int reverseCollisionSide;
+        CollisionSide reverseCollisionSide;
         switch (collisionSide) {
-            case 1:
-                reverseCollisionSide = 2;
+            case CollisionSide::DOWN:
+                reverseCollisionSide = CollisionSide::UP;
                 break;
-            case 2:
-                reverseCollisionSide = 1;
+            case CollisionSide::UP:
+                reverseCollisionSide = CollisionSide::DOWN;
                 break;
-            case 3:
-                reverseCollisionSide = 4;
+            case CollisionSide::LEFT:
+                reverseCollisionSide = CollisionSide::RIGHT;
                 break;
-            case 4:
-                reverseCollisionSide = 3;
+            case CollisionSide::RIGHT:
+                reverseCollisionSide = CollisionSide::LEFT;
                 break;
+            case CollisionSide::INVALID:
+                reverseCollisionSide = CollisionSide::INVALID;
         }
         interactiveObject->interactWithSide(context, collidingObject, reverseCollisionSide, time);
     } else {
         if (tile != TileTypes::EMPTY) {
-            interactiveObject->collideWithSide(context, tile, -1,
+            interactiveObject->collideWithSide(context, tile, CollisionSide ::INVALID,
                                                time);//FIXME -1 means unknown, this method should be removed and everything should be object
         }
     }

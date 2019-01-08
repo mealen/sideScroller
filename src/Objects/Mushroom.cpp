@@ -59,11 +59,11 @@ void Mushroom::render(SDL_Renderer* renderer, int x, int y, long time) {
 }
 
 void Mushroom::collideWithSide(std::shared_ptr<Context> context __attribute((unused)), TileTypes tile,
-                                int interactionSide, long time __attribute((unused))) {
-    if (interactionSide == 1) {
+                               CollisionSide interactionSide, long time __attribute((unused))) {
+    if (interactionSide == CollisionSide::DOWN) {
 
     }
-    else if (interactionSide == 3 || interactionSide == 4 || interactionSide == -1) {
+    else if (interactionSide == CollisionSide::LEFT || interactionSide == CollisionSide::RIGHT || interactionSide == CollisionSide::INVALID) {
         if(tile != TileTypes::GROUND) {
             directionRight = !directionRight;
         }
@@ -72,7 +72,7 @@ void Mushroom::collideWithSide(std::shared_ptr<Context> context __attribute((unu
 }
 
 TileTypes Mushroom::interactWithSide(std::shared_ptr<Context> context __attribute((unused)), std::shared_ptr<InteractiveObject> otherObject,
-                                int interactionSide, long time __attribute((unused))) {
+                                     CollisionSide interactionSide, long time __attribute((unused))) {
     if(hitTime != 0) {
         return TileTypes::MUSHROOM;//if already interacted, don't allow again
     }
@@ -88,7 +88,7 @@ TileTypes Mushroom::interactWithSide(std::shared_ptr<Context> context __attribut
             return TileTypes::EMPTY;
         }
         // swap direction
-    } else if (interactionSide == 3 || interactionSide == 4) {
+    } else if (interactionSide == CollisionSide::RIGHT || interactionSide == CollisionSide::LEFT) {
         if(!directionChangeRequested) {
             directionRight = !directionRight;
         }

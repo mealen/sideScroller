@@ -96,11 +96,11 @@ public:
     }
 
     TileTypes interactWithSide(std::shared_ptr<Context> context __attribute((unused)), std::shared_ptr<InteractiveObject> otherObject __attribute((unused)),
-                                    int interactionSide, long time) {
+                                    CollisionSide interactionSide, long time) {
         if(breakTime != 0) {
             return this->getTileType();//if already interacted, don't allow again
         }
-        if(interactionSide == 1) {
+        if(interactionSide == CollisionSide::DOWN) {
             //isDestroyed = true;
             Mix_PlayChannel(-1, breakSound, 0);
             breakTime = time;

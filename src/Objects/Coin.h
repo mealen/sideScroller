@@ -29,7 +29,7 @@ public:
     void render(SDL_Renderer *renderer, int x, int y, long time) override;
 
     TileTypes interactWithSide(std::shared_ptr<Context> context, std::shared_ptr<InteractiveObject> otherObject,
-                                    int interactionSide, long time) override;
+                               CollisionSide interactionSide, long time) override;
 
     void step(long time) override;
 
