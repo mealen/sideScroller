@@ -34,6 +34,8 @@ private:
     TextureNames currentState = STAND;
     int score = 0;
     int coins = 0;
+    int moveSpeed = 4;
+    int jumpSpeed = 16;
     AABB* collisionBox;
     bool killed = false;
     bool isBig = false;
@@ -45,8 +47,7 @@ private:
     bool moveRight = true;
     Mix_Chunk *growSound;
 public:
-    static const int MOVE_SPEED;
-    static const int JUMP_SPEED;
+    static const int JUMP_SPEED = 16;
     Mario(SDL_Rect mapPosition, SDL_Renderer *ren, int &error);
     void render(SDL_Renderer *renderer, int x, int y, long time) override;
 
@@ -56,7 +57,7 @@ public:
 
     AABB* getPosition() const override;
 
-    void move(bool left, bool right, bool jump, bool crouch __attribute((unused)));
+    void move(bool left, bool right, bool jump, bool crouch __attribute((unused)), bool run);
 
     TileTypes getTileType() const override;
 
@@ -88,6 +89,8 @@ public:
     bool isGrowStarted() const;
 
     bool isShrinkStarted() const;
+
+    bool setRunning(bool run);
 
 };
 

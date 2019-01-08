@@ -5,8 +5,6 @@
 #include <SDL_mixer.h>
 #include "Mario.h"
 
-const int Mario::MOVE_SPEED = 4;
-const int Mario::JUMP_SPEED = 16;
 
 Mario::Mario(SDL_Rect mapPosition, SDL_Renderer *ren, int &error) {
         collisionBox = new AABB(
@@ -245,7 +243,7 @@ void Mario::die(TileTypes type) {
     InteractiveObject::die(type);
     if (type == TileTypes::GOOMBA) {
         //getPosition()->setUpBorder(collisionBox->getUpBorder()+TILE_SIZE);
-        getPosition()->setUpwardSpeed(Mario::JUMP_SPEED / 2);
+        getPosition()->setUpwardSpeed(JUMP_SPEED / 2);
         //collisionBox->jump(JUMP_SPEED);
         killed = true;
         getPosition()->setPhysicsState(AABB::KINEMATIC);
@@ -253,14 +251,14 @@ void Mario::die(TileTypes type) {
     }
 }
 
-void Mario::move(bool left, bool right, bool jump, bool crouch __attribute((unused))) {
+void Mario::move(bool left, bool right, bool jump, bool crouch __attribute((unused)), bool run) {
     if (growStarted) {
         return;
     }
-    if(isDead()) {
+    if (isDead()) {
         return;
     }
-    if(jump) {
+    if (jump) {
         currentState = JUMP;
         collisionBox->jump(JUMP_SPEED);
     }
@@ -268,17 +266,19 @@ void Mario::move(bool left, bool right, bool jump, bool crouch __attribute((unus
         moveRight = false;
         currentState = MOVE;
         if (collisionBox->getLeftBorder() + (320) > collisionBox->getMaxRight()) {
-            collisionBox->moveLeft(MOVE_SPEED);
+            collisionBox->moveLeft(moveSpeed);
         }
     }
     if (right) {
         moveRight = true;
         currentState = MOVE;
-        collisionBox->moveRight(MOVE_SPEED);
+        collisionBox->moveRight(moveSpeed);
     }
-    if(!left && !right) {
+    if (!left && !right) {
         currentState = STAND;
     }
+
+    setRunning(run);
 }
 
 Mario::~Mario() {
@@ -339,4 +339,13 @@ int Mario::increaseCoin(int amount) {
 
 bool Mario::isShrinkStarted() const {
     return shrinkStarted;
+}
+
+
+bool Mario::setRunning(bool run) {
+    if (run) {
+        this->moveSpeed = 8;
+    } else {
+        this->moveSpeed = 4;
+    }
 }
