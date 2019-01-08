@@ -1,4 +1,4 @@
-#Side Scroller Engine
+# Side Scroller Engine
 
 This is a side scroller engine that can be used to build games like Super Mario Bros.
 ## Feature Overview
