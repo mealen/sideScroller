@@ -18,13 +18,13 @@
 class Goomba : public InteractiveObject {
     std::vector<SDL_Texture *> texture;
     AABB* collisionBox;
-    long hitTime = 0;
+    long squashTime = 0;
+    long bottomHitTime = 0;
     std::vector<Mix_Chunk *>deadSound;
     bool isSquashed = false;
     bool isRemoveWaiting = false;
     bool directionRight = false;
     bool directionChangeRequested = false;
-
 public:
     Goomba(SDL_Renderer *ren, int x, int y);
 

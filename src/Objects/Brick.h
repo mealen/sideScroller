@@ -19,6 +19,7 @@ class Brick : public InteractiveObject {
     AABB* collisionBox;
     long breakTime = 0;
     long hitTime = 0;
+    bool whileHit = false;
     Mix_Chunk *breakSound = NULL;
     Mix_Chunk *hitSound = NULL;
     bool isDestroyed = false;
@@ -103,6 +104,7 @@ public:
             long animTime = time - hitTime;
             if(animTime > HIT_ANIMATION_TIME) {
                 animTime = HIT_ANIMATION_TIME;//stop animation after 500
+                whileHit = false;
             }
             float upSpeed = sin(M_PI * (animTime) / HIT_ANIMATION_TIME);
             screenPos.y = screenPos.y - upSpeed * (TILE_SIZE / 4);
@@ -127,6 +129,7 @@ public:
                 Mix_PlayChannel(-1, hitSound, 0);
                 hitTime = time;
             }
+            whileHit = true;
         }
         return this->getTileType();//no interaction yet
     };
@@ -136,6 +139,10 @@ public:
     };
 
     void step(long time __attribute((unused))) {};
+
+    bool isWhileHit() const {
+        return whileHit;
+    }
 
 };
 

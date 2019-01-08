@@ -10,6 +10,7 @@
 #include "../Utils.h"
 #include "InteractiveObject.h"
 #include "Mario.h"
+#include "Brick.h"
 #include "CoinBox.h"
 #include "Goomba.h"
 
@@ -40,6 +41,10 @@ Goomba::~Goomba() {
 }
 
 SDL_Texture* Goomba::getTexture(long time) const {
+    if (bottomHitTime != 0) {
+        return texture[0];
+    }
+
     if (this->isSquashed) {
         return texture[2];
     }
@@ -52,7 +57,11 @@ AABB* Goomba::getPosition() const {
 }
 
 TileTypes Goomba::getTileType() const {
-    return TileTypes::GOOMBA;
+    if (bottomHitTime != 0) {
+        return TileTypes::EMPTY;
+    } else {
+        return TileTypes::GOOMBA;
+    }
 }
 
 void Goomba::render(SDL_Renderer* renderer, int x, int y, long time) {
@@ -61,8 +70,19 @@ void Goomba::render(SDL_Renderer* renderer, int x, int y, long time) {
     screenPos.y = collisionBox->getUpBorder() - y;
     screenPos.w = TILE_SIZE;
     screenPos.h = TILE_SIZE;
+    SDL_RendererFlip flip = SDL_FLIP_NONE;
 
-    SDL_RenderCopyEx(renderer, getTexture(time), 0, &screenPos, 0, 0, SDL_FLIP_NONE);
+    if (bottomHitTime != 0) {
+        flip = SDL_FLIP_VERTICAL;
+        long animTime = time - bottomHitTime;
+        if (collisionBox->getUpBorder() > SCREEN_HEIGHT) {
+            isRemoveWaiting = true;
+        }
+    }
+
+
+
+    SDL_RenderCopyEx(renderer, getTexture(time), 0, &screenPos, 0, 0, flip);
 
 }
 
@@ -81,7 +101,7 @@ void Goomba::collideWithSide(std::shared_ptr<Context> context __attribute((unuse
 
 TileTypes Goomba::interactWithSide(std::shared_ptr<Context> context __attribute((unused)), std::shared_ptr<InteractiveObject> otherObject,
                                    CollisionSide interactionSide, long time) {
-    if(hitTime != 0) {
+    if(squashTime != 0) {
         return TileTypes::GOOMBA;//if already interacted, don't allow again
     }
 
@@ -97,7 +117,7 @@ TileTypes Goomba::interactWithSide(std::shared_ptr<Context> context __attribute(
                 Mix_PlayChannel(-1, deadSound[i], 0);
             }
 
-            hitTime = time;
+            squashTime = time;
             die(getTileType());
             return TileTypes::EMPTY;
         }
@@ -117,6 +137,14 @@ TileTypes Goomba::interactWithSide(std::shared_ptr<Context> context __attribute(
         }
     }
 
+    if (otherObject->getTileType() == TileTypes::BRICK) {
+        if ((static_cast<Brick *>(otherObject.get())->isWhileHit())) {
+            this->bottomHitTime = time;
+            collisionBox->setPhysicsState(AABB::KINEMATIC);
+            collisionBox->setUpwardSpeed(8);
+        }
+    }
+
 
     return TileTypes::GOOMBA;//no interaction yet
 }
@@ -126,6 +154,9 @@ bool Goomba::waitingForDestroy() {
 }
 
 void Goomba::step(long time) {
+    if (bottomHitTime != 0) {
+        return;
+    }
     if(directionChangeRequested) {
         directionRight = !directionRight;
         directionChangeRequested = false;
@@ -137,7 +168,7 @@ void Goomba::step(long time) {
             this->getPosition()->moveLeft(1);
         }
     }
-    if(hitTime != 0 && time - hitTime >= 250) {
+    if(squashTime != 0 && time - squashTime >= 250) {
         isRemoveWaiting = true;
     }
 }
