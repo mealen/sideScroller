@@ -4,6 +4,7 @@
 
 #include "MushroomBox.h"
 #include "Mushroom.h"
+#include "Flower.h"
 #include "../Context.h"
 
 TileTypes MushroomBox::interactWithSide(std::shared_ptr<Context> context,
@@ -21,10 +22,18 @@ TileTypes MushroomBox::interactWithSide(std::shared_ptr<Context> context,
             hitTime = time;
             std::shared_ptr<Mario> mario = context->getPlayer();
             if (mario != nullptr) {
-                mushroomTemp = std::make_shared<Mushroom>(context->getWorld()->getRen(),
-                                                          this->getPosition()->getLeftBorder() / TILE_SIZE,
-                                                          (this->getPosition()->getUpBorder() / TILE_SIZE) - 1);
                 worldTemp = context->getWorld();
+                if (mario->getBig()) {
+                    mushroomTemp = std::make_shared<Flower>(context->getWorld()->getRen(),
+                                                              this->getPosition()->getLeftBorder() / TILE_SIZE,
+                                                              (this->getPosition()->getUpBorder() / TILE_SIZE) - 1);
+                } else {
+                    mushroomTemp = std::make_shared<Mushroom>(context->getWorld()->getRen(),
+                                                              this->getPosition()->getLeftBorder() / TILE_SIZE,
+                                                              (this->getPosition()->getUpBorder() / TILE_SIZE) - 1);
+                }
+
+
             }
         }
     }

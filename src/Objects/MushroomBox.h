@@ -27,7 +27,7 @@ class MushroomBox : public InteractiveObject {
     bool isUsed = false;
     bool mushroomCreated = false;
     std::shared_ptr<World> worldTemp = nullptr;
-    std::shared_ptr<Mushroom> mushroomTemp = nullptr;
+    std::shared_ptr<InteractiveObject> mushroomTemp = nullptr;
 
 public:
     MushroomBox(SDL_Renderer *ren, int x, int y) {//FIXME this should not need  renderer and map
