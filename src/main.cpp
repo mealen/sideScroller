@@ -91,7 +91,6 @@ void readInput(InputStates &input) {
         }
         //If user clicks the mouse
         if (e.type == SDL_MOUSEBUTTONDOWN) {
-            input.quit = true;
         }
     }
 }
