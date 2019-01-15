@@ -96,10 +96,7 @@ void readInput(InputStates &input) {
 }
 
 int init(std::shared_ptr<Context> &context, SDL_Renderer *ren) {
-
-
     int error;
-
 
     std::shared_ptr<World> world = std::make_shared<World>(ren);
 
