@@ -141,9 +141,10 @@ TileTypes Goomba::interactWithSide(std::shared_ptr<Context> context __attribute(
             this->bottomHitTime = time;
             collisionBox->setPhysicsState(AABB::KINEMATIC);
             collisionBox->setUpwardSpeed(8);
+            collisionBox->setUpBorder(collisionBox->getUpBorder() + TILE_SIZE/4);
+            collisionBox->setDownBorder(collisionBox->getDownBorder() + TILE_SIZE/4);
         }
     }
-
 
     return TileTypes::GOOMBA;//no interaction yet
 }
