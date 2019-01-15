@@ -74,7 +74,6 @@ void Goomba::render(SDL_Renderer* renderer, int x, int y, long time) {
 
     if (bottomHitTime != 0) {
         flip = SDL_FLIP_VERTICAL;
-        long animTime = time - bottomHitTime;
         if (collisionBox->getUpBorder() > SCREEN_HEIGHT) {
             isRemoveWaiting = true;
         }

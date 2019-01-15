@@ -342,7 +342,7 @@ bool Mario::isShrinkStarted() const {
 }
 
 
-bool Mario::setRunning(bool run) {
+void Mario::setRunning(bool run) {
     if (run) {
         this->moveSpeed = 6;
     } else {

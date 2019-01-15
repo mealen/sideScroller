@@ -89,7 +89,7 @@ public:
 
     bool isShrinkStarted() const;
 
-    bool setRunning(bool run);
+    void setRunning(bool run);
 
 };
 

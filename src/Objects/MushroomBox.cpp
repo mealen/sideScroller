@@ -29,7 +29,7 @@ TileTypes MushroomBox::interactWithSide(std::shared_ptr<Context> context,
         }
     }
     return this->getTileType();//no interaction yet
-};
+}
 
 void MushroomBox::render(SDL_Renderer* renderer, int x, int y, long time) {
     SDL_Rect screenPos;
@@ -71,4 +71,4 @@ void MushroomBox::render(SDL_Renderer* renderer, int x, int y, long time) {
     } else {
         SDL_RenderCopyEx(renderer, getTexture(time), 0, &screenPos, 0, 0, SDL_FLIP_NONE);
     }
-};
+}
