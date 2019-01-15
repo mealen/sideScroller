@@ -74,7 +74,6 @@ void Goomba::render(SDL_Renderer* renderer, int x, int y, long time) {
 
     if (bottomHitTime != 0) {
         flip = SDL_FLIP_VERTICAL;
-        long animTime = time - bottomHitTime;
         if (collisionBox->getUpBorder() > SCREEN_HEIGHT) {
             isRemoveWaiting = true;
         }
@@ -137,14 +136,25 @@ TileTypes Goomba::interactWithSide(std::shared_ptr<Context> context __attribute(
         }
     }
 
-    if (otherObject->getTileType() == TileTypes::BRICK) {
+    if (otherObject->getTileType() == TileTypes::BRICK && interactionSide == CollisionSide::DOWN) {
         if ((static_cast<Brick *>(otherObject.get())->isWhileHit())) {
             this->bottomHitTime = time;
             collisionBox->setPhysicsState(AABB::KINEMATIC);
             collisionBox->setUpwardSpeed(8);
+            collisionBox->setUpBorder(collisionBox->getUpBorder() + TILE_SIZE/4);
+            collisionBox->setDownBorder(collisionBox->getDownBorder() + TILE_SIZE/4);
         }
     }
 
+    if (otherObject->getTileType() == TileTypes::COIN_BOX && interactionSide == CollisionSide::DOWN) {
+        if ((static_cast<CoinBox *>(otherObject.get())->isWhileHit())) {
+            this->bottomHitTime = time;
+            collisionBox->setPhysicsState(AABB::KINEMATIC);
+            collisionBox->setUpwardSpeed(8);
+            collisionBox->setUpBorder(collisionBox->getUpBorder() + TILE_SIZE/4);
+            collisionBox->setDownBorder(collisionBox->getDownBorder() + TILE_SIZE/4);
+        }
+    }
 
     return TileTypes::GOOMBA;//no interaction yet
 }

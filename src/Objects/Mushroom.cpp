@@ -11,6 +11,7 @@
 #include "Mario.h"
 #include "CoinBox.h"
 #include "Mushroom.h"
+#include "Brick.h"
 
 
 Mushroom::Mushroom(SDL_Renderer *ren, int x, int y) {//FIXME this should not need  renderer and map
@@ -80,7 +81,6 @@ TileTypes Mushroom::interactWithSide(std::shared_ptr<Context> context __attribut
     // if mario is coming from top, kill
     if(otherObject->getTileType() == TileTypes::PLAYER) {
         if(!otherObject->isDead()) {
-            isSquashed = true;
 
             die(getTileType());
             Mario *player = static_cast<Mario *>(otherObject.get());
@@ -94,6 +94,17 @@ TileTypes Mushroom::interactWithSide(std::shared_ptr<Context> context __attribut
         }
     }
 
+    if (otherObject->getTileType() == TileTypes::BRICK && interactionSide == CollisionSide::DOWN) {
+        if ((static_cast<Brick *>(otherObject.get())->isWhileHit())) {
+            this->getPosition()->jump(8);
+        }
+    }
+
+    if (otherObject->getTileType() == TileTypes::COIN_BOX && interactionSide == CollisionSide::DOWN) {
+        if ((static_cast<CoinBox *>(otherObject.get())->isWhileHit())) {
+            this->getPosition()->jump(8);
+        }
+    }
 
     return TileTypes::MUSHROOM;//no interaction yet
 }
@@ -107,12 +118,11 @@ void Mushroom::step(long time __attribute((unused))) {
         directionRight = !directionRight;
         directionChangeRequested = false;
     }
-    if(!isSquashed) {
-        if (directionRight) {
-            this->getPosition()->moveRight(1);
-        } else {
-            this->getPosition()->moveLeft(1);
-        }
+
+    if (directionRight) {
+        this->getPosition()->moveRight(1);
+    } else {
+        this->getPosition()->moveLeft(1);
     }
 
 }

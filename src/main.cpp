@@ -91,16 +91,12 @@ void readInput(InputStates &input) {
         }
         //If user clicks the mouse
         if (e.type == SDL_MOUSEBUTTONDOWN) {
-            input.quit = true;
         }
     }
 }
 
 int init(std::shared_ptr<Context> &context, SDL_Renderer *ren) {
-
-
     int error;
-
 
     std::shared_ptr<World> world = std::make_shared<World>(ren);
 

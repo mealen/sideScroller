@@ -106,6 +106,9 @@ public:
 
     void step(long time __attribute((unused))) {};
 
+    bool isWhileHit() {
+        return (hitTime != 0 && isUsed == false);
+    }
 };
 
 
