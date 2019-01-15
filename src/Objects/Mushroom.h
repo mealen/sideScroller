@@ -20,7 +20,6 @@ class Mushroom : public InteractiveObject {
     AABB* collisionBox;
     long hitTime = 0;
     std::vector<Mix_Chunk *>deadSound;
-    bool isSquashed = false;
     bool directionRight = true;
     bool directionChangeRequested = false;
 
