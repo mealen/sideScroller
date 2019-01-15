@@ -49,6 +49,21 @@ Mario::Mario(SDL_Rect mapPosition, SDL_Renderer *ren, int &error) {
     marioImage = Utils::getResourcePath("mario/big") + "mario_jump.bmp";
     textures[BIG][JUMP].push_back(Utils::loadTexture(ren, marioImage));
 
+    marioImage = Utils::getResourcePath("mario/fire") + "mario.bmp";
+    textures[FIRE][STAND].push_back(Utils::loadTexture(ren, marioImage));
+
+    marioImage = Utils::getResourcePath("mario/fire") + "mario_move0.bmp";
+    textures[FIRE][MOVE].push_back(Utils::loadTexture(ren, marioImage));
+
+    marioImage = Utils::getResourcePath("mario/fire") + "mario_move1.bmp";
+    textures[FIRE][MOVE].push_back(Utils::loadTexture(ren, marioImage));
+
+    marioImage = Utils::getResourcePath("mario/fire") + "mario_move2.bmp";
+    textures[FIRE][MOVE].push_back(Utils::loadTexture(ren, marioImage));
+
+    marioImage = Utils::getResourcePath("mario/fire") + "mario_jump.bmp";
+    textures[FIRE][JUMP].push_back(Utils::loadTexture(ren, marioImage));
+
     growSound = Mix_LoadWAV("./res/sounds/mushroomeat.wav");
 
         if (textures[SMALL][STAND][0] == nullptr ||
@@ -132,7 +147,11 @@ bool Mario::isGrowStarted() const {
 SDL_Texture * Mario::getTexture(long time) const {
     Status curStatus;
     if (isBig) {
-        curStatus = BIG;
+        if (canFire()) {
+            curStatus = FIRE;
+        } else {
+            curStatus = BIG;
+        }
     } else {
         curStatus = SMALL;
     }
@@ -201,6 +220,7 @@ void Mario::step(long time) {
 
     if (growStarted) {
         getPosition()->setPhysicsState(AABB::STATIC);
+        grow();
         if (((time - growStartTime) / 100 ) % 2) {
             shrink();
         } else {
@@ -292,6 +312,11 @@ Mario::~Mario() {
     SDL_DestroyTexture(textures[BIG][MOVE][1]);
     SDL_DestroyTexture(textures[BIG][MOVE][2]);
     SDL_DestroyTexture(textures[BIG][JUMP][0]);
+    SDL_DestroyTexture(textures[FIRE][STAND][0]);
+    SDL_DestroyTexture(textures[FIRE][MOVE][0]);
+    SDL_DestroyTexture(textures[FIRE][MOVE][1]);
+    SDL_DestroyTexture(textures[FIRE][MOVE][2]);
+    SDL_DestroyTexture(textures[FIRE][JUMP][0]);
     delete collisionBox;
 }
 
@@ -348,4 +373,12 @@ void Mario::setRunning(bool run) {
     } else {
         this->moveSpeed = 4;
     }
+}
+
+void Mario::setFire(bool fire) {
+    isFire = fire;
+}
+
+bool Mario::canFire() const{
+    return isFire;
 }

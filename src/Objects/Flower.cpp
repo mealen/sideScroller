@@ -47,7 +47,7 @@ TileTypes Flower::interactWithSide(std::shared_ptr<Context> context,
 
             die(getTileType());
             Mario *player = static_cast<Mario *>(otherObject.get());
-            player->grow();
+            player->setFire(true);
             return TileTypes::EMPTY;
         }
         // swap direction

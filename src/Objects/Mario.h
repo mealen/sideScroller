@@ -23,7 +23,7 @@ class Mario : public InteractiveObject {
 
 public:
     enum Status {
-        SMALL, BIG
+        SMALL, BIG, FIRE
     };
     enum TextureNames {
         STAND, MOVE, JUMP, DEAD
@@ -38,6 +38,7 @@ private:
     AABB* collisionBox;
     bool killed = false;
     bool isBig = false;
+    bool isFire = false;
     bool growStarted = false;
     long growStartTime = 0;
     bool shrinkStarted = false;
@@ -91,6 +92,9 @@ public:
 
     void setRunning(bool run);
 
+    void setFire(bool fire);
+
+    bool canFire() const;
 };
 
 
