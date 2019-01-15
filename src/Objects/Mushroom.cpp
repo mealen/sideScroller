@@ -100,6 +100,11 @@ TileTypes Mushroom::interactWithSide(std::shared_ptr<Context> context __attribut
         }
     }
 
+    if (otherObject->getTileType() == TileTypes::COIN_BOX && interactionSide == CollisionSide::DOWN) {
+        if ((static_cast<CoinBox *>(otherObject.get())->isWhileHit())) {
+            this->getPosition()->jump(8);
+        }
+    }
 
     return TileTypes::MUSHROOM;//no interaction yet
 }
