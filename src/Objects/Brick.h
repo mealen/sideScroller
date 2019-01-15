@@ -22,6 +22,7 @@ class Brick : public InteractiveObject {
     bool whileHit = false;
     Mix_Chunk *breakSound = NULL;
     Mix_Chunk *hitSound = NULL;
+    bool breakFramePassed = false;
     bool isDestroyed = false;
     const int HIT_ANIMATION_TIME = 250;
 
@@ -55,6 +56,9 @@ public:
     };
 
     TileTypes getTileType() const {
+        if(this->breakFramePassed) {
+            return TileTypes::EMPTY;// if breaking, don't interact
+        }
         return TileTypes::BRICK;
     }
 
@@ -72,6 +76,9 @@ public:
             texturePos.x = 0;
             texturePos.y = 0;
             long animTime = time - breakTime;
+            if (animTime > 17) {
+                breakFramePassed = true;
+            }
             if(animTime > 500) {
                 isDestroyed = true;
                 animTime=500;//stop animation after 500
