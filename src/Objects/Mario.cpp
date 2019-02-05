@@ -287,7 +287,7 @@ void Mario::die(TileTypes type) {
         return;
     }
     InteractiveObject::die(type);
-    if (type == TileTypes::GOOMBA) {
+    if (type == TileTypes::GOOMBA || type == TileTypes::KOOPA) {
         //getPosition()->setUpBorder(collisionBox->getUpBorder()+TILE_SIZE);
         getPosition()->setUpwardSpeed(JUMP_SPEED / 2);
         //collisionBox->jump(JUMP_SPEED);
