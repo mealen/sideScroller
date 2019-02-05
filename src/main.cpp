@@ -14,6 +14,7 @@
 #include "Constants.h"
 #include "Objects/Goomba.h"
 #include "Objects/HiddenCoinBox.h"
+#include "Objects/Koopa.h"
 
 
 class InputStates {
@@ -241,6 +242,14 @@ int main(int argc __attribute((unused)), char *argv[] __attribute((unused))) {//
         goomba = std::make_shared<Goomba>(ren, goombaPos.x, goombaPos.y);
         context->getWorld()->addObject(goomba);
         goombaPos = context->getWorld()->getAndRemoveObject(TileTypes::GOOMBA);
+    }
+
+    std::shared_ptr<Koopa> koopa;
+    SDL_Rect koopaPos = context->getWorld()->getAndRemoveObject(TileTypes::KOOPA);
+    while (koopaPos.x != -1 && koopaPos.y != -1) {
+        koopa = std::make_shared<Koopa>(ren, koopaPos.x, koopaPos.y);
+        context->getWorld()->addObject(koopa);
+        koopaPos = context->getWorld()->getAndRemoveObject(TileTypes::KOOPA);
     }
 
     std::shared_ptr<MushroomBox> brickMushroom;

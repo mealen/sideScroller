@@ -116,7 +116,7 @@ TileTypes World::collide(int rightSpeed, int downSpeed, long time, std::shared_p
     } else {
         if (tile != TileTypes::EMPTY) {
             interactiveObject->collideWithSide(context, tile, CollisionSide ::INVALID,
-                                               time);//FIXME -1 means unknown, this method should be removed and everything should be object
+                                               time);
         }
     }
     return tile;
