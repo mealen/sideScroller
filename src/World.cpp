@@ -17,19 +17,28 @@ TileTypes World::collide(int rightSpeed, int downSpeed, long time, std::shared_p
 
     int horCheck, verCheck;
     CollisionSide collisionWithStaticSide = CollisionSide::INVALID;
-    if(rightSpeed >= 0) {
+    if(rightSpeed > 0) {
         horCheck = interactiveObject->getPosition()->getRightBorder() + rightSpeed;
-    } else {
+    } else if (rightSpeed < 0){
         horCheck = interactiveObject->getPosition()->getLeftBorder() + rightSpeed;
+    } else {
+        horCheck = interactiveObject->getPosition()->getLeftBorder() +interactiveObject->getPosition()->getRightBorder();
+        horCheck /= 2;
     }
 
     if(downSpeed >0) {
         verCheck = interactiveObject->getPosition()->getDownBorder() + downSpeed;
-    } else {
+    } else if (downSpeed < 0){
         verCheck = interactiveObject->getPosition()->getUpBorder() + downSpeed;
+    } else {
+        verCheck = interactiveObject->getPosition()->getUpBorder() + interactiveObject->getPosition()->getDownBorder();
+        verCheck /=2;
     }
 
     tile = getTileObject(horCheck/TILE_SIZE, verCheck/TILE_SIZE);
+    if(interactiveObject->getTileType() == TileTypes::PLAYER) {
+        std::cout << "tile type " << tile << std::endl;
+    }
     if(tile != TileTypes::EMPTY) {
         if (getTileObject(horCheck / TILE_SIZE, (verCheck - downSpeed) / TILE_SIZE) != TileTypes::EMPTY) {
             if (rightSpeed >= 0) {
