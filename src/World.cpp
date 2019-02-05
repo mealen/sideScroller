@@ -14,23 +14,42 @@ TileTypes World::collide(int rightSpeed, int downSpeed, long time, std::shared_p
                               std::shared_ptr<InteractiveObject> interactiveObject) {
     TileTypes tile = TileTypes::EMPTY;
     //we need 4 checks, since at any given time, object can be at 4 different places.
-    tile = std::max(tile,
-                    getTileObject((interactiveObject->getPosition()->getLeftBorder() + rightSpeed) / TILE_SIZE,
-                                       (interactiveObject->getPosition()->getUpBorder() + downSpeed) / TILE_SIZE));
-    tile = std::max(tile,
-                    getTileObject((interactiveObject->getPosition()->getLeftBorder() + rightSpeed) / TILE_SIZE,
-                                       (interactiveObject->getPosition()->getDownBorder() + downSpeed) / TILE_SIZE));
-    tile = std::max(tile,
-                    getTileObject((interactiveObject->getPosition()->getRightBorder() + rightSpeed) / TILE_SIZE,
-                                       (interactiveObject->getPosition()->getUpBorder() + downSpeed) / TILE_SIZE));
-    tile = std::max(tile,
-                    getTileObject((interactiveObject->getPosition()->getRightBorder() + rightSpeed) / TILE_SIZE,
-                                       (interactiveObject->getPosition()->getDownBorder() + downSpeed) / TILE_SIZE));
+
+    int horCheck, verCheck;
+    CollisionSide collisionWithStaticSide = CollisionSide::INVALID;
+    if(rightSpeed >= 0) {
+        horCheck = interactiveObject->getPosition()->getRightBorder() + rightSpeed;
+    } else {
+        horCheck = interactiveObject->getPosition()->getLeftBorder() + rightSpeed;
+    }
+
+    if(downSpeed >0) {
+        verCheck = interactiveObject->getPosition()->getDownBorder() + downSpeed;
+    } else {
+        verCheck = interactiveObject->getPosition()->getUpBorder() + downSpeed;
+    }
+
+    tile = getTileObject(horCheck/TILE_SIZE, verCheck/TILE_SIZE);
+    if(tile != TileTypes::EMPTY) {
+        if (getTileObject(horCheck / TILE_SIZE, (verCheck - downSpeed) / TILE_SIZE) != TileTypes::EMPTY) {
+            if (rightSpeed >= 0) {
+                collisionWithStaticSide = CollisionSide::RIGHT;
+            } else {
+                collisionWithStaticSide = CollisionSide::LEFT;
+            }
+        } else {
+            if (downSpeed >= 0) {
+                collisionWithStaticSide = CollisionSide::DOWN;
+            } else {
+                collisionWithStaticSide = CollisionSide::UP;
+            }
+        }
+    }
 
     //this tile is the tile that is not interactive object
     std::shared_ptr<InteractiveObject> collidingObject = nullptr;
     std::shared_ptr<InteractiveObject> testingObject = nullptr;
-    CollisionSide collisionSide = CollisionSide::INVALID;//1 down, 2 up, 3 left 4 right
+    CollisionSide collisionSide = CollisionSide::INVALID;
     for (unsigned int i = 0; i < objects.size(); ++i) {
         if (objects[i] == interactiveObject) {
             continue;
@@ -115,8 +134,8 @@ TileTypes World::collide(int rightSpeed, int downSpeed, long time, std::shared_p
         interactiveObject->interactWithSide(context, collidingObject, reverseCollisionSide, time);
     } else {
         if (tile != TileTypes::EMPTY) {
-            interactiveObject->collideWithSide(context, tile, collisionSide,
-                                               time);//FIXME -1 means unknown, this method should be removed and everything should be object
+            interactiveObject->collideWithSide(context, tile, collisionWithStaticSide,
+                                               time);
         }
     }
     return tile;
