@@ -113,7 +113,7 @@ bool Mushroom::waitingForDestroy() {
     return isDead(); //there is no case we are expecting removal
 }
 
-void Mushroom::step(long time __attribute((unused))) {
+void Mushroom::step(std::shared_ptr<Context> context __attribute((unused)), long time __attribute((unused))) {
     if(directionChangeRequested) {
         directionRight = !directionRight;
         directionChangeRequested = false;

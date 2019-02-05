@@ -18,6 +18,7 @@
 #include "../Utils.h"
 #include "../AABB.h"
 #include "InteractiveObject.h"
+class Context;
 
 class Mario : public InteractiveObject {
 
@@ -44,7 +45,9 @@ private:
     bool shrinkStarted = false;
     long shrinkStartTime = 0;
     long lastStepTime = 0;
+    long fireStartTime = 0;
     bool moveRight = true;
+    bool fireTriggered = false;
     Mix_Chunk *growSound;
 public:
     static const int JUMP_SPEED = 16;
@@ -66,11 +69,9 @@ public:
 
     bool waitingForDestroy() override;
 
-    void step(long time) override;
-
+    void step(std::shared_ptr<Context> context, long time) override;
 
     int getCoins() const;
-
 
     int increaseCoin(int amount = 1);
 

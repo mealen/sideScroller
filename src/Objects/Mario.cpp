@@ -4,6 +4,8 @@
 
 #include <SDL_mixer.h>
 #include "Mario.h"
+#include "Fireball.h"
+#include "../Context.h"
 
 
 Mario::Mario(SDL_Rect mapPosition, SDL_Renderer *ren, int &error) {
@@ -205,7 +207,31 @@ bool Mario::waitingForDestroy() {
     return false; //there is no case we are expecting removal
 }
 
-void Mario::step(long time) {
+void Mario::step(std::shared_ptr<Context> context, long time) {
+    if (fireTriggered) {
+        int fireballLeftBorder = (this->getPosition()->getLeftBorder()) - (TILE_SIZE / 2);
+        Fireball::Direction fireballDirection = Fireball::Direction::LEFT_DOWN;
+
+        if (moveRight) {
+            fireballLeftBorder = this->getPosition()->getLeftBorder() + TILE_SIZE;
+            fireballDirection = Fireball::Direction::RIGHT_DOWN;
+        }
+
+        std::shared_ptr<Fireball> fireball = std::make_shared<Fireball>(context->getWorld()->getRen(),
+                                   fireballLeftBorder,
+                                   (this->getPosition()->getUpBorder() + (TILE_SIZE)));
+
+        fireball->setDirection(fireballDirection);
+
+        context->getWorld()->addObject(fireball);
+        fireTriggered = false;
+        fireStartTime = time;
+    }
+
+    if (time - fireStartTime > 500) {
+        fireStartTime = 0;
+    }
+
     if(!isDead()) {
         lastStepTime = time;
     }
@@ -299,6 +325,10 @@ void Mario::move(bool left, bool right, bool jump, bool crouch __attribute((unus
     }
 
     setRunning(run);
+
+    if (isBig && run && fireStartTime == 0) {
+        fireTriggered = true;
+    }
 }
 
 Mario::~Mario() {
@@ -379,6 +409,6 @@ void Mario::setFire(bool fire) {
     isFire = fire;
 }
 
-bool Mario::canFire() const{
+bool Mario::canFire() const {
     return isFire;
 }

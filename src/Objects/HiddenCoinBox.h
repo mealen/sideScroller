@@ -125,7 +125,7 @@ public:
         return isBroken;
     };
 
-    void step(long time );
+    void step(std::shared_ptr<Context> context __attribute((unused)), long time );
 
 };
 

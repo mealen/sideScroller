@@ -44,7 +44,7 @@ public:
 
     bool waitingForDestroy() override;
 
-    void step(long time __attribute((unused))) override;
+    void step(std::shared_ptr<Context> context __attribute((unused)), long time __attribute((unused))) override;
 
 };
 
