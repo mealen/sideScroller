@@ -6,6 +6,7 @@
 #include "../Utils.h"
 #include "CoinBox.h"
 #include "Brick.h"
+#include <cmath>
 
 
 
@@ -148,6 +149,14 @@ TileTypes Koopa::interactWithSide(std::shared_ptr<Context> context __attribute((
         }
     }
 
+    if (otherObject->getTileType() == TileTypes::FIREBALL) {
+        this->bottomHitTime = time;
+        collisionBox->setPhysicsState(AABB::KINEMATIC);
+        collisionBox->setUpwardSpeed(8);
+        collisionBox->setUpBorder(collisionBox->getUpBorder() + TILE_SIZE / 4);
+        collisionBox->setDownBorder(collisionBox->getDownBorder() + TILE_SIZE / 4);
+    }
+
     if (otherObject->getTileType() == TileTypes::BRICK && interactionSide == CollisionSide::DOWN) {
         if ((static_cast<Brick *>(otherObject.get())->isWhileHit())) {
             this->bottomHitTime = time;
@@ -175,7 +184,7 @@ bool Koopa::waitingForDestroy() {
     return isRemoveWaiting; //there is no case we are expecting removal
 }
 
-void Koopa::step(long time) {
+void Koopa::step(std::shared_ptr<Context> context __attribute((unused)), long time) {
     if (bottomHitTime != 0) {
         return;
     }
