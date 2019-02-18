@@ -45,6 +45,8 @@ public:
     void step(std::shared_ptr<Context> context __attribute((unused)), long time) override;
 
     void die(TileTypes type) override;
+
+    void moveShell(const CollisionSide &interactionSide);
 };
 
 

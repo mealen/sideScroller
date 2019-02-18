@@ -97,8 +97,6 @@ void Koopa::collideWithSide(std::shared_ptr<Context> context __attribute((unused
 
 TileTypes Koopa::interactWithSide(std::shared_ptr<Context> context __attribute((unused)), std::shared_ptr<InteractiveObject> otherObject,
                                    CollisionSide interactionSide, long time) {
-
-
     // if mario is coming from top, kill
     if(interactionSide == CollisionSide::UP && otherObject->getTileType() == TileTypes::PLAYER) {
         if(!otherObject->isDead()) {
@@ -106,9 +104,14 @@ TileTypes Koopa::interactWithSide(std::shared_ptr<Context> context __attribute((
                 isShellMoving = false;
                 hideInShellTime = time;
             } else {
-                isHideInShell = true;
-                hideInShellTime = time;
-                die(getTileType());
+                if(isHideInShell) {
+                    moveShell(interactionSide);
+                } else {
+                    isHideInShell = true;
+                    hideInShellTime = time;
+                    die(getTileType());
+                }
+
             }
             otherObject->getPosition()->setUpwardSpeed(Mario::JUMP_SPEED / 2);
 
@@ -125,14 +128,7 @@ TileTypes Koopa::interactWithSide(std::shared_ptr<Context> context __attribute((
         } else {
             if (otherObject->getTileType() == TileTypes::PLAYER) {
                 if (isHideInShell) {
-                    this->isShellMoving = true;
-                    if (interactionSide == CollisionSide::LEFT) {
-                        this->collisionBox->moveRight(5);
-                        directionRight = true;
-                    } else if (interactionSide == CollisionSide::RIGHT) {
-                        this->collisionBox->moveLeft(5);
-                        directionRight = false;
-                    }
+                    moveShell(interactionSide);
                 } else {
                     otherObject->die(getTileType());
                 }
@@ -178,6 +174,17 @@ TileTypes Koopa::interactWithSide(std::shared_ptr<Context> context __attribute((
     }
 
     return TileTypes::KOOPA;//no interaction yet
+}
+
+void Koopa::moveShell(const CollisionSide &interactionSide) {
+    isShellMoving = true;
+    if (interactionSide == CollisionSide::LEFT) {
+                        collisionBox->moveRight(5);
+                        directionRight = true;
+                    } else if (interactionSide == CollisionSide::RIGHT) {
+                        collisionBox->moveLeft(5);
+                        directionRight = false;
+                    }
 }
 
 bool Koopa::waitingForDestroy() {
