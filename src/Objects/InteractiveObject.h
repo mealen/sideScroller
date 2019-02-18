@@ -27,7 +27,7 @@ public:
                                  TileTypes tile __attribute((unused)),
                                  CollisionSide interactionSide __attribute((unused)),
                                  long time __attribute((unused))) {};
-    virtual void step(long time) = 0;
+    virtual void step(std::shared_ptr<Context> context, long time) = 0;
     virtual bool waitingForDestroy() = 0;
 
     virtual ~InteractiveObject() {};

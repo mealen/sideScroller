@@ -145,7 +145,7 @@ public:
         return isDestroyed; //there is no case we are expecting removal
     };
 
-    void step(long time __attribute((unused))) {};
+    void step(std::shared_ptr<Context> context __attribute((unused)), long time __attribute((unused))) {};
 
     bool isWhileHit() const {
         return whileHit;

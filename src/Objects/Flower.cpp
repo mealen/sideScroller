@@ -84,7 +84,7 @@ bool Flower::waitingForDestroy() {
 }
 
 
-void Flower::step(long time __attribute((unused))) {
+void Flower::step(std::shared_ptr<Context> context __attribute((unused)), long time __attribute((unused))) {
 
 }
 

@@ -5,7 +5,7 @@
 #include "CoinBox.h"
 #include "../Context.h"
 
-TileTypes CoinBox::interactWithSide(std::shared_ptr<Context> context,
+    TileTypes CoinBox::interactWithSide(std::shared_ptr<Context> context,
                                            std::shared_ptr<InteractiveObject> otherObject __attribute((unused)), CollisionSide interactionSide,
                                            long time) {
     if(hitTime != 0) {

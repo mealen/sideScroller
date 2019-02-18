@@ -42,7 +42,7 @@ public:
 
     bool waitingForDestroy() override;
 
-    void step(long time) override;
+    void step(std::shared_ptr<Context> context __attribute((unused)), long time) override;
 
     void die(TileTypes type) override;
 };

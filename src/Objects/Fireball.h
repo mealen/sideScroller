@@ -1,7 +1,5 @@
-
-
-#ifndef MARIO_FLOWER_H
-#define MARIO_FLOWER_H
+#ifndef MARIO_FIREBALL_H
+#define MARIO_FIREBALL_H
 
 
 #include <SDL_render.h>
@@ -14,20 +12,24 @@
 #include "Mario.h"
 #include "Coin.h"
 
-class Flower : public InteractiveObject {
+class Fireball : public InteractiveObject {
+public:
+    enum Direction { LEFT_UP = 0, RIGHT_UP = 1, RIGHT_DOWN = 2, LEFT_DOWN = 3 };
+private:
     std::vector<SDL_Texture *> texture;
     AABB* collisionBox;
     long hitTime = 0;
+    Direction direction;
     std::vector<Mix_Chunk *>deadSound;
-    bool isSquashed = false;
-    bool directionRight = true;
     bool directionChangeRequested = false;
     long createTime = 0;
+    bool firstTouch = false;
 
 public:
-    Flower(SDL_Renderer *ren, int x, int y);
 
-    ~Flower();
+    Fireball(SDL_Renderer *ren, int x, int y);
+
+    ~Fireball();
 
     SDL_Texture* getTexture(long time __attribute((unused))) const override;
 
@@ -49,8 +51,14 @@ public:
 
     void setCreateTime(long time);
 
+    void setDirection(Direction direction);
+
+    Direction getDirection() const;
+
+    void changeDirection();
+
 
 };
 
 
-#endif //MARIO_FLOWER_H
+#endif //MARIO_FIREBALL_H

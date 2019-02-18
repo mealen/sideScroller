@@ -7,7 +7,7 @@
 #include "Coin.h"
 #include "../Context.h"
 
-void HiddenCoinBox::step(long time) {
+void HiddenCoinBox::step(std::shared_ptr<Context> context __attribute((unused)), long time) {
     if(isUsed) {
         return;
     }

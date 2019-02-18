@@ -48,7 +48,7 @@ TileTypes Coin::interactWithSide(std::shared_ptr<Context> context __attribute((u
     return this->getTileType();
 }
 
-void Coin::step(long time  __attribute((unused))) {
+void Coin::step(std::shared_ptr<Context> context __attribute((unused)), long time  __attribute((unused))) {
 
 }
 

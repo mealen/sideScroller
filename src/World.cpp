@@ -164,13 +164,13 @@ TileTypes World::collide(int rightSpeed, int downSpeed, long time, std::shared_p
 }
 
 void World::stepSimulation(long time, std::shared_ptr<Context> context) {
-    context->getPlayer()->step(time);
+    context->getPlayer()->step(context, time);
     int middleOfScreenPixel = SCREEN_WIDTH / 2;
 
     for (size_t i = 0; i < this->objects.size(); ++i) {
         if (context->getPlayer()->getPosition()->getMaxRight() + middleOfScreenPixel >
             this->objects[i]->getPosition()->getLeftBorder()) {
-            this->objects[i]->step(time);
+            this->objects[i]->step(context, time);
         }
     }
 
