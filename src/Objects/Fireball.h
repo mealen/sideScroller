@@ -22,7 +22,6 @@ private:
     Direction direction;
     std::vector<Mix_Chunk *>deadSound;
     bool directionChangeRequested = false;
-    long createTime = 0;
     bool firstTouch = false;
 
 public:

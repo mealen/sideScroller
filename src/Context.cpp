@@ -15,3 +15,7 @@ std::shared_ptr<World> Context::getWorld() const {
 std::shared_ptr<Mario> Context::getPlayer() const {
     return player;
 }
+
+int Context::getEndOfScreen() {
+    return getPlayer()->getPosition()->getMaxRight() + (SCREEN_WIDTH / 2);
+}

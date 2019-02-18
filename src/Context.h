@@ -16,6 +16,9 @@ public:
 
     std::shared_ptr<Mario> getPlayer() const;
 
+    int getEndOfScreen();
+
+
 private:
     std::shared_ptr<World> world;
     std::shared_ptr<Mario> player;
