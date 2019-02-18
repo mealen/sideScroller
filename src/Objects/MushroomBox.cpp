@@ -20,6 +20,7 @@ TileTypes MushroomBox::interactWithSide(std::shared_ptr<Context> context,
         }
         if (!isUsed) {
             hitTime = time;
+            whileHit = true;
             std::shared_ptr<Mario> mario = context->getPlayer();
             if (mario != nullptr) {
                 worldTemp = context->getWorld();
@@ -52,6 +53,7 @@ void MushroomBox::render(SDL_Renderer* renderer, int x, int y, long time) {
 
         if(animTime > 200) {
             isUsed = true;
+            whileHit = false;
             animTime = 200;//stop animation after 500
         }
         float upSpeed = sin(M_PI * (animTime) / 200.0f);

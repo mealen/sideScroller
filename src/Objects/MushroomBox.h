@@ -11,15 +11,15 @@
 
 #include "../AABB.h"
 #include "../Utils.h"
-#include "InteractiveObject.h"
 #include "Mario.h"
 #include "Coin.h"
 #include "../World.h"
 #include "../Constants.h"
+#include "BoxBase.h"
 
 class Mushroom;
 
-class MushroomBox : public InteractiveObject {
+class MushroomBox : public BoxBase {
     std::vector<SDL_Texture *> texture;
     AABB* collisionBox;
     long hitTime = 0;

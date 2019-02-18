@@ -18,6 +18,7 @@
         }
 
         hitTime = time;
+        this->whileHit = true;
 
         if (!isUsed) {
             std::shared_ptr<Mario> mario = context->getPlayer();

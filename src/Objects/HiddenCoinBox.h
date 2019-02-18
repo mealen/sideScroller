@@ -8,13 +8,13 @@
 
 #include <SDL_mixer.h>
 #include <vector>
-#include "InteractiveObject.h"
 #include "../Utils.h"
+#include "BoxBase.h"
 
 /**
  * Coin box that looks like normal brick, gives coins for n seconds
  */
-class HiddenCoinBox : public InteractiveObject {
+class HiddenCoinBox : public BoxBase {
     SDL_Texture * texture;
     AABB* collisionBox;
     long firstHitTime = 0;
@@ -75,6 +75,7 @@ public:
             long animTime = time - breakTime;
             if(animTime > 500) {
                 isBroken = true;
+                whileHit = false;
                 animTime=500;//stop animation after 500
             }
             float upSpeed = sin(M_PI * (animTime)/500.0f);
@@ -105,6 +106,7 @@ public:
                 long animTime = time - lastHitTime;
                 if (animTime > 200) {
                     animTime = 200;//stop animation after 500
+                    whileHit = false;
                 }
                 float upSpeed = static_cast<float>(sin(M_PI * (animTime) / 200.0f));
                 screenPos.y = static_cast<int>(screenPos.y - upSpeed * 8);

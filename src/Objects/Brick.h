@@ -12,14 +12,13 @@
 
 #include "../AABB.h"
 #include "../Utils.h"
-#include "InteractiveObject.h"
+#include "BoxBase.h"
 
-class Brick : public InteractiveObject {
+class Brick : public BoxBase {
     SDL_Texture *texture;
     AABB* collisionBox;
     long breakTime = 0;
     long hitTime = 0;
-    bool whileHit = false;
     Mix_Chunk *breakSound = NULL;
     Mix_Chunk *hitSound = NULL;
     bool breakFramePassed = false;
@@ -147,9 +146,7 @@ public:
 
     void step(std::shared_ptr<Context> context __attribute((unused)), long time __attribute((unused))) {};
 
-    bool isWhileHit() const {
-        return whileHit;
-    }
+
 
 };
 

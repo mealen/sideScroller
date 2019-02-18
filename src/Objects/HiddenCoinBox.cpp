@@ -23,12 +23,14 @@ TileTypes HiddenCoinBox::interactWithSide(std::shared_ptr<Context> context, std:
             //destroy logic
             if(breakTime == 0) {
                 breakTime = time;
+                whileHit = true;
             }
         } else {
             if(firstHitTime == 0) {
                 firstHitTime = time;
             }
             lastHitTime = time;
+            whileHit = true;
             // coin pickup
 
 

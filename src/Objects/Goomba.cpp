@@ -144,8 +144,13 @@ TileTypes Goomba::interactWithSide(std::shared_ptr<Context> context __attribute(
         collisionBox->setDownBorder(collisionBox->getDownBorder() + TILE_SIZE / 4);
     }
 
-    if (otherObject->getTileType() == TileTypes::BRICK && interactionSide == CollisionSide::DOWN) {
-        if ((static_cast<Brick *>(otherObject.get())->isWhileHit())) {
+    if ((otherObject->getTileType() == TileTypes::BRICK ||
+            otherObject->getTileType() == TileTypes::COIN_BOX ||
+            otherObject->getTileType() == TileTypes::MUSHROOM_BOX ||
+            otherObject->getTileType() == TileTypes::HIDDEN_COIN_BOX ||
+            otherObject->getTileType() == TileTypes::HIDDEN_MUSHROOM)
+            && interactionSide == CollisionSide::DOWN) {
+        if ((static_cast<BoxBase *>(otherObject.get())->isWhileHit())) {
             this->bottomHitTime = time;
             collisionBox->setPhysicsState(AABB::KINEMATIC);
             collisionBox->setUpwardSpeed(8);

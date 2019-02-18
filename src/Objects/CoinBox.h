@@ -11,12 +11,12 @@
 
 #include "../AABB.h"
 #include "../Utils.h"
-#include "InteractiveObject.h"
 #include "../Constants.h"
 #include "Mario.h"
 #include "Coin.h"
+#include "BoxBase.h"
 
-class CoinBox : public InteractiveObject {
+class CoinBox : public BoxBase {
     std::vector<SDL_Texture *> texture;
     AABB* collisionBox;
     long hitTime = 0;
@@ -84,6 +84,7 @@ public:
             long animTime = time - hitTime;
             if(animTime > 200) {
                 isUsed = true;
+                this->whileHit = false;
                 animTime = 200;//stop animation after 500
             }
             float upSpeed = sin(M_PI * (animTime) / 200.0f);
@@ -106,9 +107,6 @@ public:
 
     void step(std::shared_ptr<Context> context __attribute((unused)), long time __attribute((unused))) {};
 
-    bool isWhileHit() {
-        return (hitTime != 0 && isUsed == false);
-    }
 };
 
 
