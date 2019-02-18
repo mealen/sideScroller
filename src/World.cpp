@@ -134,7 +134,8 @@ TileTypes World::collide(int rightSpeed, int downSpeed, long time, std::shared_p
     if (collidingObject == interactiveObject) {
         return TileTypes::EMPTY;
     }
-    if (collidingObject != NULL) {
+    if (collidingObject != NULL && (interactiveObject->getPosition()->getPhysicsState() != AABB::PhysicsState::NON_INTERACTIVE &&
+                                    collidingObject->getPosition()->getPhysicsState() != AABB::PhysicsState::NON_INTERACTIVE)) {
         tile = collidingObject->interactWithSide(context, interactiveObject, collisionSide, time);
         CollisionSide reverseCollisionSide;
         switch (collisionSide) {

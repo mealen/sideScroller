@@ -26,6 +26,7 @@ public:
     bool jumpEvent = false;
     bool stop = false;
     bool run = false;
+    bool restart = false;
 };
 
 
@@ -66,6 +67,10 @@ void readInput(InputStates &input) {
                 case SDLK_p:
                     input.stop = true;
                     break;
+                case SDLK_r:
+                    input.restart = true;
+                    break;
+
             }
         }
         if (e.type == SDL_KEYUP) {
@@ -303,6 +308,12 @@ int main(int argc __attribute((unused)), char *argv[] __attribute((unused))) {//
                     init(context, ren);
                     marioPos = context.get()->getPlayer()->getPosition();
                 }
+            }
+
+            if (input.restart) {
+                input.restart = false;
+                init(context, ren);
+                marioPos = context.get()->getPlayer()->getPosition();
             }
 
             int middleOfScreenPixel = (SCREEN_WIDTH) / 2 - TILE_SIZE;

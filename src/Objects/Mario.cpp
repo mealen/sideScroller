@@ -286,7 +286,7 @@ void Mario::die(TileTypes type) {
         getPosition()->setUpwardSpeed(JUMP_SPEED / 2);
         //collisionBox->jump(JUMP_SPEED);
         killed = true;
-        getPosition()->setPhysicsState(AABB::KINEMATIC);
+        getPosition()->setPhysicsState(AABB::NON_INTERACTIVE);
         getPosition()->setHorizontalSpeed(0);
     }
 }

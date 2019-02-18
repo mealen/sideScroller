@@ -10,7 +10,7 @@
 class AABB {
     int x1,y1, x2,y2;
 public:
-    enum PhysicsState { STATIC, KINEMATIC, DYNAMIC };
+    enum PhysicsState { STATIC, KINEMATIC, DYNAMIC, NON_INTERACTIVE };
 
 private:
     PhysicsState physicsState = STATIC;
