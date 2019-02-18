@@ -15,15 +15,18 @@ TileTypes World::collide(int rightSpeed, int downSpeed, long time, std::shared_p
     TileTypes tile = TileTypes::EMPTY;
     //we need 4 checks, since at any given time, object can be at 4 different places.
 
-    int horCheck, verCheck;
+    int horCheck, horCheck2, verCheck, verCheck2;
+    bool checkDoubleVer = false; //these flags is used for 0 speed checks
+    bool checkDoubleHor = false; //these flags is used for 0 speed checks
     CollisionSide collisionWithStaticSide = CollisionSide::INVALID;
     if(rightSpeed > 0) {
         horCheck = interactiveObject->getPosition()->getRightBorder() + rightSpeed;
     } else if (rightSpeed < 0){
         horCheck = interactiveObject->getPosition()->getLeftBorder() + rightSpeed;
     } else {
-        horCheck = interactiveObject->getPosition()->getLeftBorder() +interactiveObject->getPosition()->getRightBorder();
-        horCheck /= 2;
+        horCheck = interactiveObject->getPosition()->getLeftBorder();
+        horCheck2 = interactiveObject->getPosition()->getRightBorder();
+        checkDoubleHor = true;
     }
 
     if(downSpeed >0) {
@@ -31,13 +34,23 @@ TileTypes World::collide(int rightSpeed, int downSpeed, long time, std::shared_p
     } else if (downSpeed < 0){
         verCheck = interactiveObject->getPosition()->getUpBorder() + downSpeed;
     } else {
-        verCheck = interactiveObject->getPosition()->getUpBorder() + interactiveObject->getPosition()->getDownBorder();
-        verCheck /=2;
+        verCheck = interactiveObject->getPosition()->getUpBorder();
+        verCheck2 = interactiveObject->getPosition()->getDownBorder();
+        checkDoubleVer = true;
+    }
+    tile = getTileObject(horCheck/TILE_SIZE, verCheck/TILE_SIZE);
+    if(checkDoubleVer) {
+        tile = std::max(tile, getTileObject(horCheck/TILE_SIZE, verCheck2/TILE_SIZE));
+    }
+    if(checkDoubleHor) {
+        tile = std::max(tile, getTileObject(horCheck2/TILE_SIZE, verCheck/TILE_SIZE));
+    }
+    if(checkDoubleHor && checkDoubleVer){
+        tile = std::max(tile, getTileObject(horCheck2/TILE_SIZE, verCheck2/TILE_SIZE));
     }
 
-    tile = getTileObject(horCheck/TILE_SIZE, verCheck/TILE_SIZE);
     if(interactiveObject->getTileType() == TileTypes::PLAYER) {
-        std::cout << "tile type " << tile << std::endl;
+        //std::cout << "tile type " << tile << std::endl;
     }
     if(tile != TileTypes::EMPTY) {
         if (getTileObject(horCheck / TILE_SIZE, (verCheck - downSpeed) / TILE_SIZE) != TileTypes::EMPTY) {
