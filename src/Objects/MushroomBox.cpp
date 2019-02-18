@@ -24,7 +24,7 @@ TileTypes MushroomBox::interactWithSide(std::shared_ptr<Context> context,
             std::shared_ptr<Mario> mario = context->getPlayer();
             if (mario != nullptr) {
                 worldTemp = context->getWorld();
-                if (mario->getBig()) {
+                if (mario->isBig()) {
                     mushroomTemp = std::make_shared<Flower>(context->getWorld()->getRen(),
                                                               this->getPosition()->getLeftBorder() / TILE_SIZE,
                                                               (this->getPosition()->getUpBorder() / TILE_SIZE) - 1);
