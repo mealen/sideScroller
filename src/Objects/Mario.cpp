@@ -406,7 +406,12 @@ bool Mario::canFire() const {
 }
 
 void Mario::setFire(bool fire) {
-    if (fire && isBig()) {
-        status = Status::FIRE;
+    if (fire) {
+        if (isBig()) {
+            status = Status::FIRE;
+        } else {
+            grow();
+        }
     }
+
 }
