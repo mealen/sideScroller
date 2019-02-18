@@ -8,6 +8,7 @@
 #include "CoinBox.h"
 #include "Fireball.h"
 #include "Brick.h"
+#include "../Context.h"
 
 
 Fireball::Fireball(SDL_Renderer *ren, int x, int y) {//FIXME this should not need  renderer and map
@@ -70,7 +71,7 @@ void Fireball::collideWithSide(std::shared_ptr<Context> context __attribute((unu
 }
 
 TileTypes Fireball::interactWithSide(std::shared_ptr<Context> context __attribute((unused)), std::shared_ptr<InteractiveObject> otherObject,
-                                     CollisionSide interactionSide, long time __attribute((unused))) {
+                                     CollisionSide interactionSide __attribute((unused)), long time __attribute((unused))) {
     if(hitTime != 0) {
         return TileTypes::FIREBALL;//if already interacted, don't allow again
     }
@@ -104,7 +105,7 @@ void Fireball::changeDirection() {
     }
 };
 
-void Fireball::step(std::shared_ptr<Context> context __attribute((unused)), long time __attribute((unused))) {
+void Fireball::step(std::shared_ptr<Context> context, long time __attribute((unused))) {
     int moveSpeed = 8;
 
     if (firstTouch) {
@@ -127,6 +128,11 @@ void Fireball::step(std::shared_ptr<Context> context __attribute((unused)), long
         case LEFT_DOWN:
             this->getPosition()->moveLeft(moveSpeed);
             break;
+    }
+
+
+    if (getPosition()->getRightBorder() > context->getEndOfScreen()) {
+        die(TileTypes::EMPTY);
     }
 
 }
