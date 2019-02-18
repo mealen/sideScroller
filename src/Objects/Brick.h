@@ -128,7 +128,7 @@ public:
             return this->getTileType();//if already interacted, don't allow again
         }
         if(interactionSide == CollisionSide::DOWN) {
-            if (otherObject.get()->getTileType() == TileTypes::PLAYER && (static_cast<Mario *>(otherObject.get()))->getBig()) {
+            if (otherObject.get()->getTileType() == TileTypes::PLAYER && (static_cast<Mario *>(otherObject.get()))->isBig()) {
                 //isDestroyed = true;
                 Mix_PlayChannel(-1, breakSound, 0);
                 breakTime = time;

@@ -36,10 +36,9 @@ private:
     int score = 0;
     int coins = 0;
     int moveSpeed = 4;
-    AABB* collisionBox;
+    AABB *collisionBox;
+    Status status = SMALL;
     bool killed = false;
-    bool isBig = false;
-    bool isFire = false;
     bool growStarted = false;
     long growStartTime = 0;
     bool shrinkStarted = false;
@@ -51,20 +50,23 @@ private:
     Mix_Chunk *growSound;
 public:
     static const int JUMP_SPEED = 16;
+
     Mario(SDL_Rect mapPosition, SDL_Renderer *ren, int &error);
+
     void render(SDL_Renderer *renderer, int x, int y, long time) override;
 
     ~Mario();
 
     SDL_Texture *getTexture(long time) const override;
 
-    AABB* getPosition() const override;
+    AABB *getPosition() const override;
 
     void move(bool left, bool right, bool jump, bool crouch __attribute((unused)), bool run);
 
     TileTypes getTileType() const override;
 
-    TileTypes interactWithSide(std::shared_ptr<Context> context __attribute((unused)), std::shared_ptr<InteractiveObject> otherObject,
+    TileTypes interactWithSide(std::shared_ptr<Context> context __attribute((unused)),
+                               std::shared_ptr<InteractiveObject> otherObject,
                                CollisionSide interactionSide, long time __attribute((unused))) override;
 
     bool waitingForDestroy() override;
@@ -85,7 +87,7 @@ public:
 
     bool shrink();
 
-    bool getBig();
+    bool isBig() const;
 
     bool isGrowStarted() const;
 
@@ -96,7 +98,9 @@ public:
     void setFire(bool fire);
 
     bool canFire() const;
-};
 
+    Status getStatus();
+
+};
 
 #endif //MARIO_MARIO_H

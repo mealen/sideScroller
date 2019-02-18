@@ -108,7 +108,7 @@ void Mario::render(SDL_Renderer *renderer, int x __attribute((unused)), int y __
     }
 
     marioGrapPos.y = marioPos->getUpBorder();
-    if (getBig()) {
+    if (isBig()) {
         marioGrapPos.h = TILE_SIZE * 2;
     } else {
         marioGrapPos.h = TILE_SIZE;
@@ -146,34 +146,28 @@ bool Mario::isGrowStarted() const {
     return growStarted;
 }
 
+Mario::Status Mario::getStatus() {
+    return status;
+}
+
 SDL_Texture * Mario::getTexture(long time) const {
-    Status curStatus;
-    if (isBig) {
-        if (canFire()) {
-            curStatus = FIRE;
-        } else {
-            curStatus = BIG;
-        }
-    } else {
-        curStatus = SMALL;
-    }
     if(collisionBox->isHasJumped()) {
         if (isGrowStarted()) {
-            return textures.at(curStatus).at(STAND).at(0);
+            return textures.at(status).at(STAND).at(0);
         } else {
-            return textures.at(curStatus).at(JUMP).at(0);
+            return textures.at(status).at(JUMP).at(0);
         }
     }
     if (isDead()) {
-        return textures.at(curStatus).at(DEAD).at(0);
+        return textures.at(status).at(DEAD).at(0);
     }
     switch (currentState) {
         case STAND:
-            return textures.at(curStatus).at(STAND).at(0);
+            return textures.at(status).at(STAND).at(0);
         case MOVE:
-            return textures.at(curStatus).at(MOVE).at((time / 75) % 3);
+            return textures.at(status).at(MOVE).at((time / 75) % 3);
         case JUMP:
-            return textures.at(curStatus).at(JUMP).at(0);
+            return textures.at(status).at(JUMP).at(0);
         default:
             std::cerr << "Requested Texture type not found" << std::endl;
             exit(-1);
@@ -278,7 +272,7 @@ void Mario::die(TileTypes type) {
     if (shrinkStarted) {
         return;
     }
-    if (getBig() && !shrinkStarted) {
+    if (isBig() && !shrinkStarted) {
         shrink();
         shrinkStarted = true;
         return;
@@ -324,9 +318,11 @@ void Mario::move(bool left, bool right, bool jump, bool crouch __attribute((unus
         currentState = STAND;
     }
 
-    setRunning(run);
+    if (!canFire()) {
+        setRunning(run);
+    }
 
-    if (isBig && run && fireStartTime == 0) {
+    if (canFire() && run && fireStartTime == 0) {
         fireTriggered = true;
     }
 }
@@ -351,20 +347,20 @@ Mario::~Mario() {
 }
 
 bool Mario::grow() {
-    if (!isBig) {
+    if (!isBig()) {
         growStarted = true;
         currentState = STAND;
-        isBig = true;
+        this->status = BIG;
         getPosition()->setUpBorder(getPosition()->getUpBorder() - TILE_SIZE);
         return true;
     } else {
-        return isBig;
+        return isBig();
     }
 }
 
 bool Mario::shrink() {
-    if (isBig) {
-        isBig = false;
+    if (isBig()) {
+        this->status = Status::SMALL;
         currentState = STAND;
         getPosition()->setUpBorder(getPosition()->getUpBorder() + TILE_SIZE);
         return true;
@@ -373,8 +369,8 @@ bool Mario::shrink() {
     }
 }
 
-bool Mario::getBig() {
-    return isBig;
+bool Mario::isBig() const {
+    return status == Status::BIG || status == Status::FIRE;
 }
 
 long Mario::getDeadTime() const {
@@ -405,10 +401,12 @@ void Mario::setRunning(bool run) {
     }
 }
 
-void Mario::setFire(bool fire) {
-    isFire = fire;
+bool Mario::canFire() const {
+    return status == Status::FIRE;
 }
 
-bool Mario::canFire() const {
-    return isFire;
+void Mario::setFire(bool fire) {
+    if (fire && isBig()) {
+        status = Status::FIRE;
+    }
 }
