@@ -105,6 +105,10 @@ TileTypes Koopa::interactWithSide(std::shared_ptr<Context> context __attribute((
                 hideInShellTime = time;
             } else {
                 if(isHideInShell) {
+                    interactionSide = CollisionSide::RIGHT;
+                    if (otherObject->getPosition()->getLeftBorder() < this->getPosition()->getLeftBorder()){
+                        interactionSide = CollisionSide::LEFT;
+                    }
                     moveShell(interactionSide);
                 } else {
                     isHideInShell = true;
