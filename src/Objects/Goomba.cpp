@@ -121,18 +121,21 @@ TileTypes Goomba::interactWithSide(std::shared_ptr<Context> context __attribute(
             return TileTypes::EMPTY;
         }
         // swap direction
-    } else if (interactionSide == CollisionSide::LEFT || interactionSide == CollisionSide::RIGHT) {
-        if (otherObject->getTileType() == TileTypes::PLAYER) {
-            otherObject->die(getTileType());
-        } else {
-            if(!directionChangeRequested) {
-                directionRight = !directionRight;
-                if (otherObject->getTileType() == TileTypes::GOOMBA) {
-                    Goomba *otherGoomba = static_cast<Goomba *>(otherObject.get());
-                    otherGoomba->directionChangeRequested = true;
-                }
-            }
+    } else if ((interactionSide == CollisionSide::LEFT || interactionSide == CollisionSide::RIGHT)
+                && otherObject->getTileType() == TileTypes::PLAYER) {
+        otherObject->die(getTileType());
+    }
 
+    if (interactionSide == CollisionSide::LEFT || interactionSide == CollisionSide::RIGHT) {
+        if(otherObject->getTileType() == TileTypes::FLOWER ||
+                otherObject->getTileType() == TileTypes::MUSHROOM) {
+
+        } else if(!directionChangeRequested) {
+            directionRight = !directionRight;
+            if (otherObject->getTileType() == TileTypes::GOOMBA) {
+                Goomba *otherGoomba = static_cast<Goomba *>(otherObject.get());
+                otherGoomba->directionChangeRequested = true;
+            }
         }
     }
 
