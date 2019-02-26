@@ -121,7 +121,7 @@ public:
                 interactiveObject->die(tile);
             }
         }
-        if (tile != TileTypes::EMPTY && aabb->getPhysicsState() == AABB::DYNAMIC) {//if not possible, match the tile, and then stop
+        if ((tile != TileTypes::EMPTY && tile != TileTypes::OUT_OF_MAP) && aabb->getPhysicsState() == AABB::DYNAMIC) {//if not possible, match the tile, and then stop
             int curSize = (aabb->getDownBorder() - aabb->getUpBorder());
             aabb->setUpBorder(aabb->getUpBorder() - upwardSpeed);
             if (aabb->getUpwardSpeed() > 0) {

@@ -51,14 +51,12 @@ TileTypes Flower::interactWithSide(std::shared_ptr<Context> context,
             return TileTypes::EMPTY;
         }
         // swap direction
-    } else if (interactionSide == CollisionSide::RIGHT || interactionSide == CollisionSide::LEFT) {
-        if(!directionChangeRequested) {
-            directionRight = !directionRight;
-        }
+    } else{
+        return TileTypes::EMPTY;//don't collide with non player objects
     }
 
 
-    return TileTypes::FLOWER;//no interaction yet
+
 }
 
 void Flower::collideWithSide(std::shared_ptr<Context> context __attribute((unused)), TileTypes tile,

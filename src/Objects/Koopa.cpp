@@ -37,8 +37,8 @@ Koopa::~Koopa() {
 }
 
 SDL_Texture* Koopa::getTexture(long time) const {
-    if (bottomHitTime != 0) {
-        return texture[0];
+    if (killHitTime != 0) {
+        return texture[2];
     }
 
     if (this->isHideInShell) {
@@ -53,7 +53,7 @@ AABB* Koopa::getPosition() const {
 }
 
 TileTypes Koopa::getTileType() const {
-    if (bottomHitTime != 0) {
+    if (killHitTime != 0) {
         return TileTypes::EMPTY;
     } else {
         return TileTypes::KOOPA;
@@ -63,7 +63,7 @@ TileTypes Koopa::getTileType() const {
 void Koopa::render(SDL_Renderer* renderer, int x, int y, long time) {
     SDL_Rect screenPos;
     int yOffset=0;
-    if(!isHideInShell) {
+    if(!isHideInShell && killHitTime == 0) {
         yOffset = (int)std::floor(TILE_SIZE * 0.5f);
     }
     screenPos.x = collisionBox->getLeftBorder() - x;
@@ -72,7 +72,7 @@ void Koopa::render(SDL_Renderer* renderer, int x, int y, long time) {
     screenPos.h = TILE_SIZE + yOffset;
     SDL_RendererFlip flip = SDL_FLIP_NONE;
 
-    if (bottomHitTime != 0) {
+    if (killHitTime != 0) {
         flip = SDL_FLIP_VERTICAL;
         if (collisionBox->getUpBorder() > SCREEN_HEIGHT) {
             isRemoveWaiting = true;
@@ -150,7 +150,7 @@ TileTypes Koopa::interactWithSide(std::shared_ptr<Context> context __attribute((
     }
 
     if (otherObject->getTileType() == TileTypes::FIREBALL) {
-        this->bottomHitTime = time;
+        this->killHitTime = time;
         collisionBox->setPhysicsState(AABB::NON_INTERACTIVE);
         collisionBox->setUpwardSpeed(8);
         collisionBox->setUpBorder(collisionBox->getUpBorder() + TILE_SIZE / 4);
@@ -170,7 +170,7 @@ TileTypes Koopa::interactWithSide(std::shared_ptr<Context> context __attribute((
 
     if (otherObject->getTileType() == TileTypes::BRICK && interactionSide == CollisionSide::DOWN) {
         if ((static_cast<Brick *>(otherObject.get())->isWhileHit())) {
-            this->bottomHitTime = time;
+            this->killHitTime = time;
             collisionBox->setPhysicsState(AABB::NON_INTERACTIVE);
             collisionBox->setUpwardSpeed(8);
             collisionBox->setUpBorder(collisionBox->getUpBorder() + TILE_SIZE/4);
@@ -180,7 +180,7 @@ TileTypes Koopa::interactWithSide(std::shared_ptr<Context> context __attribute((
 
     if (otherObject->getTileType() == TileTypes::COIN_BOX && interactionSide == CollisionSide::DOWN) {
         if ((static_cast<CoinBox *>(otherObject.get())->isWhileHit())) {
-            this->bottomHitTime = time;
+            this->killHitTime = time;
             collisionBox->setPhysicsState(AABB::NON_INTERACTIVE);
             collisionBox->setUpwardSpeed(8);
             collisionBox->setUpBorder(collisionBox->getUpBorder() + TILE_SIZE/4);
@@ -207,7 +207,7 @@ bool Koopa::waitingForDestroy() {
 }
 
 void Koopa::step(std::shared_ptr<Context> context __attribute((unused)), long time) {
-    if (bottomHitTime != 0) {
+    if (killHitTime != 0) {
         return;
     }
     if(directionChangeRequested) {
