@@ -14,7 +14,7 @@ class Koopa : public InteractiveObject {
     std::vector<SDL_Texture *> texture;
     AABB* collisionBox;
     long hideInShellTime = 0;
-    long bottomHitTime = 0;
+    long killHitTime = 0;
     std::vector<Mix_Chunk *>deadSound;
     bool isHideInShell = false;
     bool isShellMoving = false;
