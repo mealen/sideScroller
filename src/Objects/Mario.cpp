@@ -159,7 +159,10 @@ SDL_Texture * Mario::getTexture(long time) const {
         }
     }
     if (isDead()) {
-        return textures.at(status).at(DEAD).at(0);
+        if(status == SMALL) {
+            // if not small, means dead by dropping, don't assign dead texture
+            return textures.at(status).at(DEAD).at(0);
+        }
     }
     switch (currentState) {
         case STAND:
@@ -269,6 +272,11 @@ void Mario::step(std::shared_ptr<Context> context, long time) {
 }
 
 void Mario::die(TileTypes type) {
+    if(type == TileTypes::OUT_OF_MAP) {
+        //die without shrink
+        InteractiveObject::die(type);
+        return;
+    }
     if (shrinkStarted) {
         return;
     }
