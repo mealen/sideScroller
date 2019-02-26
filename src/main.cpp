@@ -15,6 +15,7 @@
 #include "Objects/Goomba.h"
 #include "Objects/HiddenCoinBox.h"
 #include "Objects/Koopa.h"
+#include "Objects/StarBrick.h"
 
 
 class InputStates {
@@ -185,6 +186,14 @@ int init(std::shared_ptr<Context> &context, SDL_Renderer *ren) {
         hiddenCoinBox = std::make_shared<HiddenCoinBox>(ren, hiddenCoinBoxPos.x, hiddenCoinBoxPos.y);
         context.get()->getWorld()->addObject(hiddenCoinBox);
         hiddenCoinBoxPos = context->getWorld()->getAndRemoveObject(TileTypes::HIDDEN_COIN_BOX);
+    }
+
+    std::shared_ptr<StarBrick> starBrick;
+    SDL_Rect starBrickPos = context->getWorld()->getAndRemoveObject(TileTypes::STAR_BRICK);
+    while (starBrickPos.x != -1 && starBrickPos.y != -1) {
+        starBrick = std::make_shared<StarBrick>(ren, starBrickPos.x, starBrickPos.y);
+        context.get()->getWorld()->addObject(starBrick);
+        starBrickPos = context->getWorld()->getAndRemoveObject(TileTypes::STAR_BRICK);
     }
 
     return 0;

@@ -169,6 +169,16 @@ TileTypes Goomba::interactWithSide(std::shared_ptr<Context> context __attribute(
         }
     }
 
+    if (otherObject->getTileType() == TileTypes::PLAYER) {
+        if ((static_cast<Mario *>(otherObject.get())->getStar())) {
+            this->bottomHitTime = time;
+            collisionBox->setPhysicsState(AABB::NON_INTERACTIVE);
+            collisionBox->setUpwardSpeed(8);
+            collisionBox->setUpBorder(collisionBox->getUpBorder() + TILE_SIZE/4);
+            collisionBox->setDownBorder(collisionBox->getDownBorder() + TILE_SIZE/4);
+        }
+    }
+
     return TileTypes::GOOMBA;//no interaction yet
 }
 

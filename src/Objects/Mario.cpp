@@ -184,11 +184,16 @@ TileTypes Mario::getTileType() const {
 
 TileTypes Mario::interactWithSide(std::shared_ptr<Context> context __attribute((unused)), std::shared_ptr<InteractiveObject> otherObject,
                                   CollisionSide interactionSide, long time __attribute((unused))) {
+    if (star) {
+        otherObject->die(getTileType());
+    }
     if (otherObject->getTileType() == TileTypes::GOOMBA && interactionSide != CollisionSide::DOWN) {
         if (isShrinkStarted()) {
             return TileTypes::EMPTY;
         } else {
-            die(otherObject->getTileType());
+            if (!star) {
+                die(otherObject->getTileType());
+            }
         }
     }
     if (otherObject->getTileType() == TileTypes::MUSHROOM) {
@@ -266,9 +271,16 @@ void Mario::step(std::shared_ptr<Context> context, long time) {
         growStarted = false;
         growStartTime = 0;
     }
+
+    if (time - starStartTime > 8000) {
+        star = false;
+    }
 }
 
 void Mario::die(TileTypes type) {
+    if (star) {
+        return;
+    }
     if (shrinkStarted) {
         return;
     }
@@ -414,4 +426,14 @@ void Mario::setFire(bool fire) {
         }
     }
 
+}
+
+void Mario::setStar(long starTime) {
+    this->star = true;
+    this->starStartTime = starTime;
+
+}
+
+bool Mario::getStar() const {
+    return star;
 }

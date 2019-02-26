@@ -39,12 +39,14 @@ private:
     AABB *collisionBox;
     Status status = SMALL;
     bool killed = false;
+    bool star = false;
     bool growStarted = false;
     long growStartTime = 0;
     bool shrinkStarted = false;
     long shrinkStartTime = 0;
     long lastStepTime = 0;
     long fireStartTime = 0;
+    long starStartTime = 0;
     bool moveRight = true;
     bool fireTriggered = false;
     Mix_Chunk *growSound;
@@ -98,6 +100,10 @@ public:
     void setFire(bool fire);
 
     bool canFire() const;
+
+    void setStar(long starTime);
+
+    bool getStar() const;
 
     Status getStatus();
 
