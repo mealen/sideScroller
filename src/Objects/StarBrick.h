@@ -135,6 +135,7 @@ public:
                 }
             }
         }
+        return this->getTileType();
     }
 
     bool waitingForDestroy() {
