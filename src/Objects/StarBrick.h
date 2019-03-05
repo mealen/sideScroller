@@ -135,11 +135,11 @@ public:
                 }
             }
         }
-    };
+    }
 
     bool waitingForDestroy() {
         return false; //there is no case we are expecting removal
-    };
+    }
 
     void step(std::shared_ptr<Context> context __attribute((unused)), long time __attribute((unused))) {};
 
