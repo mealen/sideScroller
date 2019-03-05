@@ -23,6 +23,8 @@ public:
     bool quit = false;
     bool goRight = false;
     bool goLeft = false;
+    bool crouch = false;
+    bool crouchEvent = false;
     bool jump = false;
     bool jumpEvent = false;
     bool stop = false;
@@ -35,6 +37,7 @@ void logFrameRate();
 
 void readInput(InputStates &input) {
     input.jumpEvent = false;
+    input.crouchEvent = false;
     SDL_Event e;
     while (SDL_PollEvent(&e)) {
         //If user closes the window
@@ -65,6 +68,13 @@ void readInput(InputStates &input) {
                     }
                     input.jump = true;
                     break;
+                case SDLK_s:
+                case SDLK_DOWN:
+                    if(!input.crouch) {
+                        input.crouchEvent = true;
+                    }
+                    input.crouch = true;
+                    break;
                 case SDLK_p:
                     input.stop = true;
                     break;
@@ -90,6 +100,10 @@ void readInput(InputStates &input) {
                 case SDLK_SPACE:
                 case SDLK_UP:
                     input.jump = false;
+                    break;
+                case SDLK_s:
+                case SDLK_DOWN:
+                    input.crouch = false;
                     break;
                 case SDLK_p:
                     input.stop = false;
@@ -282,7 +296,7 @@ int main(int argc __attribute((unused)), char *argv[] __attribute((unused))) {//
                     sourceRect.x = mapWidth - SCREEN_WIDTH;
                 }
             }
-            context->getPlayer()->move(input.goLeft, input.goRight, input.jumpEvent, false, input.run);
+            context->getPlayer()->move(input.goLeft, input.goRight, input.jumpEvent, input.crouch, input.run);
 
 
             previousTime = time;

@@ -21,8 +21,9 @@ Mario::Mario(SDL_Rect mapPosition, SDL_Renderer *ren, int &error) {
 
     for (Status status : {SMALL, BIG}) {
         for (Color color : {NORMAL, BLACK, WHITE}) {
-            for (TextureNames textureName : {STAND, MOVE, JUMP, DEAD}) {
-                if (textureName == DEAD && !(status == SMALL && color == NORMAL)) continue;
+            for (TextureNames textureName : {STAND, MOVE, JUMP, DEAD, CROUCH}) {
+                if (textureName == DEAD && !(status == SMALL && color == NORMAL)) {continue;}
+                if (textureName == CROUCH && status == SMALL) {continue;}
                 if (textureName == MOVE) {
                     for (int i = 0; i < 3; i++) {
                         std::string marioImage = Utils::getResourcePath("mario/" +
@@ -40,10 +41,16 @@ Mario::Mario(SDL_Rect mapPosition, SDL_Renderer *ren, int &error) {
                         textures[status][color][textureName].push_back(texture);
                     }
                 } else {
+                    std::string currentTextureName;
+                    if(currentState==CROUCH && !isBig()) {
+                        currentTextureName = enumToName(TextureNames::STAND);
+                    } else {
+                        currentTextureName = enumToName(textureName);
+                    }
                     std::string marioImage = Utils::getResourcePath("mario/" +
                                                                     enumToName(status) + "/" +
                                                                     enumToName(color)) +
-                                                                    "mario_" + enumToName(textureName) +
+                                                                    "mario_" + currentTextureName +
                                                                     ".bmp";
                     SDL_Texture* texture = Utils::loadTexture(ren, marioImage);
                     if (texture == nullptr) {
@@ -85,7 +92,7 @@ void Mario::render(SDL_Renderer *renderer, int x __attribute((unused)), int y __
     }
 
     marioGrapPos.y = marioPos->getUpBorder();
-    if (isBig()) {
+    if (isBig() && currentState != CROUCH) {
         marioGrapPos.h = TILE_SIZE * 2;
     } else {
         marioGrapPos.h = TILE_SIZE;
@@ -170,11 +177,18 @@ SDL_Texture * Mario::getTexture(long time) const {
     }
     switch (currentState) {
         case STAND:
-            return textures.at(status).at(textureColor).at(STAND).at(0);
+            return textures.at(status).at(textureColor).at(currentState).at(0);
         case MOVE:
             return textures.at(status).at(textureColor).at(MOVE).at((time / 75) % 3);
         case JUMP:
-            return textures.at(status).at(textureColor).at(JUMP).at(0);
+            return textures.at(status).at(textureColor).at(currentState).at(0);
+        case CROUCH:
+            if(isBig()) {
+                return textures.at(status).at(textureColor).at(currentState).at(0);
+            } else {
+                return textures.at(status).at(textureColor).at(STAND).at(0);
+            }
+
         default:
             std::cerr << "Requested Texture type not found" << std::endl;
             exit(-1);
@@ -315,7 +329,7 @@ void Mario::die(TileTypes type) {
     }
 }
 
-void Mario::move(bool left, bool right, bool jump, bool crouch __attribute((unused)), bool run) {
+void Mario::move(bool left, bool right, bool jump, bool crouch, bool run) {
     if (growStarted) {
         return;
     }
@@ -326,19 +340,31 @@ void Mario::move(bool left, bool right, bool jump, bool crouch __attribute((unus
         currentState = JUMP;
         collisionBox->jump(JUMP_SPEED);
     }
-    if (left) {
+    if(!crouch && currentState == CROUCH) {
+        currentState = STAND;
+        if(isBig()) {
+            getPosition()->setUpBorder(getPosition()->getUpBorder() - TILE_SIZE);
+        }
+    }
+    if(crouch) {
+        if(currentState != CROUCH) {
+            currentState = CROUCH;
+            if (isBig()) {
+                //make the collision box small again
+                getPosition()->setUpBorder(getPosition()->getUpBorder() + TILE_SIZE);
+            }
+        }
+    } else if (left) {
         moveRight = false;
         currentState = MOVE;
         if (collisionBox->getLeftBorder() + (320) > collisionBox->getMaxRight()) {
             collisionBox->moveLeft(moveSpeed);
         }
-    }
-    if (right) {
+    } else if (right) {
         moveRight = true;
         currentState = MOVE;
         collisionBox->moveRight(moveSpeed);
-    }
-    if (!left && !right) {
+    } else if (!left && !right) {
         currentState = STAND;
     }
 
@@ -481,6 +507,8 @@ std::string Mario::enumToName(Mario::TextureNames status) {
             return "jump";
         case Mario::TextureNames::DEAD:
             return "death";
+        case Mario::TextureNames::CROUCH:
+            return "crouch";
         default:
             return nullptr;
     }

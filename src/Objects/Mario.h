@@ -30,7 +30,7 @@ public:
         NORMAL, BLACK, WHITE
     };
     enum TextureNames {
-        STAND, MOVE, JUMP, DEAD
+        STAND, MOVE, JUMP, DEAD, CROUCH
     };
 
 private:
