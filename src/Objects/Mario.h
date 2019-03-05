@@ -24,23 +24,28 @@ class Mario : public InteractiveObject {
 
 public:
     enum Status {
-        SMALL, BIG, FIRE
+        SMALL, BIG
+    };
+    enum Color {
+        NORMAL, BLACK, WHITE
     };
     enum TextureNames {
         STAND, MOVE, JUMP, DEAD
     };
 
 private:
-    std::map<Status, std::map<TextureNames, std::vector<SDL_Texture *>>> textures;
+    std::map<Status, std::map<Color, std::map<TextureNames, std::vector<SDL_Texture *>>>> textures;
     TextureNames currentState = STAND;
     int score = 0;
     int coins = 0;
     int moveSpeed = 4;
     AABB *collisionBox;
     Status status = SMALL;
+    Color color = NORMAL;
     bool killed = false;
     bool star = false;
     bool growStarted = false;
+    bool fire = false;
     long growStartTime = 0;
     bool shrinkStarted = false;
     long shrinkStartTime = 0;
@@ -106,6 +111,12 @@ public:
     bool getStar() const;
 
     Status getStatus();
+
+    std::string enumToName(Mario::Status status);
+
+    std::string enumToName(Mario::Color status);
+
+    std::string enumToName(Mario::TextureNames status);
 
 };
 
