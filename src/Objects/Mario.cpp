@@ -3,9 +3,11 @@
 //
 
 #include <SDL_mixer.h>
+#include <map>
 #include "Mario.h"
 #include "Fireball.h"
 #include "../Context.h"
+
 
 
 Mario::Mario(SDL_Rect mapPosition, SDL_Renderer *ren, int &error) {
@@ -17,71 +19,46 @@ Mario::Mario(SDL_Rect mapPosition, SDL_Renderer *ren, int &error) {
 
     collisionBox->setPhysicsState(AABB::PhysicsState::DYNAMIC);
 
-    std::string marioImage = Utils::getResourcePath("mario") + "mario.bmp";
-    textures[SMALL][STAND].push_back(Utils::loadTexture(ren, marioImage));
+    for (Status status : {SMALL, BIG}) {
+        for (Color color : {NORMAL, BLACK, WHITE}) {
+            for (TextureNames textureName : {STAND, MOVE, JUMP, DEAD}) {
+                if (textureName == DEAD && !(status == SMALL && color == NORMAL)) continue;
+                if (textureName == MOVE) {
+                    for (int i = 0; i < 3; i++) {
+                        std::string marioImage = Utils::getResourcePath("mario/" +
+                                                                        enumToName(status) + "/" +
+                                                                        enumToName(color)) +
+                                                                        "mario_" + enumToName(textureName) +
+                                                                        std::to_string(i) + ".bmp";
+                        SDL_Texture* texture = Utils::loadTexture(ren, marioImage);
 
-    marioImage = Utils::getResourcePath("mario") + "mario_move0.bmp";
-    textures[SMALL][MOVE].push_back(Utils::loadTexture(ren, marioImage));
+                        if (texture == nullptr) {
+                            std::cerr << "Error loading Mario textures" << std::endl;
+                            error = 1;
+                            return;
+                        }
+                        textures[status][color][textureName].push_back(texture);
+                    }
+                } else {
+                    std::string marioImage = Utils::getResourcePath("mario/" +
+                                                                    enumToName(status) + "/" +
+                                                                    enumToName(color)) +
+                                                                    "mario_" + enumToName(textureName) +
+                                                                    ".bmp";
+                    SDL_Texture* texture = Utils::loadTexture(ren, marioImage);
+                    if (texture == nullptr) {
+                        std::cerr << "Error loading Mario textures" << std::endl;
+                        error = 1;
+                        return;
+                    }
+                    textures[status][color][textureName].push_back(texture);
+                }
 
-    marioImage = Utils::getResourcePath("mario") + "mario_move1.bmp";
-    textures[SMALL][MOVE].push_back(Utils::loadTexture(ren, marioImage));
-
-    marioImage = Utils::getResourcePath("mario") + "mario_move2.bmp";
-    textures[SMALL][MOVE].push_back(Utils::loadTexture(ren, marioImage));
-
-    marioImage = Utils::getResourcePath("mario") + "mario_jump.bmp";
-    textures[SMALL][JUMP].push_back(Utils::loadTexture(ren, marioImage));
-
-    marioImage = Utils::getResourcePath("mario") + "mario_death.bmp";
-    textures[SMALL][DEAD].push_back(Utils::loadTexture(ren, marioImage));
-
-
-    marioImage = Utils::getResourcePath("mario/big") + "mario.bmp";
-    textures[BIG][STAND].push_back(Utils::loadTexture(ren, marioImage));
-
-    marioImage = Utils::getResourcePath("mario/big") + "mario_move0.bmp";
-    textures[BIG][MOVE].push_back(Utils::loadTexture(ren, marioImage));
-
-    marioImage = Utils::getResourcePath("mario/big") + "mario_move1.bmp";
-    textures[BIG][MOVE].push_back(Utils::loadTexture(ren, marioImage));
-
-    marioImage = Utils::getResourcePath("mario/big") + "mario_move2.bmp";
-    textures[BIG][MOVE].push_back(Utils::loadTexture(ren, marioImage));
-
-    marioImage = Utils::getResourcePath("mario/big") + "mario_jump.bmp";
-    textures[BIG][JUMP].push_back(Utils::loadTexture(ren, marioImage));
-
-    marioImage = Utils::getResourcePath("mario/fire") + "mario.bmp";
-    textures[FIRE][STAND].push_back(Utils::loadTexture(ren, marioImage));
-
-    marioImage = Utils::getResourcePath("mario/fire") + "mario_move0.bmp";
-    textures[FIRE][MOVE].push_back(Utils::loadTexture(ren, marioImage));
-
-    marioImage = Utils::getResourcePath("mario/fire") + "mario_move1.bmp";
-    textures[FIRE][MOVE].push_back(Utils::loadTexture(ren, marioImage));
-
-    marioImage = Utils::getResourcePath("mario/fire") + "mario_move2.bmp";
-    textures[FIRE][MOVE].push_back(Utils::loadTexture(ren, marioImage));
-
-    marioImage = Utils::getResourcePath("mario/fire") + "mario_jump.bmp";
-    textures[FIRE][JUMP].push_back(Utils::loadTexture(ren, marioImage));
+            }
+        }
+    }
 
     growSound = Mix_LoadWAV("./res/sounds/mushroomeat.wav");
-
-        if (textures[SMALL][STAND][0] == nullptr ||
-        textures[SMALL][MOVE][0] == nullptr ||
-        textures[SMALL][MOVE][1] == nullptr ||
-        textures[SMALL][MOVE][2] == nullptr ||
-        textures[SMALL][JUMP][0] == nullptr ||
-        textures[BIG][STAND][0] == nullptr ||
-        textures[BIG][MOVE][0] == nullptr ||
-        textures[BIG][MOVE][1] == nullptr ||
-        textures[BIG][MOVE][2] == nullptr ||
-        textures[BIG][JUMP][0] == nullptr ) {
-        std::cerr << "Error loading Mario textures" << std::endl;
-        error = 1;
-        return;
-    }
 
     error = 0;
 }
@@ -151,26 +128,53 @@ Mario::Status Mario::getStatus() {
 }
 
 SDL_Texture * Mario::getTexture(long time) const {
+    Color textureColor;
+
+    if (getStar()) {
+        long timeDivisor = 75;
+        if (time - starStartTime > 6200) {
+            timeDivisor = 200;
+        }
+        int rand = (time / timeDivisor) % 3;
+        switch (rand) {
+            case 0:
+                textureColor = NORMAL;
+                break;
+            case 1:
+                textureColor = BLACK;
+                break;
+            case 2:
+                textureColor = WHITE;
+                break;
+            default:
+                textureColor = NORMAL;
+                break;
+        }
+
+
+    } else {
+        textureColor = color;
+    }
     if(collisionBox->isHasJumped()) {
         if (isGrowStarted()) {
-            return textures.at(status).at(STAND).at(0);
+            return textures.at(status).at(textureColor).at(STAND).at(0);
         } else {
-            return textures.at(status).at(JUMP).at(0);
+            return textures.at(status).at(textureColor).at(JUMP).at(0);
         }
     }
     if (isDead()) {
         if(status == SMALL) {
             // if not small, means dead by dropping, don't assign dead texture
-            return textures.at(status).at(DEAD).at(0);
+            return textures.at(status).at(textureColor).at(DEAD).at(0);
         }
     }
     switch (currentState) {
         case STAND:
-            return textures.at(status).at(STAND).at(0);
+            return textures.at(status).at(textureColor).at(STAND).at(0);
         case MOVE:
-            return textures.at(status).at(MOVE).at((time / 75) % 3);
+            return textures.at(status).at(textureColor).at(MOVE).at((time / 75) % 3);
         case JUMP:
-            return textures.at(status).at(JUMP).at(0);
+            return textures.at(status).at(textureColor).at(JUMP).at(0);
         default:
             std::cerr << "Requested Texture type not found" << std::endl;
             exit(-1);
@@ -348,21 +352,16 @@ void Mario::move(bool left, bool right, bool jump, bool crouch __attribute((unus
 }
 
 Mario::~Mario() {
-    SDL_DestroyTexture(textures[SMALL][STAND][0]);
-    SDL_DestroyTexture(textures[SMALL][MOVE][0]);
-    SDL_DestroyTexture(textures[SMALL][MOVE][1]);
-    SDL_DestroyTexture(textures[SMALL][MOVE][2]);
-    SDL_DestroyTexture(textures[SMALL][JUMP][0]);
-    SDL_DestroyTexture(textures[BIG][STAND][0]);
-    SDL_DestroyTexture(textures[BIG][MOVE][0]);
-    SDL_DestroyTexture(textures[BIG][MOVE][1]);
-    SDL_DestroyTexture(textures[BIG][MOVE][2]);
-    SDL_DestroyTexture(textures[BIG][JUMP][0]);
-    SDL_DestroyTexture(textures[FIRE][STAND][0]);
-    SDL_DestroyTexture(textures[FIRE][MOVE][0]);
-    SDL_DestroyTexture(textures[FIRE][MOVE][1]);
-    SDL_DestroyTexture(textures[FIRE][MOVE][2]);
-    SDL_DestroyTexture(textures[FIRE][JUMP][0]);
+    for (Status status : {SMALL, BIG}) {
+        for (Color color : {NORMAL, BLACK, WHITE}) {
+            for (TextureNames textureName : {STAND, MOVE, JUMP, DEAD}) {
+                for (SDL_Texture* texture : textures[status][color][textureName]) {
+                    SDL_DestroyTexture(texture);
+                }
+            }
+        }
+    }
+
     delete collisionBox;
 }
 
@@ -382,6 +381,7 @@ bool Mario::shrink() {
     if (isBig()) {
         this->status = Status::SMALL;
         currentState = STAND;
+        this->color = Color::NORMAL;
         getPosition()->setUpBorder(getPosition()->getUpBorder() + TILE_SIZE);
         return true;
     } else {
@@ -390,7 +390,7 @@ bool Mario::shrink() {
 }
 
 bool Mario::isBig() const {
-    return status == Status::BIG || status == Status::FIRE;
+    return status == Status::BIG || canFire();
 }
 
 long Mario::getDeadTime() const {
@@ -422,13 +422,14 @@ void Mario::setRunning(bool run) {
 }
 
 bool Mario::canFire() const {
-    return status == Status::FIRE;
+    return fire;
 }
 
 void Mario::setFire(bool fire) {
     if (fire) {
         if (isBig()) {
-            status = Status::FIRE;
+            this->fire = fire;
+            color = Color::WHITE;
         } else {
             grow();
         }
@@ -444,4 +445,43 @@ void Mario::setStar(long starTime) {
 
 bool Mario::getStar() const {
     return star;
+}
+
+std::string Mario::enumToName(Mario::Status status) {
+    switch(status) {
+        case Mario::Status::SMALL:
+            return "small";
+        case Mario::Status::BIG:
+            return "big";
+        default:
+            return nullptr;
+    }
+}
+
+std::string Mario::enumToName(Mario::Color status) {
+    switch(status) {
+        case Mario::Color::NORMAL:
+            return "normal";
+        case Mario::Color::BLACK:
+            return "black";
+        case Mario::Color::WHITE:
+            return "white";
+        default:
+            return nullptr;
+    }
+}
+
+std::string Mario::enumToName(Mario::TextureNames status) {
+    switch(status) {
+        case Mario::TextureNames::STAND:
+            return "stand";
+        case Mario::TextureNames::MOVE:
+            return "move";
+        case Mario::TextureNames::JUMP:
+            return "jump";
+        case Mario::TextureNames::DEAD:
+            return "death";
+        default:
+            return nullptr;
+    }
 }
