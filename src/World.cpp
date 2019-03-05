@@ -8,6 +8,13 @@
 #include "World.h"
 #include "Context.h"
 #include "Constants.h"
+#include "Objects/Brick.h"
+#include "Objects/CoinBox.h"
+#include "Objects/Goomba.h"
+#include "Objects/MushroomBox.h"
+#include "Objects/Koopa.h"
+#include "Objects/StarBrick.h"
+#include "Objects/HiddenCoinBox.h"
 
 
 TileTypes World::collide(int rightSpeed, int downSpeed, long time, std::shared_ptr<Context> context,
@@ -210,6 +217,63 @@ void World::load(std::string logicFile, int &error) {
         error = 1;
         return;
     }
+
+    std::shared_ptr<Brick> brick;
+    SDL_Rect brickPos = getAndRemoveObject(TileTypes::BRICK);
+    while (brickPos.x != -1 && brickPos.y != -1) {
+        brick = std::make_shared<Brick>(ren, brickPos.x, brickPos.y);
+        addObject(brick);
+        brickPos = getAndRemoveObject(TileTypes::BRICK);
+    }
+
+    std::shared_ptr<CoinBox> brickCoin;
+    SDL_Rect brickCoinPos = getAndRemoveObject(TileTypes::COIN_BOX);
+    while (brickCoinPos.x != -1 && brickCoinPos.y != -1) {
+        brickCoin = std::make_shared<CoinBox>(ren, brickCoinPos.x, brickCoinPos.y);
+        addObject(brickCoin);
+        brickCoinPos = getAndRemoveObject(TileTypes::COIN_BOX);
+    }
+
+    std::shared_ptr<Goomba> goomba;
+    SDL_Rect goombaPos = getAndRemoveObject(TileTypes::GOOMBA);
+    while (goombaPos.x != -1 && goombaPos.y != -1) {
+        goomba = std::make_shared<Goomba>(ren, goombaPos.x, goombaPos.y);
+        addObject(goomba);
+        goombaPos = getAndRemoveObject(TileTypes::GOOMBA);
+    }
+
+    std::shared_ptr<Koopa> koopa;
+    SDL_Rect koopaPos = getAndRemoveObject(TileTypes::KOOPA);
+    while (koopaPos.x != -1 && koopaPos.y != -1) {
+        koopa = std::make_shared<Koopa>(ren, koopaPos.x, koopaPos.y);
+        addObject(koopa);
+        koopaPos = getAndRemoveObject(TileTypes::KOOPA);
+    }
+
+    std::shared_ptr<MushroomBox> brickMushroom;
+    SDL_Rect brickMushroomPos = getAndRemoveObject(TileTypes::MUSHROOM_BOX);
+    while (brickMushroomPos.x != -1 && brickMushroomPos.y != -1) {
+        brickMushroom = std::make_shared<MushroomBox>(ren, brickMushroomPos.x, brickMushroomPos.y);
+        addObject(brickMushroom);
+        brickMushroomPos = getAndRemoveObject(TileTypes::MUSHROOM_BOX);
+    }
+
+    std::shared_ptr<HiddenCoinBox> hiddenCoinBox;
+    SDL_Rect hiddenCoinBoxPos = getAndRemoveObject(TileTypes::HIDDEN_COIN_BOX);
+    while (hiddenCoinBoxPos.x != -1 && hiddenCoinBoxPos.y != -1) {
+        hiddenCoinBox = std::make_shared<HiddenCoinBox>(ren, hiddenCoinBoxPos.x, hiddenCoinBoxPos.y);
+        addObject(hiddenCoinBox);
+        hiddenCoinBoxPos = getAndRemoveObject(TileTypes::HIDDEN_COIN_BOX);
+    }
+
+    std::shared_ptr<StarBrick> starBrick;
+    SDL_Rect starBrickPos = getAndRemoveObject(TileTypes::STAR_BRICK);
+    while (starBrickPos.x != -1 && starBrickPos.y != -1) {
+        starBrick = std::make_shared<StarBrick>(ren, starBrickPos.x, starBrickPos.y);
+        addObject(starBrick);
+        starBrickPos = getAndRemoveObject(TileTypes::STAR_BRICK);
+    }
+
     error = 0;
 }
 

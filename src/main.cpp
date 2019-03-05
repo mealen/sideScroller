@@ -138,64 +138,6 @@ int init(std::shared_ptr<Context> &context, SDL_Renderer *ren) {
     world->addObject(mario);
 
     context = std::make_shared<Context>(world, mario);
-
-
-    std::shared_ptr<Brick> brick;
-    SDL_Rect brickPos = context->getWorld()->getAndRemoveObject(TileTypes::BRICK);
-    while (brickPos.x != -1 && brickPos.y != -1) {
-        brick = std::make_shared<Brick>(ren, brickPos.x, brickPos.y);
-        context->getWorld()->addObject(brick);
-        brickPos = context->getWorld()->getAndRemoveObject(TileTypes::BRICK);
-    }
-
-    std::shared_ptr<CoinBox> brickCoin;
-    SDL_Rect brickCoinPos = context->getWorld()->getAndRemoveObject(TileTypes::COIN_BOX);
-    while (brickCoinPos.x != -1 && brickCoinPos.y != -1) {
-        brickCoin = std::make_shared<CoinBox>(ren, brickCoinPos.x, brickCoinPos.y);
-        context->getWorld()->addObject(brickCoin);
-        brickCoinPos = context->getWorld()->getAndRemoveObject(TileTypes::COIN_BOX);
-    }
-
-    std::shared_ptr<Goomba> goomba;
-    SDL_Rect goombaPos = context->getWorld()->getAndRemoveObject(TileTypes::GOOMBA);
-    while (goombaPos.x != -1 && goombaPos.y != -1) {
-        goomba = std::make_shared<Goomba>(ren, goombaPos.x, goombaPos.y);
-        context->getWorld()->addObject(goomba);
-        goombaPos = context->getWorld()->getAndRemoveObject(TileTypes::GOOMBA);
-    }
-
-    std::shared_ptr<Koopa> koopa;
-    SDL_Rect koopaPos = context->getWorld()->getAndRemoveObject(TileTypes::KOOPA);
-    while (koopaPos.x != -1 && koopaPos.y != -1) {
-        koopa = std::make_shared<Koopa>(ren, koopaPos.x, koopaPos.y);
-        context->getWorld()->addObject(koopa);
-        koopaPos = context->getWorld()->getAndRemoveObject(TileTypes::KOOPA);
-    }
-
-    std::shared_ptr<MushroomBox> brickMushroom;
-    SDL_Rect brickMushroomPos = context->getWorld()->getAndRemoveObject(TileTypes::MUSHROOM_BOX);
-    while (brickMushroomPos.x != -1 && brickMushroomPos.y != -1) {
-        brickMushroom = std::make_shared<MushroomBox>(ren, brickMushroomPos.x, brickMushroomPos.y);
-        context->getWorld()->addObject(brickMushroom);
-        brickMushroomPos = context->getWorld()->getAndRemoveObject(TileTypes::MUSHROOM_BOX);
-    }
-
-    std::shared_ptr<HiddenCoinBox> hiddenCoinBox;
-    SDL_Rect hiddenCoinBoxPos = context->getWorld()->getAndRemoveObject(TileTypes::HIDDEN_COIN_BOX);
-    while (hiddenCoinBoxPos.x != -1 && hiddenCoinBoxPos.y != -1) {
-        hiddenCoinBox = std::make_shared<HiddenCoinBox>(ren, hiddenCoinBoxPos.x, hiddenCoinBoxPos.y);
-        context.get()->getWorld()->addObject(hiddenCoinBox);
-        hiddenCoinBoxPos = context->getWorld()->getAndRemoveObject(TileTypes::HIDDEN_COIN_BOX);
-    }
-
-    std::shared_ptr<StarBrick> starBrick;
-    SDL_Rect starBrickPos = context->getWorld()->getAndRemoveObject(TileTypes::STAR_BRICK);
-    while (starBrickPos.x != -1 && starBrickPos.y != -1) {
-        starBrick = std::make_shared<StarBrick>(ren, starBrickPos.x, starBrickPos.y);
-        context.get()->getWorld()->addObject(starBrick);
-        starBrickPos = context->getWorld()->getAndRemoveObject(TileTypes::STAR_BRICK);
-    }
-
     return 0;
 }
 
