@@ -286,7 +286,7 @@ int main(int argc __attribute((unused)), char *argv[] __attribute((unused))) {//
 
 
             previousTime = time;
-            context.get()->getWorld()->stepSimulation(time, context);//FIXME parameter should be shared ptr or something
+            context.get()->getWorld()->stepSimulation(time, context);
         }
 
         //Draw the texture
@@ -299,8 +299,6 @@ int main(int argc __attribute((unused)), char *argv[] __attribute((unused))) {//
         //Update the screen
         logFrameRate();
         SDL_RenderPresent(ren);
-
-
     }
 
     TTF_CloseFont(font);
