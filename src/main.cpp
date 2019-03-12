@@ -119,6 +119,11 @@ void readInput(InputStates &input) {
 int init(std::shared_ptr<Context> &context, SDL_Renderer *ren) {
     int error;
 
+    if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048) == -1) {
+        return false;
+    }
+    Mix_Music *music = NULL;
+
     std::shared_ptr<World> world = std::make_shared<World>(ren);
 
     world->load("0101_logic.txt", error);
@@ -127,9 +132,7 @@ int init(std::shared_ptr<Context> &context, SDL_Renderer *ren) {
         std::cerr << "Error initializing Map, Exiting" << std::endl;
         return -1;
     }
-
-    if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048) == -1) { return false; }
-    Mix_Music *music = NULL;
+    
     music = Mix_LoadMUS("./res/sounds/overworld.wav");
     //If there was a problem loading the music
     if (music == NULL) {

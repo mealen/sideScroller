@@ -14,7 +14,11 @@
     if(interactionSide == CollisionSide::DOWN) {
         //isDestroyed = true;
         for (uint32_t i = 0; i < breakSound.size(); ++i) {
-            Mix_PlayChannel(-1, breakSound[i], 0);
+            if(Mix_PlayChannel(-1, breakSound[i], 0)==-1) {
+                printf("Mix_PlayChannel: %s\n",Mix_GetError());
+                // may be critical error, or maybe just no channels were free.
+                // you could allocated another channel in that case...
+            }
         }
 
         hitTime = time;

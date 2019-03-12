@@ -40,8 +40,21 @@ public:
         std::string brickImage = Utils::getResourcePath("brick_coin") + "brick_coin_used.bmp";
         texture.push_back(Utils::loadTexture(ren, brickImage));
 
-        breakSound.push_back(Mix_LoadWAV("./res/sounds/coin.wav"));
-        breakSound.push_back(Mix_LoadWAV("./res/sounds/blockhit.wav"));
+        Mix_Chunk *sample;
+        sample = Mix_LoadWAV("./res/sounds/coin.wav");
+        if(!sample) {
+            printf("Mix_LoadWAV: %s\n", Mix_GetError());
+            // handle error
+        } else {
+            breakSound.push_back(sample);
+        }
+        sample = Mix_LoadWAV("./res/sounds/blockhit.wav");
+        if(!sample) {
+            printf("Mix_LoadWAV: %s\n", Mix_GetError());
+            // handle error
+        } else {
+            breakSound.push_back(sample);
+        }
     }
 
     ~CoinBox() {
