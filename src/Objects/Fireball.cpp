@@ -61,7 +61,8 @@ void Fireball::render(SDL_Renderer* renderer, int x, int y, long time) {
 
 void Fireball::collideWithSide(std::shared_ptr<Context> context __attribute((unused)), TileTypes tile,
                                CollisionSide interactionSide, long time __attribute((unused))) {
-    if (tile == TileTypes::GROUND) {
+
+    if (!firstTouch && tile == TileTypes::GROUND && interactionSide == CollisionSide::DOWN) {
         firstTouch = true;
 
     } else if (interactionSide != CollisionSide::UP && interactionSide != CollisionSide::DOWN){
