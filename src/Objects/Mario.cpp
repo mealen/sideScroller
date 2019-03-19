@@ -405,6 +405,9 @@ bool Mario::grow() {
 
 bool Mario::shrink() {
     if (isBig()) {
+        if (canFire()) {
+            setFire(false);
+        }
         this->status = Status::SMALL;
         currentState = STAND;
         this->color = Color::NORMAL;
@@ -463,6 +466,8 @@ void Mario::setFire(bool fire) {
         } else {
             grow();
         }
+    } else {
+        this->fire = fire;
     }
 
 }
