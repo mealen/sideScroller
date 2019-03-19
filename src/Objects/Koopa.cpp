@@ -240,3 +240,7 @@ void Koopa::die(TileTypes type) {
     }
 }
 
+bool Koopa::getShellMoving() const {
+    return isShellMoving;
+}
+
