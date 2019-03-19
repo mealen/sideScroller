@@ -368,12 +368,12 @@ void Mario::move(bool left, bool right, bool jump, bool crouch, bool run) {
         currentState = STAND;
     }
 
-    if (!canFire()) {
-        setRunning(run);
+    if (canFire() && run && fireStartTime == 0 && !isRunning()) {
+        fireTriggered = true;
     }
 
-    if (canFire() && run && fireStartTime == 0) {
-        fireTriggered = true;
+    if (!fireTriggered) {
+        setRunning(run);
     }
 }
 
@@ -405,6 +405,9 @@ bool Mario::grow() {
 
 bool Mario::shrink() {
     if (isBig()) {
+        if (canFire()) {
+            setFire(false);
+        }
         this->status = Status::SMALL;
         currentState = STAND;
         this->color = Color::NORMAL;
@@ -438,6 +441,10 @@ bool Mario::isShrinkStarted() const {
     return shrinkStarted;
 }
 
+bool Mario::isRunning() const {
+    return this->moveSpeed == 6;
+}
+
 
 void Mario::setRunning(bool run) {
     if (run) {
@@ -459,6 +466,8 @@ void Mario::setFire(bool fire) {
         } else {
             grow();
         }
+    } else {
+        this->fire = fire;
     }
 
 }

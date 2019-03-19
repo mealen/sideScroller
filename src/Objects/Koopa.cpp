@@ -88,9 +88,7 @@ void Koopa::collideWithSide(std::shared_ptr<Context> context __attribute((unused
     if (interactionSide == CollisionSide::DOWN) {
 
     } else if (interactionSide == CollisionSide::LEFT || interactionSide == CollisionSide::RIGHT || interactionSide == CollisionSide::INVALID) {
-        if(tile != TileTypes::GROUND) {
-            directionRight = !directionRight;
-        }
+        directionRight = !directionRight;
     }
 
 }
@@ -238,5 +236,9 @@ void Koopa::die(TileTypes type) {
     if (type == TileTypes::OUT_OF_MAP) {
         this->isRemoveWaiting = true;
     }
+}
+
+bool Koopa::getShellMoving() const {
+    return isShellMoving;
 }
 

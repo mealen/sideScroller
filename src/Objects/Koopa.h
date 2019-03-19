@@ -47,6 +47,8 @@ public:
     void die(TileTypes type) override;
 
     void moveShell(const CollisionSide &interactionSide);
+
+    bool getShellMoving() const;
 };
 
 

@@ -78,6 +78,7 @@ TileTypes Fireball::interactWithSide(std::shared_ptr<Context> context __attribut
     }
 
     if (otherObject->getTileType() != TileTypes::PLAYER && otherObject->getPosition()->getPhysicsState() != AABB::PhysicsState::STATIC) {
+        otherObject->die(getTileType());
         die(getTileType());
     }
 
