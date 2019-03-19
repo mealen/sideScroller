@@ -62,9 +62,8 @@ TileTypes Koopa::getTileType() const {
 
 void Koopa::render(SDL_Renderer* renderer, int x, int y, long time) {
     SDL_RendererFlip flip = SDL_FLIP_NONE;
-    if (x + SCREEN_WIDTH < collisionBox->getLeftBorder() && isShellMoving) {
-        isShellMoving = false;
-        isHideInShell = false;
+    if (x + SCREEN_WIDTH < collisionBox->getLeftBorder() && directionRight) {
+        die(TileTypes::OUT_OF_MAP);
     }
 
     if (directionRight) {
