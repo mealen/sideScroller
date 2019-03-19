@@ -126,7 +126,7 @@ int init(std::shared_ptr<Context> &context, SDL_Renderer *ren) {
 
     std::shared_ptr<World> world = std::make_shared<World>(ren);
 
-    world->load("0101_logic.txt", error);
+    world->load("0101", error);
 
     if (error != 0) {
         std::cerr << "Error initializing Map, Exiting" << std::endl;
@@ -144,7 +144,7 @@ int init(std::shared_ptr<Context> &context, SDL_Renderer *ren) {
         return 1;
     }
 
-    std::shared_ptr<Mario> mario = std::make_shared<Mario>(world->getAndRemoveObject(TileTypes::PLAYER), ren,
+    std::shared_ptr<Mario> mario = std::make_shared<Mario>(world->getAndRemoveObject(TileTypes::PLAYER), ren, world->getMapWidth(),
                                                                            error);
     if (error != 0) {
         std::cerr << "Error initializing Mario, Exiting" << std::endl;
@@ -157,6 +157,8 @@ int init(std::shared_ptr<Context> &context, SDL_Renderer *ren) {
     context = std::make_shared<Context>(world, mario);
     return 0;
 }
+
+
 
 int main(int argc __attribute((unused)), char *argv[] __attribute((unused))) {//these parameters has to be here or SDL_main linking issue arises
     if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) != 0) {
@@ -179,34 +181,6 @@ int main(int argc __attribute((unused)), char *argv[] __attribute((unused))) {//
         return 1;
     }
 
-    std::string imagePath = Utils::getResourcePath("levels") + "0101_graph.bmp";
-    SDL_Surface *bmp = SDL_LoadBMP(imagePath.c_str());
-    if (bmp == nullptr) {
-        std::cout << "SDL_LoadBMP Error: " << SDL_GetError() << std::endl;
-        SDL_DestroyRenderer(ren);
-        SDL_DestroyWindow(win);
-        SDL_Quit();
-        return 1;
-    }
-
-    SDL_Texture *tex = SDL_CreateTextureFromSurface(ren, bmp);
-
-    if (tex == nullptr) {
-        SDL_DestroyRenderer(ren);
-        SDL_DestroyWindow(win);
-        std::cout << "SDL_CreateTextureFromSurface Error: " << SDL_GetError() << std::endl;
-        SDL_Quit();
-        return 1;
-    }
-
-    int mapWidth = bmp->w;
-    SDL_FreeSurface(bmp);
-    SDL_Rect sourceRect;
-
-    sourceRect.x = 0;
-    sourceRect.y = 0;
-    sourceRect.h = SCREEN_HEIGHT;
-    sourceRect.w = SCREEN_WIDTH;
     InputStates input;
     input.quit = false;
     std::shared_ptr<Context> context;
@@ -239,8 +213,6 @@ int main(int argc __attribute((unused)), char *argv[] __attribute((unused))) {//
 
     long time;
     long previousTime = 0;
-    const AABB* marioPos = context.get()->getPlayer()->getPosition();
-
 
     while (!input.quit) {
         if (input.stop) {
@@ -265,8 +237,7 @@ int main(int argc __attribute((unused)), char *argv[] __attribute((unused))) {//
                     textRect.w = 600;
                     textRect.h = 200;
                     while (!input.jump && !input.quit) {
-                        SDL_RenderCopy(ren, tex, &sourceRect, NULL);
-                        context.get()->getWorld()->render(ren, sourceRect.x, sourceRect.y, time);
+                        context.get()->getWorld()->render(ren, time);
                         SDL_RenderCopy(ren, deadTextTexture, NULL, &textRect);
                         SDL_RenderPresent(ren);
                         readInput(input);
@@ -274,44 +245,23 @@ int main(int argc __attribute((unused)), char *argv[] __attribute((unused))) {//
                     input.jump = false;
                     input.jumpEvent = false;
                     init(context, ren);
-                    marioPos = context.get()->getPlayer()->getPosition();
                 }
             }
 
             if (input.restart) {
                 input.restart = false;
                 init(context, ren);
-                marioPos = context.get()->getPlayer()->getPosition();
             }
 
-            int middleOfScreenPixel = (SCREEN_WIDTH) / 2 - TILE_SIZE;
 
-
-            if (marioPos->getMaxRight() - TILE_SIZE <= middleOfScreenPixel) {
-                //if mario is not passed middle of the screen
-                sourceRect.x = 0;
-            } else {
-                //put mario at middle of the screen, and move background to left
-                //but first check if mario has been right before
-                sourceRect.x = (marioPos->getMaxRight() - TILE_SIZE) - middleOfScreenPixel;
-                if (sourceRect.x > mapWidth - SCREEN_WIDTH) {
-                    //if end of map, let mario move more, and lock background
-                    sourceRect.x = mapWidth - SCREEN_WIDTH;
-                }
-            }
             context->getPlayer()->move(input.goLeft, input.goRight, input.jumpEvent, input.crouch, input.run);
 
 
             previousTime = time;
             context.get()->getWorld()->stepSimulation(time, context);
         }
-
-        //Draw the texture
-        SDL_RenderCopy(ren, tex, &sourceRect, NULL);
-
-
-
-        context.get()->getWorld()->render(ren, sourceRect.x, sourceRect.y, time);
+        //Draw the world
+        context.get()->getWorld()->render(ren, time);
 
         //Update the screen
         logFrameRate();
@@ -320,7 +270,6 @@ int main(int argc __attribute((unused)), char *argv[] __attribute((unused))) {//
 
     TTF_CloseFont(font);
     TTF_Quit();
-    SDL_DestroyTexture(tex);
     SDL_DestroyRenderer(ren);
     SDL_DestroyWindow(win);
     SDL_Quit();

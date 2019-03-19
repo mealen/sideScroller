@@ -29,13 +29,16 @@ class World {
     SDL_Rect scoreRect;
     SDL_Texture *coinTexture = nullptr;
     TileTypes tiles[224][15];
+    SDL_Texture *worldImageTexture;
+    uint32_t mapWidth;
 
+    SDL_Rect worldRenderRectangle;
 public:
 
     SDL_Renderer *getRen() const {
         return ren;
     }
-    void load(std::string logicFile, int &error);
+    void load(std::string worldName, int &error);
     TileTypes getTileObject(int x, int y);
     SDL_Rect getAndRemoveObject(TileTypes types);
     SDL_Rect getObject(TileTypes type);
@@ -48,10 +51,13 @@ public:
         score << std::setw(6) << std::setfill('0') << mario->getScore();
         SDL_DestroyTexture(scoreTexture);
         SDL_Surface *scoreSurface = TTF_RenderText_Solid(font, score.str().c_str(),
-                                                             textColor);
+                                                         textColor);
         scoreTexture = SDL_CreateTextureFromSurface(ren, scoreSurface);
         SDL_FreeSurface(scoreSurface);
     }
+
+    uint32_t
+    loadTexture(SDL_Renderer *ren, SDL_Texture *&worldImageTexture, uint32_t &mapWidth, const std::string &imageFile);
 
     void updateCoins() {
         SDL_DestroyTexture(coinsTextTexture);
@@ -65,7 +71,7 @@ public:
         SDL_RenderCopy(ren, coinTexture, nullptr, &coinImgPos);
         SDL_RenderCopy(ren, coinsTextTexture, NULL, &coinsRect);
     }
-    
+
     void renderHUD() {
         updateCoins();
         updateScore();
@@ -81,11 +87,32 @@ public:
      * @param y -> current world y
      * @param time -> get ticks
      */
-    void render(SDL_Renderer *ren, int x, int y, long time) {
-        for (unsigned int i = 0; i < objects.size(); ++i) {
-            objects[i]->render(ren, x, y ,time);
+    void render(SDL_Renderer *ren, long time) {
+        //calculate x and y from mario position
+
+        AABB* marioPos = mario->getPosition();
+        int middleOfScreenPixel = (SCREEN_WIDTH) / 2 - TILE_SIZE;
+
+        if (marioPos->getMaxRight() - TILE_SIZE <= middleOfScreenPixel) {
+            //if mario is not passed middle of the screen
+            worldRenderRectangle.x = 0;
+        } else {
+            //put mario at middle of the screen, and move background to left
+            //but first check if mario has been right before
+            worldRenderRectangle.x = (marioPos->getMaxRight() - TILE_SIZE) - middleOfScreenPixel;
+            if ((uint32_t) worldRenderRectangle.x > mapWidth - SCREEN_WIDTH) {
+                //if end of map, let mario move more, and lock background
+                worldRenderRectangle.x = mapWidth - SCREEN_WIDTH;
+            }
         }
-        mario->render(ren, x, y, time);
+
+        SDL_RenderCopy(ren, worldImageTexture, &worldRenderRectangle, NULL);
+
+        for (unsigned int i = 0; i < objects.size(); ++i) {
+            objects[i]->render(ren, worldRenderRectangle.x, worldRenderRectangle.y ,time);
+        }
+        mario->render(ren, worldRenderRectangle.x, worldRenderRectangle.y, time);
+
         renderHUD();
     }
 
@@ -104,63 +131,7 @@ public:
     void stepSimulation(long time, std::shared_ptr<Context> context);
 
     void stepSingleObject(long time, const std::shared_ptr<Context> &context,
-                          const std::shared_ptr<InteractiveObject> interactiveObject) {
-        AABB *aabb = interactiveObject->getPosition();
-
-        if(aabb->getPhysicsState() == AABB::PhysicsState::STATIC) {
-            return;
-        }
-
-        if (aabb->getPhysicsState() == AABB::PhysicsState::DYNAMIC && mario.get()->isKilled()) {
-            return;
-        }
-
-        int horizontalSpeed = aabb->getHorizontalSpeed();
-
-        TileTypes tile = collide(horizontalSpeed, 0, time, context, interactiveObject);
-
-        if (tile == TileTypes::EMPTY || aabb->getPhysicsState() != AABB::DYNAMIC) {
-            aabb->setLeftBorder(aabb->getLeftBorder() + horizontalSpeed);
-            aabb->setRightBorder(aabb->getRightBorder() + horizontalSpeed);
-        }
-
-        aabb->setHorizontalSpeed(0);
-
-        if (aabb->isHasJumpTriggered()) {
-            aabb->setHasJumpTriggered(false);
-            tile = collide(0, 1, time, context, interactiveObject);
-
-            if (tile != TileTypes::EMPTY && aabb->getPhysicsState() == AABB::DYNAMIC) {
-                aabb->setUpwardSpeed(aabb->getUpwardRequest());
-            }
-            aabb->setUpwardRequest(0);
-        }
-        int upwardSpeed = aabb->getUpwardSpeed();
-        tile = collide(0, -1 * upwardSpeed, time, context, interactiveObject);
-        //check if moving with upward speed is possible
-        if (tile == TileTypes::OUT_OF_MAP || aabb->getPhysicsState() != AABB::DYNAMIC) {
-            if (aabb->getUpwardSpeed() < 0) {
-                // mario dies
-                interactiveObject->die(tile);
-            }
-        }
-        if ((tile != TileTypes::EMPTY && tile != TileTypes::OUT_OF_MAP) && aabb->getPhysicsState() == AABB::DYNAMIC) {//if not possible, match the tile, and then stop
-            int curSize = (aabb->getDownBorder() - aabb->getUpBorder());
-            aabb->setUpBorder(aabb->getUpBorder() - upwardSpeed);
-            if (aabb->getUpwardSpeed() > 0) {
-                aabb->setUpBorder(((aabb->getUpBorder() + TILE_SIZE) / TILE_SIZE) * TILE_SIZE);
-            } else {
-                aabb->setUpBorder((aabb->getUpBorder() / TILE_SIZE) * TILE_SIZE);
-            }
-            aabb->setDownBorder(aabb->getUpBorder() + curSize);
-            aabb->setUpwardSpeed(0);
-            aabb->setHasJumped(false);
-        } else { //if possible update
-            aabb->setUpBorder(aabb->getUpBorder() - aabb->getUpwardSpeed());
-            aabb->setDownBorder(aabb->getDownBorder() - aabb->getUpwardSpeed());
-            aabb->setUpwardSpeed(aabb->getUpwardSpeed() - 1);
-        }
-    }
+                          const std::shared_ptr<InteractiveObject> interactiveObject);
 
     World(SDL_Renderer *ren) : ren(ren) {
         font = TTF_OpenFont("res/fonts/emulogic.ttf", 8);
@@ -178,7 +149,7 @@ public:
         coinImgPos.y = 10;
         coinImgPos.w = 10;
         coinImgPos.h = 16;
-        
+
         marioTextRect.x = 25;
         marioTextRect.y = 10;
         marioTextRect.w = 80;
@@ -194,12 +165,25 @@ public:
         marioTextTexture = SDL_CreateTextureFromSurface(ren, marioTextSurface);
         SDL_FreeSurface(marioTextSurface);
         coinTexture = Utils::loadTexture(ren, Utils::getResourcePath() + "coin_text_icon.bmp");
+
+
+        worldRenderRectangle.x = 0;
+        worldRenderRectangle.y = 0;
+        worldRenderRectangle.h = SCREEN_HEIGHT;
+        worldRenderRectangle.w = SCREEN_WIDTH;
+    }
+
+    ~World(){
+        SDL_DestroyTexture(worldImageTexture);
     }
 
     void setMario(std::shared_ptr<Mario> mario) {
         this->mario = mario;
     }
 
+    uint32_t getMapWidth() const {
+        return mapWidth;
+    }
 };
 
 
