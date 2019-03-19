@@ -100,6 +100,8 @@ public:
 
     bool isShrinkStarted() const;
 
+    bool isRunning() const;
+
     void setRunning(bool run);
 
     void setFire(bool fire);
