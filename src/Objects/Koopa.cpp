@@ -104,7 +104,7 @@ TileTypes Koopa::interactWithSide(std::shared_ptr<Context> context __attribute((
                                    CollisionSide interactionSide, long time) {
     // if mario is coming from top, kill
     if(interactionSide == CollisionSide::UP && otherObject->getTileType() == TileTypes::PLAYER) {
-        if(!otherObject->isDead()) {
+        if(!otherObject->isDead() && !(static_cast<Mario *>(otherObject.get())->getStar())) {
             if(isShellMoving) {
                 isShellMoving = false;
                 hideInShellTime = time;
