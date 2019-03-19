@@ -92,9 +92,7 @@ void Goomba::collideWithSide(std::shared_ptr<Context> context __attribute((unuse
 
     }
     else if (interactionSide == CollisionSide::LEFT || interactionSide == CollisionSide::RIGHT || interactionSide == CollisionSide::INVALID) {
-        if(tile != TileTypes::GROUND) {
-            directionRight = !directionRight;
-        }
+        directionRight = !directionRight;
     }
 
 }
