@@ -82,6 +82,8 @@ public:
 
     int getCoins() const;
 
+    int getScore() const;
+
     int increaseCoin(int amount = 1);
 
     void die(TileTypes type) override;

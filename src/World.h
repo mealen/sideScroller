@@ -10,6 +10,8 @@
 #include "Objects/Mario.h"
 #include "Constants.h"
 #include <memory>
+#include <sstream>
+#include <iomanip>
 #include <SDL_ttf.h>
 
 class World {
@@ -21,6 +23,10 @@ class World {
     std::shared_ptr<Mario> mario = nullptr;
     SDL_Rect coinsRect;
     SDL_Rect coinImgPos;
+    SDL_Rect marioTextRect;
+    SDL_Texture *marioTextTexture = nullptr;
+    SDL_Texture *scoreTexture = nullptr;
+    SDL_Rect scoreRect;
     SDL_Texture *coinTexture = nullptr;
     TileTypes tiles[224][15];
 
@@ -37,6 +43,16 @@ public:
         objects.push_back(object);
     }
 
+    void updateScore() {
+        std::ostringstream score;
+        score << std::setw(6) << std::setfill('0') << mario->getScore();
+        SDL_DestroyTexture(scoreTexture);
+        SDL_Surface *scoreSurface = TTF_RenderText_Solid(font, score.str().c_str(),
+                                                             textColor);
+        scoreTexture = SDL_CreateTextureFromSurface(ren, scoreSurface);
+        SDL_FreeSurface(scoreSurface);
+    }
+
     void updateCoins() {
         SDL_DestroyTexture(coinsTextTexture);
         SDL_Surface *coinsTextSurface = TTF_RenderText_Solid(font, ("*" + std::to_string(mario->getCoins())).c_str(),
@@ -48,6 +64,14 @@ public:
     void renderCoins() {
         SDL_RenderCopy(ren, coinTexture, nullptr, &coinImgPos);
         SDL_RenderCopy(ren, coinsTextTexture, NULL, &coinsRect);
+    }
+    
+    void renderHUD() {
+        updateCoins();
+        updateScore();
+        SDL_RenderCopy(ren, marioTextTexture, nullptr, &marioTextRect);
+        SDL_RenderCopy(ren, scoreTexture, nullptr, &scoreRect);
+        renderCoins();
     }
 
     /**
@@ -62,8 +86,7 @@ public:
             objects[i]->render(ren, x, y ,time);
         }
         mario->render(ren, x, y, time);
-        updateCoins();
-        renderCoins();
+        renderHUD();
     }
 
     /**
@@ -155,7 +178,21 @@ public:
         coinImgPos.y = 10;
         coinImgPos.w = 10;
         coinImgPos.h = 16;
+        
+        marioTextRect.x = 25;
+        marioTextRect.y = 10;
+        marioTextRect.w = 80;
+        marioTextRect.h = 16;
 
+        scoreRect.x = 25;
+        scoreRect.y = 25;
+        scoreRect.w = 100;
+        scoreRect.h = 16;
+
+        SDL_Surface *marioTextSurface = TTF_RenderText_Solid(font, "MARIO",
+                                                             textColor);
+        marioTextTexture = SDL_CreateTextureFromSurface(ren, marioTextSurface);
+        SDL_FreeSurface(marioTextSurface);
         coinTexture = Utils::loadTexture(ren, Utils::getResourcePath() + "coin_text_icon.bmp");
     }
 
