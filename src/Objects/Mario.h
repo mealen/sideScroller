@@ -52,13 +52,14 @@ private:
     long lastStepTime = 0;
     long fireStartTime = 0;
     long starStartTime = 0;
+    uint32_t mapWidth;
     bool moveRight = true;
     bool fireTriggered = false;
     Mix_Chunk *growSound;
 public:
     static const int JUMP_SPEED = 16;
 
-    Mario(SDL_Rect mapPosition, SDL_Renderer *ren, int &error);
+    Mario(SDL_Rect mapPosition, SDL_Renderer *ren, uint32_t mapWidth, int &error);
 
     void render(SDL_Renderer *renderer, int x, int y, long time) override;
 

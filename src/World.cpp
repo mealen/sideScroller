@@ -194,8 +194,73 @@ void World::stepSimulation(long time, std::shared_ptr<Context> context) {
     }
 }
 
-void World::load(std::string logicFile, int &error) {
-    std::ifstream mapFile("./res/levels/" + logicFile);
+void World::stepSingleObject(long time, const std::shared_ptr<Context> &context,
+                      const std::shared_ptr<InteractiveObject> interactiveObject) {
+    AABB *aabb = interactiveObject->getPosition();
+
+    if(aabb->getPhysicsState() == AABB::PhysicsState::STATIC) {
+        return;
+    }
+
+    if (aabb->getPhysicsState() == AABB::PhysicsState::DYNAMIC && mario.get()->isKilled()) {
+        return;
+    }
+
+    int horizontalSpeed = aabb->getHorizontalSpeed();
+
+    TileTypes tile = collide(horizontalSpeed, 0, time, context, interactiveObject);
+
+    if (tile == TileTypes::EMPTY || aabb->getPhysicsState() != AABB::DYNAMIC) {
+        aabb->setLeftBorder(aabb->getLeftBorder() + horizontalSpeed);
+        aabb->setRightBorder(aabb->getRightBorder() + horizontalSpeed);
+    }
+
+    aabb->setHorizontalSpeed(0);
+
+    if (aabb->isHasJumpTriggered()) {
+        aabb->setHasJumpTriggered(false);
+        tile = collide(0, 1, time, context, interactiveObject);
+
+        if (tile != TileTypes::EMPTY && aabb->getPhysicsState() == AABB::DYNAMIC) {
+            aabb->setUpwardSpeed(aabb->getUpwardRequest());
+        }
+        aabb->setUpwardRequest(0);
+    }
+    int upwardSpeed = aabb->getUpwardSpeed();
+    tile = collide(0, -1 * upwardSpeed, time, context, interactiveObject);
+    //check if moving with upward speed is possible
+    if (tile == TileTypes::OUT_OF_MAP || aabb->getPhysicsState() != AABB::DYNAMIC) {
+        if (aabb->getUpwardSpeed() < 0) {
+            // mario dies
+            interactiveObject->die(tile);
+        }
+    }
+    if ((tile != TileTypes::EMPTY && tile != TileTypes::OUT_OF_MAP) && aabb->getPhysicsState() == AABB::DYNAMIC) {//if not possible, match the tile, and then stop
+        int curSize = (aabb->getDownBorder() - aabb->getUpBorder());
+        aabb->setUpBorder(aabb->getUpBorder() - upwardSpeed);
+        if (aabb->getUpwardSpeed() > 0) {
+            aabb->setUpBorder(((aabb->getUpBorder() + TILE_SIZE) / TILE_SIZE) * TILE_SIZE);
+        } else {
+            aabb->setUpBorder((aabb->getUpBorder() / TILE_SIZE) * TILE_SIZE);
+        }
+        aabb->setDownBorder(aabb->getUpBorder() + curSize);
+        aabb->setUpwardSpeed(0);
+        aabb->setHasJumped(false);
+    } else { //if possible update
+        aabb->setUpBorder(aabb->getUpBorder() - aabb->getUpwardSpeed());
+        aabb->setDownBorder(aabb->getDownBorder() - aabb->getUpwardSpeed());
+        aabb->setUpwardSpeed(aabb->getUpwardSpeed() - 1);
+    }
+}
+
+void World::load(std::string worldName, int &error) {
+    std::string logicFile = Utils::getResourcePath("levels") + worldName + "_logic.txt";
+    std::string worldImagePath = Utils::getResourcePath("levels") + worldName + "_graph.bmp";
+    if(loadTexture(ren, worldImageTexture, mapWidth, worldImagePath) != 0) {
+        error = 1;
+        return;
+    }
+    std::ifstream mapFile(logicFile);
     std::string line;
     if (mapFile.is_open()) {
         int lineNumber = 0;
@@ -314,3 +379,31 @@ SDL_Rect World::getAndRemoveObject(TileTypes types) {
 
     return rect;
 }
+
+uint32_t World::loadTexture(SDL_Renderer *ren, SDL_Texture *&worldImageTexture, uint32_t &mapWidth, const std::string &imageFile){
+
+    SDL_Surface *worldImageBMP = SDL_LoadBMP(imageFile.c_str());
+    if (worldImageBMP == nullptr) {
+        std::cout << "SDL_LoadBMP Error: " <<
+
+                  SDL_GetError()
+
+                  <<
+                  std::endl;
+        return 1;
+    }
+    worldImageTexture = SDL_CreateTextureFromSurface(ren, worldImageBMP);
+    mapWidth = (uint32_t )worldImageBMP->w;
+    if (worldImageTexture == nullptr) {
+        std::cout << "SDL_CreateTextureFromSurface Error: " <<
+
+                  SDL_GetError()
+
+                  <<
+                  std::endl;
+        return 1;
+    }
+    SDL_FreeSurface(worldImageBMP);
+    return 0;
+}
+

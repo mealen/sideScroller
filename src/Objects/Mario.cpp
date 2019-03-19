@@ -10,7 +10,7 @@
 
 
 
-Mario::Mario(SDL_Rect mapPosition, SDL_Renderer *ren, int &error) {
+Mario::Mario(SDL_Rect mapPosition, SDL_Renderer *ren, uint32_t mapWidth, int &error) : mapWidth(mapWidth){
         collisionBox = new AABB(
                 mapPosition.x * TILE_SIZE,
                 mapPosition.x * TILE_SIZE + TILE_SIZE -1,
