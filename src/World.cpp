@@ -176,7 +176,7 @@ void World::stepSimulation(long time, std::shared_ptr<Context> context) {
     int middleOfScreenPixel = SCREEN_WIDTH / 2;
 
     for (size_t i = 0; i < this->objects.size(); ++i) {
-        if (context->getPlayer()->getPosition()->getMaxRight() + middleOfScreenPixel >
+        if (context->getPlayer()->getPosition()->getMaxRight() + middleOfScreenPixel + TILE_SIZE >
             this->objects[i]->getPosition()->getLeftBorder()) {
             this->objects[i]->step(context, time);
         }
