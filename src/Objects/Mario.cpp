@@ -444,9 +444,13 @@ int Mario::getCoins() const {
     return coins;
 }
 
+int Mario::getScore() const {
+    return score;
+}
 
 int Mario::increaseCoin(int amount) {
     coins += amount;
+    score += amount * 500;
     return coins;
 }
 

@@ -61,6 +61,14 @@ TileTypes Koopa::getTileType() const {
 }
 
 void Koopa::render(SDL_Renderer* renderer, int x, int y, long time) {
+    SDL_RendererFlip flip = SDL_FLIP_NONE;
+    if (x + SCREEN_WIDTH < collisionBox->getLeftBorder() && directionRight) {
+        die(TileTypes::OUT_OF_MAP);
+    }
+
+    if (directionRight) {
+        flip = static_cast<SDL_RendererFlip>(flip | SDL_FLIP_HORIZONTAL);
+    }
     SDL_Rect screenPos;
     int yOffset=0;
     if(!isHideInShell && killHitTime == 0) {
@@ -70,10 +78,9 @@ void Koopa::render(SDL_Renderer* renderer, int x, int y, long time) {
     screenPos.y = collisionBox->getUpBorder() - y - yOffset;
     screenPos.w = TILE_SIZE;
     screenPos.h = TILE_SIZE + yOffset;
-    SDL_RendererFlip flip = SDL_FLIP_NONE;
 
     if (killHitTime != 0) {
-        flip = SDL_FLIP_VERTICAL;
+        flip = static_cast<SDL_RendererFlip>(flip | SDL_FLIP_VERTICAL);
         if (collisionBox->getUpBorder() > SCREEN_HEIGHT) {
             isRemoveWaiting = true;
         }
@@ -97,7 +104,7 @@ TileTypes Koopa::interactWithSide(std::shared_ptr<Context> context __attribute((
                                    CollisionSide interactionSide, long time) {
     // if mario is coming from top, kill
     if(interactionSide == CollisionSide::UP && otherObject->getTileType() == TileTypes::PLAYER) {
-        if(!otherObject->isDead()) {
+        if(!otherObject->isDead() && !(static_cast<Mario *>(otherObject.get())->getStar())) {
             if(isShellMoving) {
                 isShellMoving = false;
                 hideInShellTime = time;
@@ -192,12 +199,12 @@ TileTypes Koopa::interactWithSide(std::shared_ptr<Context> context __attribute((
 void Koopa::moveShell(const CollisionSide &interactionSide) {
     isShellMoving = true;
     if (interactionSide == CollisionSide::LEFT) {
-                        collisionBox->moveRight(5);
-                        directionRight = true;
-                    } else if (interactionSide == CollisionSide::RIGHT) {
-                        collisionBox->moveLeft(5);
-                        directionRight = false;
-                    }
+        collisionBox->moveRight(5);
+        directionRight = true;
+    } else if (interactionSide == CollisionSide::RIGHT) {
+        collisionBox->moveLeft(5);
+        directionRight = false;
+    }
 }
 
 bool Koopa::waitingForDestroy() {
