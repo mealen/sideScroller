@@ -103,20 +103,24 @@ void Mario::render(SDL_Renderer *renderer, int x __attribute((unused)), int y __
         //if mario is not passed middle of the screen
         marioGrapPos.x = marioPos->getLeftBorder();
     } else {
-        //put mario at middle of the screen, and move background to left
-        //but first check if mario has been right before
-        int leftMovementAmount = 0;
-        if (marioPos->getMaxRight() > marioPos->getRightBorder()) {
-            //use maxleft instead of left
-            leftMovementAmount = marioPos->getMaxRight() - marioPos->getRightBorder();
+        // this is the case mario wants to pass middle of the screen
+        // if current mario position is at the end of map, it should be able to
+        // if not it should be rendered on center, or left if moved left
 
+        if(marioPos->getMaxRight() >= (mapWidth - (SCREEN_WIDTH/2))) {
+            //this case mario can move right most end, so reference point is not the middle of screen
+            marioGrapPos.x = marioPos->getRightBorder() - TILE_SIZE - (mapWidth - SCREEN_WIDTH);
+        } else {
+            //put mario at middle of the screen, world will move background to left
+            //but first check if mario has been right before
+            int leftMovementAmount = 0;
+            if (marioPos->getMaxRight() > marioPos->getRightBorder()) {
+                //use maxleft instead of left
+                leftMovementAmount = marioPos->getMaxRight() - marioPos->getRightBorder();
+            }
+            marioGrapPos.x = middleOfScreenPixel - leftMovementAmount;
         }
-        marioGrapPos.x = middleOfScreenPixel - leftMovementAmount;
-
     }
-
-    //FIXME: we should check if we are at the end of the level and move only mario
-
 
     //draw the mario
     SDL_RenderCopyEx(renderer, getTexture(time), 0, &marioGrapPos, 0, 0, leftRightFlip);
@@ -357,8 +361,17 @@ void Mario::move(bool left, bool right, bool jump, bool crouch, bool run) {
     } else if (left) {
         moveRight = false;
         currentState = MOVE;
-        if (collisionBox->getLeftBorder() + (320) > collisionBox->getMaxRight()) {
-            collisionBox->moveLeft(moveSpeed);
+        //don't allow going back
+        //if not end of map, check with middle of screen
+        // if end of map, check with end of screen
+        if(collisionBox->getMaxRight() + SCREEN_WIDTH < mapWidth) {
+            if (collisionBox->getLeftBorder() + (10 * TILE_SIZE) > collisionBox->getMaxRight()) {
+                collisionBox->moveLeft(moveSpeed);
+            }
+        } else {
+            if (collisionBox->getLeftBorder() > mapWidth - SCREEN_WIDTH) {
+                collisionBox->moveLeft(moveSpeed);
+            }
         }
     } else if (right) {
         moveRight = true;
