@@ -6,6 +6,7 @@
 #include "../Utils.h"
 #include "CoinBox.h"
 #include "Brick.h"
+#include "../Context.h"
 #include <cmath>
 
 
@@ -100,7 +101,7 @@ void Koopa::collideWithSide(std::shared_ptr<Context> context __attribute((unused
 
 }
 
-TileTypes Koopa::interactWithSide(std::shared_ptr<Context> context __attribute((unused)), std::shared_ptr<InteractiveObject> otherObject,
+TileTypes Koopa::interactWithSide(std::shared_ptr<Context> context, std::shared_ptr<InteractiveObject> otherObject,
                                    CollisionSide interactionSide, long time) {
     // if mario is coming from top, kill
     if(interactionSide == CollisionSide::UP && otherObject->getTileType() == TileTypes::PLAYER) {
@@ -160,6 +161,8 @@ TileTypes Koopa::interactWithSide(std::shared_ptr<Context> context __attribute((
         collisionBox->setUpwardSpeed(8);
         collisionBox->setUpBorder(collisionBox->getUpBorder() + TILE_SIZE / 4);
         collisionBox->setDownBorder(collisionBox->getDownBorder() + TILE_SIZE / 4);
+        context->getHUD()->animateScore(score, collisionBox->getLeftBorder(), collisionBox->getUpBorder(), time);
+
     }
 
     if (otherObject->getTileType() == TileTypes::PLAYER) {
@@ -169,6 +172,7 @@ TileTypes Koopa::interactWithSide(std::shared_ptr<Context> context __attribute((
             collisionBox->setUpwardSpeed(8);
             collisionBox->setUpBorder(collisionBox->getUpBorder() + TILE_SIZE/4);
             collisionBox->setDownBorder(collisionBox->getDownBorder() + TILE_SIZE/4);
+            context->getHUD()->animateScore(score, collisionBox->getLeftBorder(), collisionBox->getUpBorder(), time);
         }
     }
 
@@ -180,6 +184,7 @@ TileTypes Koopa::interactWithSide(std::shared_ptr<Context> context __attribute((
             collisionBox->setUpwardSpeed(8);
             collisionBox->setUpBorder(collisionBox->getUpBorder() + TILE_SIZE/4);
             collisionBox->setDownBorder(collisionBox->getDownBorder() + TILE_SIZE/4);
+            context->getHUD()->animateScore(score, collisionBox->getLeftBorder(), collisionBox->getUpBorder(), time);
         }
     }
 
@@ -190,6 +195,7 @@ TileTypes Koopa::interactWithSide(std::shared_ptr<Context> context __attribute((
             collisionBox->setUpwardSpeed(8);
             collisionBox->setUpBorder(collisionBox->getUpBorder() + TILE_SIZE/4);
             collisionBox->setDownBorder(collisionBox->getDownBorder() + TILE_SIZE/4);
+            context->getHUD()->animateScore(score, collisionBox->getLeftBorder(), collisionBox->getUpBorder(), time);
         }
     }
 

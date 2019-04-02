@@ -14,6 +14,7 @@
 #include "CoinBox.h"
 #include "Goomba.h"
 #include "Koopa.h"
+#include "../Context.h"
 
 Goomba::Goomba(SDL_Renderer *ren, int x, int y) {//FIXME this should not need  renderer and map
     collisionBox = new AABB(
@@ -97,7 +98,7 @@ void Goomba::collideWithSide(std::shared_ptr<Context> context __attribute((unuse
 
 }
 
-TileTypes Goomba::interactWithSide(std::shared_ptr<Context> context __attribute((unused)), std::shared_ptr<InteractiveObject> otherObject,
+TileTypes Goomba::interactWithSide(std::shared_ptr<Context> context, std::shared_ptr<InteractiveObject> otherObject,
                                    CollisionSide interactionSide, long time) {
     if(squashTime != 0) {
         return TileTypes::GOOMBA;//if already interacted, don't allow again
@@ -116,6 +117,7 @@ TileTypes Goomba::interactWithSide(std::shared_ptr<Context> context __attribute(
             }
 
             squashTime = time;
+            context->getHUD()->animateScore(score, collisionBox->getLeftBorder(), collisionBox->getUpBorder(), time);
             die(getTileType());
             return TileTypes::EMPTY;
         }
@@ -147,6 +149,8 @@ TileTypes Goomba::interactWithSide(std::shared_ptr<Context> context __attribute(
                 collisionBox->setUpwardSpeed(8);
                 collisionBox->setUpBorder(collisionBox->getUpBorder() + TILE_SIZE/4);
                 collisionBox->setDownBorder(collisionBox->getDownBorder() + TILE_SIZE/4);
+                context->getHUD()->animateScore(score, collisionBox->getLeftBorder(), collisionBox->getUpBorder(), time);
+
             }
         }
     }
@@ -163,6 +167,8 @@ TileTypes Goomba::interactWithSide(std::shared_ptr<Context> context __attribute(
             collisionBox->setUpwardSpeed(8);
             collisionBox->setUpBorder(collisionBox->getUpBorder() + TILE_SIZE/4);
             collisionBox->setDownBorder(collisionBox->getDownBorder() + TILE_SIZE/4);
+            context->getHUD()->animateScore(score, collisionBox->getLeftBorder(), collisionBox->getUpBorder(), time);
+
         }
     }
 
@@ -173,6 +179,8 @@ TileTypes Goomba::interactWithSide(std::shared_ptr<Context> context __attribute(
             collisionBox->setUpwardSpeed(8);
             collisionBox->setUpBorder(collisionBox->getUpBorder() + TILE_SIZE/4);
             collisionBox->setDownBorder(collisionBox->getDownBorder() + TILE_SIZE/4);
+            context->getHUD()->animateScore(score, collisionBox->getLeftBorder(), collisionBox->getUpBorder(), time);
+
         }
     }
 
@@ -183,7 +191,17 @@ TileTypes Goomba::interactWithSide(std::shared_ptr<Context> context __attribute(
             collisionBox->setUpwardSpeed(8);
             collisionBox->setUpBorder(collisionBox->getUpBorder() + TILE_SIZE/4);
             collisionBox->setDownBorder(collisionBox->getDownBorder() + TILE_SIZE/4);
+            context->getHUD()->animateScore(score, collisionBox->getLeftBorder(), collisionBox->getUpBorder(), time);
         }
+    }
+
+    if (otherObject->getTileType() == TileTypes::FIREBALL) {
+        isHit = true;
+        collisionBox->setPhysicsState(AABB::NON_INTERACTIVE);
+        collisionBox->setUpwardSpeed(8);
+        collisionBox->setUpBorder(collisionBox->getUpBorder() + TILE_SIZE / 4);
+        collisionBox->setDownBorder(collisionBox->getDownBorder() + TILE_SIZE / 4);
+        context->getHUD()->animateScore(score, collisionBox->getLeftBorder(), collisionBox->getUpBorder(), time);
     }
 
     return TileTypes::GOOMBA;//no interaction yet
@@ -216,14 +234,6 @@ void Goomba::step(std::shared_ptr<Context> context __attribute((unused)), long t
 void Goomba::die(TileTypes type) {
     if (type == TileTypes::OUT_OF_MAP) {
         this->isRemoveWaiting = true;
-    }
-
-    if (type == TileTypes::FIREBALL) {
-        isHit = true;
-        collisionBox->setPhysicsState(AABB::NON_INTERACTIVE);
-        collisionBox->setUpwardSpeed(8);
-        collisionBox->setUpBorder(collisionBox->getUpBorder() + TILE_SIZE / 4);
-        collisionBox->setDownBorder(collisionBox->getDownBorder() + TILE_SIZE / 4);
     }
 }
 

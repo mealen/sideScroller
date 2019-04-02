@@ -123,6 +123,8 @@ public:
 
     std::string enumToName(Mario::TextureNames status);
 
+    int increaseScore(int amount);
+
 };
 
 #endif //MARIO_MARIO_H

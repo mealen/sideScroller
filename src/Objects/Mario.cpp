@@ -454,6 +454,11 @@ int Mario::increaseCoin(int amount) {
     return coins;
 }
 
+int Mario::increaseScore(int amount) {
+    score += amount;
+    return amount;
+}
+
 bool Mario::isShrinkStarted() const {
     return shrinkStarted;
 }

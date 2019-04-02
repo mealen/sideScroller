@@ -50,10 +50,20 @@ void HUD::updateCoins() {
 
 void HUD::renderCoins() {
     SDL_RenderCopy(ren, coinTexture, nullptr, &coinImgPos);
-    SDL_RenderCopy(ren, coinsTextTexture, NULL, &coinsRect);
+    SDL_RenderCopy(ren, coinsTextTexture, nullptr, &coinsRect);
 }
 
-void HUD::render(long time) {
+void HUD::render(long time, int x) {
+    std::vector<AnimatedScore *>::iterator it;
+    for (it = animatedScores.begin(); it != animatedScores.end();) {
+        if ((*it)->shouldRemove()) {
+            it = animatedScores.erase(it);
+        } else {
+            (*it)->render(time, x);
+            it++;
+        }
+    }
+
     updateCoins();
     updateScore();
     SDL_RenderCopy(ren, marioTextTexture, nullptr, &marioTextRect);
@@ -70,4 +80,11 @@ void HUD::updateScore() {
                                                      textColor);
     scoreTexture = SDL_CreateTextureFromSurface(ren, scoreSurface);
     SDL_FreeSurface(scoreSurface);
+}
+
+void HUD::animateScore(int amount, int x, int y, long time) {
+    int score = amount * (animatedScores.size() + 1);
+    AnimatedScore* as = new AnimatedScore(x, y, time, score, ren);
+    mario->increaseScore(score);
+    animatedScores.push_back(as);
 }

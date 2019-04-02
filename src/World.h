@@ -36,6 +36,26 @@ public:
     uint32_t
     loadTexture(SDL_Renderer *ren, SDL_Texture *&worldImageTexture, uint32_t &mapWidth, const std::string &imageFile);
 
+    int getWorldRenderX() {
+        int retVal;
+        AABB* marioPos = mario->getPosition();
+        int middleOfScreenPixel = (SCREEN_WIDTH) / 2 - TILE_SIZE;
+
+        if (marioPos->getMaxRight() - TILE_SIZE <= middleOfScreenPixel) {
+            //if mario is not passed middle of the screen
+            retVal = 0;
+        } else {
+            //put mario at middle of the screen, and move background to left
+            //but first check if mario has been right before
+            retVal = (marioPos->getMaxRight() - TILE_SIZE) - middleOfScreenPixel;
+            if ((uint32_t) worldRenderRectangle.x > mapWidth - SCREEN_WIDTH) {
+                //if end of map, let mario move more, and lock background
+                retVal = mapWidth - SCREEN_WIDTH;
+            }
+        }
+
+        return retVal;
+    }
     /**
      *
      * @param ren  renderer
@@ -46,21 +66,7 @@ public:
     void render(SDL_Renderer *ren, long time) {
         //calculate x and y from mario position
 
-        AABB* marioPos = mario->getPosition();
-        int middleOfScreenPixel = (SCREEN_WIDTH) / 2 - TILE_SIZE;
-
-        if (marioPos->getMaxRight() - TILE_SIZE <= middleOfScreenPixel) {
-            //if mario is not passed middle of the screen
-            worldRenderRectangle.x = 0;
-        } else {
-            //put mario at middle of the screen, and move background to left
-            //but first check if mario has been right before
-            worldRenderRectangle.x = (marioPos->getMaxRight() - TILE_SIZE) - middleOfScreenPixel;
-            if ((uint32_t) worldRenderRectangle.x > mapWidth - SCREEN_WIDTH) {
-                //if end of map, let mario move more, and lock background
-                worldRenderRectangle.x = mapWidth - SCREEN_WIDTH;
-            }
-        }
+        worldRenderRectangle.x = getWorldRenderX();
 
         SDL_RenderCopy(ren, worldImageTexture, &worldRenderRectangle, NULL);
 

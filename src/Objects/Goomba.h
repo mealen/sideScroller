@@ -19,6 +19,7 @@ class Goomba : public InteractiveObject {
     std::vector<SDL_Texture *> texture;
     AABB* collisionBox;
     long squashTime = 0;
+    int score = 200;
     bool isHit = false;
     std::vector<Mix_Chunk *>deadSound;
     bool isSquashed = false;

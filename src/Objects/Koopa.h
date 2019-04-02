@@ -15,6 +15,7 @@ class Koopa : public InteractiveObject {
     AABB* collisionBox;
     long hideInShellTime = 0;
     long killHitTime = 0;
+    int score = 400;
     std::vector<Mix_Chunk *>deadSound;
     bool isHideInShell = false;
     bool isShellMoving = false;
