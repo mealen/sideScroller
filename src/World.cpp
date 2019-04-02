@@ -265,10 +265,6 @@ void World::load(std::string worldName, int &error) {
     if (mapFile.is_open()) {
         int lineNumber = 0;
         while (getline(mapFile, line)) {
-            if (lineNumber > 14) {
-                std::cerr << "The map height must be 15 or less, exiting.." << std::endl;
-                exit(-1);
-            }
             //std::cout << line << '\n';
 
             for (unsigned int i = 0; i < line.length(); i++) {
@@ -276,7 +272,11 @@ void World::load(std::string worldName, int &error) {
                                                     '0');//this removes char 0 to make ascii values match tile numbers
             }
             lineNumber++;
+            if (lineNumber > 14) {
+                break;
+            }
         }
+        parseAdvancedFeatures(mapFile);
         mapFile.close();
     } else {
         error = 1;
@@ -405,5 +405,62 @@ uint32_t World::loadTexture(SDL_Renderer *ren, SDL_Texture *&worldImageTexture, 
     }
     SDL_FreeSurface(worldImageBMP);
     return 0;
+}
+
+void World::parseAdvancedFeatures(std::ifstream &mapFile) {
+    int lineNumber = 0;
+    std::string line;
+    enum class ParseStages {PORTALS, UNKNOWN};
+    ParseStages currentStage = ParseStages::UNKNOWN;
+    while (getline(mapFile, line)) {
+        if(line == "[[Portals]]"){
+            currentStage = ParseStages::PORTALS;
+            continue;
+        }
+        switch (currentStage) {
+            case ParseStages::PORTALS: {
+                //sample line for portal
+                // coord1,coord2,coord3,coord4,[left,right,down,up],worldName
+                std::string tokens[6];
+                size_t lastToken = 0;
+                size_t newToken = 0;
+                for (int i = 0; i < 6; ++i) {
+                    newToken = line.find(",", lastToken);
+                    tokens[i] = line.substr(lastToken, newToken - lastToken);
+                    lastToken = newToken +1;
+                }
+                Portal newPortal;
+                for (int j = 0; j < 4; ++j) {
+                    newPortal.coordinates[j] = std::stoi(tokens[j])*TILE_SIZE;
+                }
+                if(tokens[4] == "left") {newPortal.moveSide = Sides::LEFT;}
+                else if(tokens[4] == "right") {newPortal.moveSide = Sides::RIGHT;}
+                else if(tokens[4] == "down") {newPortal.moveSide = Sides::DOWN;}
+                else if(tokens[4] == "up") {newPortal.moveSide = Sides::UP;}
+                newPortal.targetWorld = tokens[5];
+                portals.push_back(newPortal);
+            }
+            break;
+            case ParseStages::UNKNOWN: {
+                std::cerr << "Read line without parse stage setting, skipping" << std::endl;
+            }
+            break;
+        }
+    }
+}
+
+bool World::checkPortal(AABB *position, World::Sides side) {
+    for (size_t i = 0; i < portals.size(); ++i) {
+        if(portals[i].moveSide == side){
+            if(position->getLeftBorder() > portals[i].coordinates[0] &&
+                    position->getRightBorder() < portals[i].coordinates[1] &&
+                    //position->getUpBorder() > portals[i].coordinates[2] &&
+                    position->getDownBorder() < portals[i].coordinates[3]
+                    ) {
+                return true;
+            }
+        }
+    }
+    return false;
 }
 

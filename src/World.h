@@ -13,6 +13,15 @@
 
 
 class World {
+public:
+    enum class Sides{ LEFT, RIGHT, UP, DOWN, NONE};// none is not used, but here for checks
+private:
+    struct Portal {
+        int coordinates[4];//left, right, up, down
+        Sides moveSide;
+        std::string targetWorld;
+    };
+    std::vector<Portal> portals;
     std::vector<std::shared_ptr<InteractiveObject>> objects;
     SDL_Renderer *ren = nullptr;
     std::shared_ptr<Mario> mario = nullptr;
@@ -21,6 +30,9 @@ class World {
     SDL_Texture *worldImageTexture;
     uint32_t mapWidth;
     SDL_Rect worldRenderRectangle;
+
+
+    void parseAdvancedFeatures(std::ifstream &mapfile);
 public:
     SDL_Renderer *getRen() const {
         return ren;
@@ -105,6 +117,8 @@ public:
     uint32_t getMapWidth() const {
         return mapWidth;
     }
+
+    bool checkPortal(AABB* position, Sides side);
 };
 
 #endif //MARIO_WORLD_H

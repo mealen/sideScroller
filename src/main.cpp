@@ -255,7 +255,16 @@ int main(int argc __attribute((unused)), char *argv[] __attribute((unused))) {//
                 init(context, ren);
             }
 
+            World::Sides moveSide;
+            if(input.goLeft) {moveSide = World::Sides::LEFT;}
+            else if(input.goRight) {moveSide = World::Sides::RIGHT;}
+            else if(input.jumpEvent) {moveSide = World::Sides::UP;}
+            else if(input.crouchEvent) {moveSide = World::Sides::DOWN;}
+            else {moveSide = World::Sides::NONE;}
 
+            if(moveSide != World::Sides::NONE && context->getWorld()->checkPortal(context->getPlayer()->getPosition(), moveSide)){
+                std::cout << "Portal activate" << std::endl;
+            }
             context->getPlayer()->move(input.goLeft, input.goRight, input.jumpEvent, input.crouch, input.run);
 
 
