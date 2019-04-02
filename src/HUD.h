@@ -30,6 +30,8 @@ private:
     void updateScore();
     void updateCoins();
     void renderCoins();
+    long scoreComboStartTime = -1;
+    int comboScoreAmount = 0;
 
 
 };

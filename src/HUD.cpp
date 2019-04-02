@@ -83,7 +83,18 @@ void HUD::updateScore() {
 }
 
 void HUD::animateScore(int amount, int x, int y, long time) {
-    int score = amount * (animatedScores.size() + 1);
+    if (scoreComboStartTime == -1) {
+        scoreComboStartTime = time;
+    }
+
+    if (time - scoreComboStartTime < 1000) {
+        comboScoreAmount += 1;
+    } else {
+        comboScoreAmount = 1;
+        scoreComboStartTime = time;
+    }
+
+    int score = amount * comboScoreAmount;
     AnimatedScore* as = new AnimatedScore(x, y, time, score, ren);
     mario->increaseScore(score);
     animatedScores.push_back(as);
