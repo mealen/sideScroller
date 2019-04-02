@@ -88,6 +88,7 @@ void HUD::animateScore(int amount, int x, int y, long time) {
     }
 
     if (time - scoreComboStartTime < 1000) {
+        scoreComboStartTime = time;
         comboScoreAmount += 1;
     } else {
         comboScoreAmount = 1;
