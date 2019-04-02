@@ -253,7 +253,8 @@ void World::stepSingleObject(long time, const std::shared_ptr<Context> &context,
     }
 }
 
-void World::load(std::string worldName, int &error) {
+void World::load(std::string worldName, int &error, Mix_Music *&music) {
+    this->music = music;
     std::string logicFile = Utils::getResourcePath("levels") + worldName + "_logic.txt";
     std::string worldImagePath = Utils::getResourcePath("levels") + worldName + "_graph.bmp";
     if(loadTexture(ren, worldImageTexture, mapWidth, worldImagePath) != 0) {
@@ -449,7 +450,7 @@ void World::parseAdvancedFeatures(std::ifstream &mapFile) {
     }
 }
 
-bool World::checkPortal(AABB *position, World::Sides side) {
+bool World::checkPortal(AABB *position, World::Sides side, std::string &worldName) {
     for (size_t i = 0; i < portals.size(); ++i) {
         if(portals[i].moveSide == side){
             if(position->getLeftBorder() > portals[i].coordinates[0] &&
@@ -457,6 +458,7 @@ bool World::checkPortal(AABB *position, World::Sides side) {
                     //position->getUpBorder() > portals[i].coordinates[2] &&
                     position->getDownBorder() < portals[i].coordinates[3]
                     ) {
+                worldName = portals[i].targetWorld;
                 return true;
             }
         }

@@ -30,6 +30,7 @@ private:
     SDL_Texture *worldImageTexture;
     uint32_t mapWidth;
     SDL_Rect worldRenderRectangle;
+    Mix_Music *music;
 
 
     void parseAdvancedFeatures(std::ifstream &mapfile);
@@ -37,7 +38,7 @@ public:
     SDL_Renderer *getRen() const {
         return ren;
     }
-    void load(std::string worldName, int &error);
+    void load(std::string worldName, int &error, Mix_Music *&music);
     TileTypes getTileObject(int x, int y);
     SDL_Rect getAndRemoveObject(TileTypes types);
     SDL_Rect getObject(TileTypes type);
@@ -108,6 +109,8 @@ public:
 
     ~World(){
         SDL_DestroyTexture(worldImageTexture);
+        Mix_HaltMusic();
+        Mix_FreeMusic(music);
     }
 
     void setMario(std::shared_ptr<Mario> mario) {
@@ -118,7 +121,8 @@ public:
         return mapWidth;
     }
 
-    bool checkPortal(AABB* position, Sides side);
+    bool checkPortal(AABB *position, World::Sides side, std::string &worldName);
+
 };
 
 #endif //MARIO_WORLD_H

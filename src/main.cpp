@@ -116,7 +116,7 @@ void readInput(InputStates &input) {
     }
 }
 
-int init(std::shared_ptr<Context> &context, SDL_Renderer *ren) {
+int init(std::shared_ptr<Context> &context, SDL_Renderer *ren, const std::string &worldName) {
     int error;
 
     if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048) == -1) {
@@ -124,15 +124,6 @@ int init(std::shared_ptr<Context> &context, SDL_Renderer *ren) {
     }
     Mix_Music *music = NULL;
 
-    std::shared_ptr<World> world = std::make_shared<World>(ren);
-
-    world->load("0101", error);
-
-    if (error != 0) {
-        std::cerr << "Error initializing Map, Exiting" << std::endl;
-        return -1;
-    }
-    
     music = Mix_LoadMUS("./res/sounds/overworld.wav");
     //If there was a problem loading the music
     if (music == NULL) {
@@ -142,6 +133,15 @@ int init(std::shared_ptr<Context> &context, SDL_Renderer *ren) {
     //Play the music
     if (Mix_PlayMusic(music, -1) == -1) {
         return 1;
+    }
+
+    std::shared_ptr<World> world = std::make_shared<World>(ren);
+
+    world->load(worldName, error, music);
+
+    if (error != 0) {
+        std::cerr << "Error initializing Map, Exiting" << std::endl;
+        return -1;
     }
 
     std::shared_ptr<Mario> mario = std::make_shared<Mario>(world->getAndRemoveObject(TileTypes::PLAYER), ren, world->getMapWidth(),
@@ -192,7 +192,7 @@ int main(int argc __attribute((unused)), char *argv[] __attribute((unused))) {//
         return 1;
     }
 
-    if (init(context, ren) == -1) {
+    if (init(context, ren,"0101") == -1) {
         SDL_DestroyRenderer(ren);
         SDL_DestroyWindow(win);
         std::cerr << "Init problem" << std::endl;
@@ -246,13 +246,13 @@ int main(int argc __attribute((unused)), char *argv[] __attribute((unused))) {//
                     }
                     input.jump = false;
                     input.jumpEvent = false;
-                    init(context, ren);
+                    init(context, ren, "0101");
                 }
             }
 
             if (input.restart) {
                 input.restart = false;
-                init(context, ren);
+                init(context, ren, "0101");
             }
 
             World::Sides moveSide;
@@ -262,8 +262,12 @@ int main(int argc __attribute((unused)), char *argv[] __attribute((unused))) {//
             else if(input.crouchEvent) {moveSide = World::Sides::DOWN;}
             else {moveSide = World::Sides::NONE;}
 
-            if(moveSide != World::Sides::NONE && context->getWorld()->checkPortal(context->getPlayer()->getPosition(), moveSide)){
+            std::string worldName;
+            if(moveSide != World::Sides::NONE && context->getWorld()->checkPortal(context->getPlayer()->getPosition(),
+                                                                                  moveSide, worldName)){
                 std::cout << "Portal activate" << std::endl;
+                init(context,ren,worldName);
+                continue;
             }
             context->getPlayer()->move(input.goLeft, input.goRight, input.jumpEvent, input.crouch, input.run);
 
