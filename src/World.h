@@ -63,7 +63,7 @@ public:
             //put mario at middle of the screen, and move background to left
             //but first check if mario has been right before
             retVal = (marioPos->getMaxRight() - TILE_SIZE) - middleOfScreenPixel;
-            if ((uint32_t) worldRenderRectangle.x > mapWidth - SCREEN_WIDTH) {
+            if ((uint32_t) retVal > mapWidth - SCREEN_WIDTH) {
                 //if end of map, let mario move more, and lock background
                 retVal = mapWidth - SCREEN_WIDTH;
             }
