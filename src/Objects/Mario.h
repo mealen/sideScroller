@@ -69,6 +69,8 @@ public:
 
     AABB *getPosition() const override;
 
+    void setPosition(int xPosition, int yPosition);
+
     void move(bool left, bool right, bool jump, bool crouch __attribute((unused)), bool run);
 
     TileTypes getTileType() const override;

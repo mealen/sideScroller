@@ -253,7 +253,8 @@ void World::stepSingleObject(long time, const std::shared_ptr<Context> &context,
     }
 }
 
-void World::load(std::string worldName, int &error) {
+void World::load(std::string worldName, int &error, Mix_Music *&music) {
+    this->music = music;
     std::string logicFile = Utils::getResourcePath("levels") + worldName + "_logic.txt";
     std::string worldImagePath = Utils::getResourcePath("levels") + worldName + "_graph.bmp";
     if(loadTexture(ren, worldImageTexture, mapWidth, worldImagePath) != 0) {
@@ -265,10 +266,6 @@ void World::load(std::string worldName, int &error) {
     if (mapFile.is_open()) {
         int lineNumber = 0;
         while (getline(mapFile, line)) {
-            if (lineNumber > 14) {
-                std::cerr << "The map height must be 15 or less, exiting.." << std::endl;
-                exit(-1);
-            }
             //std::cout << line << '\n';
 
             for (unsigned int i = 0; i < line.length(); i++) {
@@ -276,7 +273,11 @@ void World::load(std::string worldName, int &error) {
                                                     '0');//this removes char 0 to make ascii values match tile numbers
             }
             lineNumber++;
+            if (lineNumber > 14) {
+                break;
+            }
         }
+        parseAdvancedFeatures(mapFile);
         mapFile.close();
     } else {
         error = 1;
@@ -405,5 +406,87 @@ uint32_t World::loadTexture(SDL_Renderer *ren, SDL_Texture *&worldImageTexture, 
     }
     SDL_FreeSurface(worldImageBMP);
     return 0;
+}
+
+void World::parseAdvancedFeatures(std::ifstream &mapFile) {
+    std::string line;
+    enum class ParseStages {PORTALS, UNKNOWN};
+    ParseStages currentStage = ParseStages::UNKNOWN;
+    while (getline(mapFile, line)) {
+        if(line == "[[Portals]]"){
+            currentStage = ParseStages::PORTALS;
+            continue;
+        }
+        switch (currentStage) {
+            case ParseStages::PORTALS: {
+                //sample line for portal
+                // coord1,coord2,coord3,coord4,[left,right,down,up],worldName, (Optional)starOverrideX, (Optional)startOverrideY
+                bool fail = false;
+                std::string tokens[8];
+                size_t lastToken = 0;
+                size_t newToken = 0;
+                for (int i = 0; i < 8; ++i) {
+                    newToken = line.find(",", lastToken);
+                    tokens[i] = line.substr(lastToken, newToken - lastToken);
+                    if(newToken == std::string::npos) {
+                        if((i == 5 || i == 7)) {
+                            break;
+                        } else {
+                            fail = true;
+                        }
+                    }
+                    lastToken = newToken +1;
+                    if (lastToken == std::string::npos && (i != 5 || i != 7)) {
+                        fail = true;
+                    }
+                }
+                if(fail) {
+                    std::cerr << "Portal parsing failed, check map file" << std::endl;
+                    continue;
+                }
+                Portal newPortal;
+                for (int j = 0; j < 4; ++j) {
+                    newPortal.coordinates[j] = std::stoi(tokens[j])*TILE_SIZE;
+                }
+                if(tokens[4] == "left") {newPortal.moveSide = Sides::LEFT;}
+                else if(tokens[4] == "right") {newPortal.moveSide = Sides::RIGHT;}
+                else if(tokens[4] == "down") {newPortal.moveSide = Sides::DOWN;}
+                else if(tokens[4] == "up") {newPortal.moveSide = Sides::UP;}
+                newPortal.targetWorld = tokens[5];
+                if(!tokens[6].empty()) {
+                    newPortal.startOverride = true;
+                    newPortal.startPosition[0] = std::stoi(tokens[6]);
+                    newPortal.startPosition[1] = std::stoi(tokens[7]);
+                }
+                portals.push_back(newPortal);
+            }
+            break;
+            case ParseStages::UNKNOWN: {
+                std::cerr << "Read line without parse stage setting, skipping" << std::endl;
+            }
+            break;
+        }
+    }
+}
+
+bool
+World::checkPortal(AABB *position, World::Sides side, std::string &worldName, bool &startOverride, int &startOverrideX,
+                   int &startOverrideY) {
+    for (size_t i = 0; i < portals.size(); ++i) {
+        if(portals[i].moveSide == side){
+            if(position->getLeftBorder() >= portals[i].coordinates[0] &&
+                    position->getRightBorder() <= portals[i].coordinates[1] &&
+                    //position->getUpBorder() > portals[i].coordinates[2] &&
+                    position->getDownBorder() <= portals[i].coordinates[3]
+                    ) {
+                worldName = portals[i].targetWorld;
+                startOverride = portals[i].startOverride;
+                startOverrideX = portals[i].startPosition[0];
+                startOverrideY = portals[i].startPosition[1];
+                return true;
+            }
+        }
+    }
+    return false;
 }
 

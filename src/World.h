@@ -13,6 +13,17 @@
 
 
 class World {
+public:
+    enum class Sides{ LEFT, RIGHT, UP, DOWN, NONE};// none is not used, but here for checks
+private:
+    struct Portal {
+        int coordinates[4];//left, right, up, down
+        Sides moveSide;
+        std::string targetWorld;
+        int startPosition[2];
+        bool startOverride = false;
+    };
+    std::vector<Portal> portals;
     std::vector<std::shared_ptr<InteractiveObject>> objects;
     SDL_Renderer *ren = nullptr;
     std::shared_ptr<Mario> mario = nullptr;
@@ -21,11 +32,15 @@ class World {
     SDL_Texture *worldImageTexture;
     uint32_t mapWidth;
     SDL_Rect worldRenderRectangle;
+    Mix_Music *music;
+
+
+    void parseAdvancedFeatures(std::ifstream &mapfile);
 public:
     SDL_Renderer *getRen() const {
         return ren;
     }
-    void load(std::string worldName, int &error);
+    void load(std::string worldName, int &error, Mix_Music *&music);
     TileTypes getTileObject(int x, int y);
     SDL_Rect getAndRemoveObject(TileTypes types);
     SDL_Rect getObject(TileTypes type);
@@ -102,6 +117,8 @@ public:
 
     ~World(){
         SDL_DestroyTexture(worldImageTexture);
+        Mix_HaltMusic();
+        Mix_FreeMusic(music);
     }
 
     void setMario(std::shared_ptr<Mario> mario) {
@@ -111,6 +128,11 @@ public:
     uint32_t getMapWidth() const {
         return mapWidth;
     }
+
+    bool
+    checkPortal(AABB *position, World::Sides side, std::string &worldName, bool &startOverride, int &startOverrideX,
+                int &startOverrideY);
+
 };
 
 #endif //MARIO_WORLD_H
