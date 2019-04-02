@@ -409,7 +409,6 @@ uint32_t World::loadTexture(SDL_Renderer *ren, SDL_Texture *&worldImageTexture, 
 }
 
 void World::parseAdvancedFeatures(std::ifstream &mapFile) {
-    int lineNumber = 0;
     std::string line;
     enum class ParseStages {PORTALS, UNKNOWN};
     ParseStages currentStage = ParseStages::UNKNOWN;
@@ -421,14 +420,29 @@ void World::parseAdvancedFeatures(std::ifstream &mapFile) {
         switch (currentStage) {
             case ParseStages::PORTALS: {
                 //sample line for portal
-                // coord1,coord2,coord3,coord4,[left,right,down,up],worldName
-                std::string tokens[6];
+                // coord1,coord2,coord3,coord4,[left,right,down,up],worldName, (Optional)starOverrideX, (Optional)startOverrideY
+                bool fail = false;
+                std::string tokens[8];
                 size_t lastToken = 0;
                 size_t newToken = 0;
-                for (int i = 0; i < 6; ++i) {
+                for (int i = 0; i < 8; ++i) {
                     newToken = line.find(",", lastToken);
                     tokens[i] = line.substr(lastToken, newToken - lastToken);
+                    if(newToken == std::string::npos) {
+                        if((i == 5 || i == 7)) {
+                            break;
+                        } else {
+                            fail = true;
+                        }
+                    }
                     lastToken = newToken +1;
+                    if (lastToken == std::string::npos && (i != 5 || i != 7)) {
+                        fail = true;
+                    }
+                }
+                if(fail) {
+                    std::cerr << "Portal parsing failed, check map file" << std::endl;
+                    continue;
                 }
                 Portal newPortal;
                 for (int j = 0; j < 4; ++j) {
@@ -439,6 +453,11 @@ void World::parseAdvancedFeatures(std::ifstream &mapFile) {
                 else if(tokens[4] == "down") {newPortal.moveSide = Sides::DOWN;}
                 else if(tokens[4] == "up") {newPortal.moveSide = Sides::UP;}
                 newPortal.targetWorld = tokens[5];
+                if(!tokens[6].empty()) {
+                    newPortal.startOverride = true;
+                    newPortal.startPosition[0] = std::stoi(tokens[6]);
+                    newPortal.startPosition[1] = std::stoi(tokens[7]);
+                }
                 portals.push_back(newPortal);
             }
             break;
@@ -450,15 +469,20 @@ void World::parseAdvancedFeatures(std::ifstream &mapFile) {
     }
 }
 
-bool World::checkPortal(AABB *position, World::Sides side, std::string &worldName) {
+bool
+World::checkPortal(AABB *position, World::Sides side, std::string &worldName, bool &startOverride, int &startOverrideX,
+                   int &startOverrideY) {
     for (size_t i = 0; i < portals.size(); ++i) {
         if(portals[i].moveSide == side){
-            if(position->getLeftBorder() > portals[i].coordinates[0] &&
-                    position->getRightBorder() < portals[i].coordinates[1] &&
+            if(position->getLeftBorder() >= portals[i].coordinates[0] &&
+                    position->getRightBorder() <= portals[i].coordinates[1] &&
                     //position->getUpBorder() > portals[i].coordinates[2] &&
-                    position->getDownBorder() < portals[i].coordinates[3]
+                    position->getDownBorder() <= portals[i].coordinates[3]
                     ) {
                 worldName = portals[i].targetWorld;
+                startOverride = portals[i].startOverride;
+                startOverrideX = portals[i].startPosition[0];
+                startOverrideY = portals[i].startPosition[1];
                 return true;
             }
         }

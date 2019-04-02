@@ -539,3 +539,17 @@ std::string Mario::enumToName(Mario::TextureNames status) {
             return nullptr;
     }
 }
+
+void Mario::setPosition(int xPosition, int yPosition) {
+    /**
+     *
+                mapPosition.x * TILE_SIZE,
+                mapPosition.x * TILE_SIZE + TILE_SIZE -1,
+                mapPosition.y * TILE_SIZE,
+                mapPosition.y * TILE_SIZE + TILE_SIZE -1); //-1 because 32 is not part of box. pixels 0 - TILE_SIZE, TILE_SIZE excluded
+     */
+    this->getPosition()->setLeftBorder(xPosition * TILE_SIZE);
+    this->getPosition()->setRightBorder(xPosition * TILE_SIZE + TILE_SIZE -1);
+    this->getPosition()->setUpBorder(yPosition * TILE_SIZE);
+    this->getPosition()->setDownBorder(yPosition * TILE_SIZE + TILE_SIZE -1);
+}

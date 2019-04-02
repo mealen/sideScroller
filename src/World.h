@@ -20,6 +20,8 @@ private:
         int coordinates[4];//left, right, up, down
         Sides moveSide;
         std::string targetWorld;
+        int startPosition[2];
+        bool startOverride = false;
     };
     std::vector<Portal> portals;
     std::vector<std::shared_ptr<InteractiveObject>> objects;
@@ -121,7 +123,9 @@ public:
         return mapWidth;
     }
 
-    bool checkPortal(AABB *position, World::Sides side, std::string &worldName);
+    bool
+    checkPortal(AABB *position, World::Sides side, std::string &worldName, bool &startOverride, int &startOverrideX,
+                int &startOverrideY);
 
 };
 

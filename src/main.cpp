@@ -116,7 +116,8 @@ void readInput(InputStates &input) {
     }
 }
 
-int init(std::shared_ptr<Context> &context, SDL_Renderer *ren, const std::string &worldName) {
+int init(std::shared_ptr<Context> &context, SDL_Renderer *ren, const std::string &worldName, bool startOverride,
+         int startPosX, int startPosY) {
     int error;
 
     if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048) == -1) {
@@ -149,6 +150,9 @@ int init(std::shared_ptr<Context> &context, SDL_Renderer *ren, const std::string
     if (error != 0) {
         std::cerr << "Error initializing Mario, Exiting" << std::endl;
         return -1;
+    }
+    if(startOverride) {
+        mario->setPosition(startPosX, startPosY);
     }
 
     std::shared_ptr<HUD> hud = std::make_shared<HUD>(ren, mario);
@@ -192,7 +196,7 @@ int main(int argc __attribute((unused)), char *argv[] __attribute((unused))) {//
         return 1;
     }
 
-    if (init(context, ren,"0101") == -1) {
+    if (init(context, ren, "0101", false, 0, 0) == -1) {
         SDL_DestroyRenderer(ren);
         SDL_DestroyWindow(win);
         std::cerr << "Init problem" << std::endl;
@@ -246,13 +250,13 @@ int main(int argc __attribute((unused)), char *argv[] __attribute((unused))) {//
                     }
                     input.jump = false;
                     input.jumpEvent = false;
-                    init(context, ren, "0101");
+                    init(context, ren, "0101", false, 0, 0);
                 }
             }
 
             if (input.restart) {
                 input.restart = false;
-                init(context, ren, "0101");
+                init(context, ren, "0101", false, 0, 0);
             }
 
             World::Sides moveSide;
@@ -263,10 +267,13 @@ int main(int argc __attribute((unused)), char *argv[] __attribute((unused))) {//
             else {moveSide = World::Sides::NONE;}
 
             std::string worldName;
+            bool startOverride = false;
+            int startPosX, startPosY;
             if(moveSide != World::Sides::NONE && context->getWorld()->checkPortal(context->getPlayer()->getPosition(),
-                                                                                  moveSide, worldName)){
+                                                                                  moveSide, worldName, startOverride,
+                                                                                  startPosX, startPosY)){
                 std::cout << "Portal activate" << std::endl;
-                init(context,ren,worldName);
+                init(context, ren, worldName, startOverride, startPosX, startPosY);
                 continue;
             }
             context->getPlayer()->move(input.goLeft, input.goRight, input.jumpEvent, input.crouch, input.run);
