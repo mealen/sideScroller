@@ -7,14 +7,17 @@
 
 
 #include "World.h"
+#include "HUD.h"
 
 class Context {
 public:
-    Context(std::shared_ptr<World> world, std::shared_ptr<Mario> player);
+    Context(std::shared_ptr<World> world, std::shared_ptr<Mario> player, std::shared_ptr<HUD> hud);
 
     std::shared_ptr<World> getWorld() const;
 
     std::shared_ptr<Mario> getPlayer() const;
+
+    std::shared_ptr<HUD> getHUD() const;
 
     int getEndOfScreen();
 
@@ -22,7 +25,7 @@ public:
 private:
     std::shared_ptr<World> world;
     std::shared_ptr<Mario> player;
-
+    std::shared_ptr<HUD> hud;
 
 };
 

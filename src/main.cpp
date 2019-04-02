@@ -151,10 +151,12 @@ int init(std::shared_ptr<Context> &context, SDL_Renderer *ren) {
         return -1;
     }
 
+    std::shared_ptr<HUD> hud = std::make_shared<HUD>(ren, mario);
+
     world->setMario(mario);
     world->addObject(mario);
 
-    context = std::make_shared<Context>(world, mario);
+    context = std::make_shared<Context>(world, mario, hud);
     return 0;
 }
 
@@ -262,6 +264,7 @@ int main(int argc __attribute((unused)), char *argv[] __attribute((unused))) {//
         }
         //Draw the world
         context.get()->getWorld()->render(ren, time);
+        context.get()->getHUD()->render(time);
 
         //Update the screen
         logFrameRate();

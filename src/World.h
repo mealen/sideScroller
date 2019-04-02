@@ -10,31 +10,18 @@
 #include "Objects/Mario.h"
 #include "Constants.h"
 #include <memory>
-#include <sstream>
-#include <iomanip>
-#include <SDL_ttf.h>
+
 
 class World {
     std::vector<std::shared_ptr<InteractiveObject>> objects;
-    SDL_Texture *coinsTextTexture = nullptr;
-    TTF_Font *font = nullptr;
-    SDL_Color textColor;
     SDL_Renderer *ren = nullptr;
     std::shared_ptr<Mario> mario = nullptr;
-    SDL_Rect coinsRect;
-    SDL_Rect coinImgPos;
-    SDL_Rect marioTextRect;
-    SDL_Texture *marioTextTexture = nullptr;
-    SDL_Texture *scoreTexture = nullptr;
-    SDL_Rect scoreRect;
-    SDL_Texture *coinTexture = nullptr;
+
     TileTypes tiles[224][15];
     SDL_Texture *worldImageTexture;
     uint32_t mapWidth;
-
     SDL_Rect worldRenderRectangle;
 public:
-
     SDL_Renderer *getRen() const {
         return ren;
     }
@@ -46,39 +33,8 @@ public:
         objects.push_back(object);
     }
 
-    void updateScore() {
-        std::ostringstream score;
-        score << std::setw(6) << std::setfill('0') << mario->getScore();
-        SDL_DestroyTexture(scoreTexture);
-        SDL_Surface *scoreSurface = TTF_RenderText_Solid(font, score.str().c_str(),
-                                                         textColor);
-        scoreTexture = SDL_CreateTextureFromSurface(ren, scoreSurface);
-        SDL_FreeSurface(scoreSurface);
-    }
-
     uint32_t
     loadTexture(SDL_Renderer *ren, SDL_Texture *&worldImageTexture, uint32_t &mapWidth, const std::string &imageFile);
-
-    void updateCoins() {
-        SDL_DestroyTexture(coinsTextTexture);
-        SDL_Surface *coinsTextSurface = TTF_RenderText_Solid(font, ("*" + std::to_string(mario->getCoins())).c_str(),
-                                                             textColor);
-        coinsTextTexture = SDL_CreateTextureFromSurface(ren, coinsTextSurface);
-        SDL_FreeSurface(coinsTextSurface);
-    }
-
-    void renderCoins() {
-        SDL_RenderCopy(ren, coinTexture, nullptr, &coinImgPos);
-        SDL_RenderCopy(ren, coinsTextTexture, NULL, &coinsRect);
-    }
-
-    void renderHUD() {
-        updateCoins();
-        updateScore();
-        SDL_RenderCopy(ren, marioTextTexture, nullptr, &marioTextRect);
-        SDL_RenderCopy(ren, scoreTexture, nullptr, &scoreRect);
-        renderCoins();
-    }
 
     /**
      *
@@ -112,8 +68,6 @@ public:
             objects[i]->render(ren, worldRenderRectangle.x, worldRenderRectangle.y ,time);
         }
         mario->render(ren, worldRenderRectangle.x, worldRenderRectangle.y, time);
-
-        renderHUD();
     }
 
     /**
@@ -134,39 +88,6 @@ public:
                           const std::shared_ptr<InteractiveObject> interactiveObject);
 
     World(SDL_Renderer *ren) : ren(ren) {
-        font = TTF_OpenFont("res/fonts/emulogic.ttf", 8);
-        textColor.r = 255;
-        textColor.g = 255;
-        textColor.b = 255;
-        textColor.a = 1;
-
-        coinsRect.x = 300;
-        coinsRect.y = 10;
-        coinsRect.w = 35;
-        coinsRect.h = 15;
-
-        coinImgPos.x = 290;
-        coinImgPos.y = 10;
-        coinImgPos.w = 10;
-        coinImgPos.h = 16;
-
-        marioTextRect.x = 25;
-        marioTextRect.y = 10;
-        marioTextRect.w = 80;
-        marioTextRect.h = 16;
-
-        scoreRect.x = 25;
-        scoreRect.y = 25;
-        scoreRect.w = 100;
-        scoreRect.h = 16;
-
-        SDL_Surface *marioTextSurface = TTF_RenderText_Solid(font, "MARIO",
-                                                             textColor);
-        marioTextTexture = SDL_CreateTextureFromSurface(ren, marioTextSurface);
-        SDL_FreeSurface(marioTextSurface);
-        coinTexture = Utils::loadTexture(ren, Utils::getResourcePath() + "coin_text_icon.bmp");
-
-
         worldRenderRectangle.x = 0;
         worldRenderRectangle.y = 0;
         worldRenderRectangle.h = SCREEN_HEIGHT;
@@ -186,7 +107,4 @@ public:
     }
 };
 
-
 #endif //MARIO_WORLD_H
-
-
