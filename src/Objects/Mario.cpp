@@ -107,7 +107,7 @@ void Mario::render(SDL_Renderer *renderer, int x __attribute((unused)), int y __
         // if current mario position is at the end of map, it should be able to
         // if not it should be rendered on center, or left if moved left
 
-        if(marioPos->getMaxRight() >= (mapWidth - (SCREEN_WIDTH/2))) {
+        if((uint32_t)marioPos->getMaxRight() >= (mapWidth - (SCREEN_WIDTH/2))) {
             //this case mario can move right most end, so reference point is not the middle of screen
             marioGrapPos.x = marioPos->getRightBorder() - TILE_SIZE - (mapWidth - SCREEN_WIDTH);
         } else {
@@ -364,12 +364,12 @@ void Mario::move(bool left, bool right, bool jump, bool crouch, bool run) {
         //don't allow going back
         //if not end of map, check with middle of screen
         // if end of map, check with end of screen
-        if(collisionBox->getMaxRight() + SCREEN_WIDTH < mapWidth) {
+        if((uint32_t)collisionBox->getMaxRight() + SCREEN_WIDTH < mapWidth) {
             if (collisionBox->getLeftBorder() + (10 * TILE_SIZE) > collisionBox->getMaxRight()) {
                 collisionBox->moveLeft(moveSpeed);
             }
         } else {
-            if (collisionBox->getLeftBorder() > mapWidth - SCREEN_WIDTH) {
+            if ((uint32_t)collisionBox->getLeftBorder() > mapWidth - SCREEN_WIDTH) {
                 collisionBox->moveLeft(moveSpeed);
             }
         }

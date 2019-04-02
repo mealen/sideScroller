@@ -105,7 +105,7 @@ void Fireball::changeDirection() {
             direction = LEFT_UP;
             break;
     }
-};
+}
 
 void Fireball::step(std::shared_ptr<Context> context, long time __attribute((unused))) {
     int moveSpeed = 8;

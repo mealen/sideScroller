@@ -86,7 +86,7 @@ void Goomba::render(SDL_Renderer* renderer, int x, int y, long time) {
 
 }
 
-void Goomba::collideWithSide(std::shared_ptr<Context> context __attribute((unused)), TileTypes tile,
+void Goomba::collideWithSide(std::shared_ptr<Context> context __attribute((unused)), TileTypes tile[[gnu::unused]],
                              CollisionSide interactionSide, long time __attribute((unused))) {
     if (interactionSide == CollisionSide::DOWN) {
 

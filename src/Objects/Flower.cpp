@@ -33,9 +33,9 @@ Flower::~Flower() {
 
 }
 
-TileTypes Flower::interactWithSide(std::shared_ptr<Context> context,
-                                           std::shared_ptr<InteractiveObject> otherObject __attribute((unused)), CollisionSide interactionSide,
-                                           long time) {
+TileTypes Flower::interactWithSide(std::shared_ptr<Context> context[[gnu::unused]],
+                                           std::shared_ptr<InteractiveObject> otherObject __attribute((unused)), CollisionSide interactionSide[[gnu::unused]],
+                                           long time [[gnu::unused]]) {
     if(hitTime != 0) {
         return TileTypes::FLOWER;//if already interacted, don't allow again
     }
@@ -51,11 +51,10 @@ TileTypes Flower::interactWithSide(std::shared_ptr<Context> context,
             return TileTypes::EMPTY;
         }
         // swap direction
-    } else{
-        return TileTypes::EMPTY;//don't collide with non player objects
     }
 
-
+    // don't collide with non player or dead player
+    return TileTypes::EMPTY;//don't collide with non player objects
 
 }
 

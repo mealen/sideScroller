@@ -90,7 +90,7 @@ void Koopa::render(SDL_Renderer* renderer, int x, int y, long time) {
 
 }
 
-void Koopa::collideWithSide(std::shared_ptr<Context> context __attribute((unused)), TileTypes tile,
+void Koopa::collideWithSide(std::shared_ptr<Context> context __attribute((unused)), TileTypes tile [[gnu::unused]],
                              CollisionSide interactionSide, long time __attribute((unused))) {
     if (interactionSide == CollisionSide::DOWN) {
 
