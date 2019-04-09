@@ -245,27 +245,30 @@ void World::stepSingleObject(long time, const std::shared_ptr<Context> &context,
     int upwardSpeed = aabb->getUpwardSpeed();
     tile = collide(0, -1 * upwardSpeed, time, context, interactiveObject);
     //check if moving with upward speed is possible
-    if (tile == TileTypes::OUT_OF_MAP || aabb->getPhysicsState() != AABB::DYNAMIC) {
+    if (tile == TileTypes::OUT_OF_MAP) {
         if (aabb->getUpwardSpeed() < 0) {
             // mario dies
             interactiveObject->die(tile);
         }
     }
-    if ((tile != TileTypes::EMPTY && tile != TileTypes::OUT_OF_MAP) && aabb->getPhysicsState() == AABB::DYNAMIC) {//if not possible, match the tile, and then stop
-        int curSize = (aabb->getDownBorder() - aabb->getUpBorder());
-        aabb->setUpBorder(aabb->getUpBorder() - upwardSpeed);
-        if (aabb->getUpwardSpeed() > 0) {
-            aabb->setUpBorder(((aabb->getUpBorder() + TILE_SIZE) / TILE_SIZE) * TILE_SIZE);
-        } else {
-            aabb->setUpBorder((aabb->getUpBorder() / TILE_SIZE) * TILE_SIZE);
+    if(aabb->getPhysicsState() == AABB::DYNAMIC || aabb->getPhysicsState() == AABB::NON_INTERACTIVE) {
+        if ((tile != TileTypes::EMPTY &&
+             tile != TileTypes::OUT_OF_MAP)) {//if not possible, match the tile, and then stop
+            int curSize = (aabb->getDownBorder() - aabb->getUpBorder());
+            aabb->setUpBorder(aabb->getUpBorder() - upwardSpeed);
+            if (aabb->getUpwardSpeed() > 0) {
+                aabb->setUpBorder(((aabb->getUpBorder() + TILE_SIZE) / TILE_SIZE) * TILE_SIZE);
+            } else {
+                aabb->setUpBorder((aabb->getUpBorder() / TILE_SIZE) * TILE_SIZE);
+            }
+            aabb->setDownBorder(aabb->getUpBorder() + curSize);
+            aabb->setUpwardSpeed(0);
+            aabb->setHasJumped(false);
+        } else { //if possible update
+            aabb->setUpBorder(aabb->getUpBorder() - aabb->getUpwardSpeed());
+            aabb->setDownBorder(aabb->getDownBorder() - aabb->getUpwardSpeed());
+            aabb->setUpwardSpeed(aabb->getUpwardSpeed() - 1);
         }
-        aabb->setDownBorder(aabb->getUpBorder() + curSize);
-        aabb->setUpwardSpeed(0);
-        aabb->setHasJumped(false);
-    } else { //if possible update
-        aabb->setUpBorder(aabb->getUpBorder() - aabb->getUpwardSpeed());
-        aabb->setDownBorder(aabb->getDownBorder() - aabb->getUpwardSpeed());
-        aabb->setUpwardSpeed(aabb->getUpwardSpeed() - 1);
     }
 }
 
@@ -507,7 +510,7 @@ World::checkPortal(AABB *position, World::Sides side, PortalInformation** portal
     return false;
 }
 
-bool World::processInput(const InputHandler *input, PortalInformation** portalInformation) {
+bool World::processInput(const InputHandler *input, long time, PortalInformation **portalInformation) {
     World::Sides moveSide;
     if(input->goLeft) {moveSide = World::Sides::LEFT;}
     else if(input->goRight) {moveSide = World::Sides::RIGHT;}
@@ -515,12 +518,42 @@ bool World::processInput(const InputHandler *input, PortalInformation** portalIn
     else if(input->crouchEvent) {moveSide = World::Sides::DOWN;}
     else {moveSide = World::Sides::NONE;}
 
-    if(moveSide != World::Sides::NONE && checkPortal(mario->getPosition(),
-                                                                          moveSide, portalInformation)){
-        std::cout << "Portal activate" << std::endl;
-        return true;
+    if(portalAnimationStartTime == 0) {
+        if (moveSide != World::Sides::NONE && checkPortal(mario->getPosition(),
+                                                          moveSide, portalInformation)) {
+
+            std::cout << "Portal activate" << std::endl;
+            portalAnimationStartTime = time;
+            mario->getPosition()->setPhysicsState(AABB::PhysicsState::KINEMATIC);
+            portalEnterSide = moveSide;
+        } else {
+            mario->move(input->goLeft, input->goRight, input->jumpEvent, input->crouch, input->run);
+        }
+        return false;
+    } else {
+        if(time - portalAnimationStartTime < portalAnimationDuration) {
+            const int MOVEMENT_SPEED = 4;
+            switch (portalEnterSide) {
+                case Sides::DOWN: {
+                    std::cout << "mario pos was "<< mario->getPosition()->getUpBorder() << " " << mario->getPosition()->getDownBorder() << std::endl;
+                    mario->getPosition()->setUpBorder(mario->getPosition()->getUpBorder() + MOVEMENT_SPEED);
+                    mario->getPosition()->setDownBorder(mario->getPosition()->getDownBorder() + MOVEMENT_SPEED);
+                }
+                break;
+                case Sides::LEFT: {
+                    mario->move(true, false, false, false, false);
+                }
+                break;
+                case Sides::RIGHT: {
+                    mario->move(false, true, false, false, false);
+                }
+                break;
+            }
+        } else {
+            std::cout << "Portal animation Done" <<std::endl;
+            return true;
+        }
     }
-    mario->move(input->goLeft, input->goRight, input->jumpEvent, input->crouch, input->run);
     return false;
 }
 

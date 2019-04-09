@@ -173,7 +173,7 @@ int main(int argc __attribute((unused)), char *argv[] __attribute((unused))) {//
 
             previousTime = time;
             World::PortalInformation* portalInformation;
-            if(context->getWorld()->processInput(&input, &portalInformation)){
+            if(context->getWorld()->processInput(&input, time, &portalInformation)){
                 if(portalInformation == nullptr) {
                     std::cerr << "Portal detected but information is not returned!" << std::endl;
                 } else {

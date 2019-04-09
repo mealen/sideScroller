@@ -42,7 +42,9 @@ private:
     uint32_t mapWidth;
     SDL_Rect worldRenderRectangle;
     Mix_Music *music;
-
+    long portalAnimationStartTime = 0;
+    const long portalAnimationDuration = 1000;
+    Sides portalEnterSide = Sides::NONE;
 
     void parseAdvancedFeatures(std::ifstream &mapfile);
 public:
@@ -140,7 +142,7 @@ public:
 
     bool checkPortal(AABB *position, World::Sides side, PortalInformation** portalInformation);
 
-    bool processInput(const InputHandler *input, PortalInformation** portalInformation);
+    bool processInput(const InputHandler *input, long time, PortalInformation **portalInformation);
 };
 
 #endif //MARIO_WORLD_H

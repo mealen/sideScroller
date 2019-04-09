@@ -281,20 +281,24 @@ void Mario::step(std::shared_ptr<Context> context, long time) {
         if (((time - growStartTime) / 100 ) % 2) {
             shrink();
         }
-    } else if (!killed) {
-        getPosition()->setPhysicsState(AABB::DYNAMIC);
-
     }
 
 
-    if (time - shrinkStartTime > 2000) {
+    if (shrinkStarted && time - shrinkStartTime > 2000) {
         shrinkStarted = false;
         shrinkStartTime = 0;
+        if (!killed) {
+            getPosition()->setPhysicsState(AABB::DYNAMIC);
+
+        }
     }
 
-    if (time - growStartTime > 1000) {
+    if (growStarted && time - growStartTime > 1000) {
         growStarted = false;
         growStartTime = 0;
+        if (!killed) {
+            getPosition()->setPhysicsState(AABB::DYNAMIC);
+        }
     }
 
     if (time - starStartTime > 8000) {
