@@ -303,11 +303,24 @@ void Mario::step(std::shared_ptr<Context> context, long time) {
 }
 
 void Mario::die(TileTypes type) {
+    // you can not kill a dead man
+    if (isDead()) {
+        return;
+    }
     if(type == TileTypes::OUT_OF_MAP) {
         //die without shrink
         InteractiveObject::die(type);
         return;
     }
+    if (type == TileTypes::TIME) {
+        InteractiveObject::die(type);
+        getPosition()->setUpwardSpeed(JUMP_SPEED / 2);
+        killed = true;
+        getPosition()->setPhysicsState(AABB::NON_INTERACTIVE);
+        getPosition()->setHorizontalSpeed(0);
+        return;
+    }
+
     if (star) {
         return;
     }
