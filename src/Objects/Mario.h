@@ -127,6 +127,11 @@ public:
 
     int increaseScore(int amount);
 
+    void copyData(Mario& otherMario) {
+        otherMario.score = score;
+        otherMario.coins = coins;
+        otherMario.status = status;
+    }
 };
 
 #endif //MARIO_MARIO_H

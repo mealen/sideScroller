@@ -21,8 +21,7 @@
 
 void logFrameRate();
 
-int init(std::shared_ptr<Context> &context, SDL_Renderer *ren, const std::string &worldName, bool startOverride,
-         int startPosX, int startPosY) {
+int init(std::shared_ptr<Context> &context, SDL_Renderer *ren, const std::string worldName, World::PortalInformation* portalInformation = nullptr) {
     int error;
 
     if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048) == -1) {
@@ -43,7 +42,11 @@ int init(std::shared_ptr<Context> &context, SDL_Renderer *ren, const std::string
 
     std::shared_ptr<World> world = std::make_shared<World>(ren);
 
-    world->load(worldName, error, music);
+    if(portalInformation == nullptr) {
+        world->load(worldName, error, music);
+    } else {
+        world->load(portalInformation->worldName, error, music);
+    }
 
     if (error != 0) {
         std::cerr << "Error initializing Map, Exiting" << std::endl;
@@ -56,8 +59,13 @@ int init(std::shared_ptr<Context> &context, SDL_Renderer *ren, const std::string
         std::cerr << "Error initializing Mario, Exiting" << std::endl;
         return -1;
     }
-    if(startOverride) {
-        mario->setPosition(startPosX, startPosY);
+    if(portalInformation != nullptr) {
+        if(context->getPlayer() != nullptr) {
+            context->getPlayer()->copyData(*mario);
+        }
+        if(portalInformation->startOverride) {
+            mario->setPosition(portalInformation->startPosX, portalInformation->startPosY);
+        }
     }
 
     std::shared_ptr<HUD> hud = std::make_shared<HUD>(ren, mario);
@@ -100,7 +108,7 @@ int main(int argc __attribute((unused)), char *argv[] __attribute((unused))) {//
         return 1;
     }
 
-    if (init(context, ren, "0101", false, 0, 0) == -1) {
+    if (init(context, ren, "0101") == -1) {
         SDL_DestroyRenderer(ren);
         SDL_DestroyWindow(win);
         std::cerr << "Init problem" << std::endl;
@@ -154,13 +162,13 @@ int main(int argc __attribute((unused)), char *argv[] __attribute((unused))) {//
                     }
                     input.jump = false;
                     input.jumpEvent = false;
-                    init(context, ren, "0101", false, 0, 0);
+                    init(context, ren, "0101");
                 }
             }
 
             if (input.restart) {
                 input.restart = false;
-                init(context, ren, "0101", false, 0, 0);
+                init(context, ren, "0101");
             }
 
             previousTime = time;
@@ -169,7 +177,7 @@ int main(int argc __attribute((unused)), char *argv[] __attribute((unused))) {//
                 if(portalInformation == nullptr) {
                     std::cerr << "Portal detected but information is not returned!" << std::endl;
                 } else {
-                    init(context, ren, portalInformation->worldName, portalInformation->startOverride, portalInformation->startPosX, portalInformation->startPosY);
+                    init(context, ren, "", portalInformation);
                     delete portalInformation;
                     continue;
                 }
