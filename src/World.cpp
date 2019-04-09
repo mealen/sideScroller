@@ -15,7 +15,7 @@
 #include "Objects/Koopa.h"
 #include "Objects/StarBrick.h"
 #include "Objects/HiddenCoinBox.h"
-
+#include "InputHandler.h"
 
 TileTypes World::collide(int rightSpeed, int downSpeed, long time, std::shared_ptr<Context> context,
                               std::shared_ptr<InteractiveObject> interactiveObject) {
@@ -486,8 +486,7 @@ void World::parseAdvancedFeatures(std::ifstream &mapFile) {
 }
 
 bool
-World::checkPortal(AABB *position, World::Sides side, std::string &worldName, bool &startOverride, int &startOverrideX,
-                   int &startOverrideY) {
+World::checkPortal(AABB *position, World::Sides side, PortalInformation** portalInformation) {
     for (size_t i = 0; i < portals.size(); ++i) {
         if(portals[i].moveSide == side){
             if(position->getLeftBorder() >= portals[i].coordinates[0] &&
@@ -496,14 +495,32 @@ World::checkPortal(AABB *position, World::Sides side, std::string &worldName, bo
                     position->getDownBorder() <= portals[i].coordinates[3] &&
                     position->getDownBorder() > portals[i].coordinates[3] - 4
                     ) {
-                worldName = portals[i].targetWorld;
-                startOverride = portals[i].startOverride;
-                startOverrideX = portals[i].startPosition[0];
-                startOverrideY = portals[i].startPosition[1];
+                *portalInformation = new PortalInformation();
+                (*portalInformation)->worldName = portals[i].targetWorld;
+                (*portalInformation)->startOverride = portals[i].startOverride;
+                (*portalInformation)->startPosX = portals[i].startPosition[0];
+                (*portalInformation)->startPosY = portals[i].startPosition[1];
                 return true;
             }
         }
     }
+    return false;
+}
+
+bool World::processInput(const InputHandler *input, PortalInformation** portalInformation) {
+    World::Sides moveSide;
+    if(input->goLeft) {moveSide = World::Sides::LEFT;}
+    else if(input->goRight) {moveSide = World::Sides::RIGHT;}
+    else if(input->jumpEvent) {moveSide = World::Sides::UP;}
+    else if(input->crouchEvent) {moveSide = World::Sides::DOWN;}
+    else {moveSide = World::Sides::NONE;}
+
+    if(moveSide != World::Sides::NONE && checkPortal(mario->getPosition(),
+                                                                          moveSide, portalInformation)){
+        std::cout << "Portal activate" << std::endl;
+        return true;
+    }
+    mario->move(input->goLeft, input->goRight, input->jumpEvent, input->crouch, input->run);
     return false;
 }
 

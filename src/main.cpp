@@ -16,105 +16,10 @@
 #include "Objects/HiddenCoinBox.h"
 #include "Objects/Koopa.h"
 #include "Objects/StarBrick.h"
-
-
-class InputStates {
-public:
-    bool quit = false;
-    bool goRight = false;
-    bool goLeft = false;
-    bool crouch = false;
-    bool crouchEvent = false;
-    bool jump = false;
-    bool jumpEvent = false;
-    bool stop = false;
-    bool run = false;
-    bool restart = false;
-};
+#include "InputHandler.h"
 
 
 void logFrameRate();
-
-void readInput(InputStates &input) {
-    input.jumpEvent = false;
-    input.crouchEvent = false;
-    SDL_Event e;
-    while (SDL_PollEvent(&e)) {
-        //If user closes the window
-        if (e.type == SDL_QUIT) {
-            input.quit = true;
-        }
-        //If user presses any key
-        if (e.type == SDL_KEYDOWN) {
-            switch (e.key.keysym.sym) {
-                case SDLK_ESCAPE:
-                    input.quit = true;
-                    break;
-                case SDLK_LSHIFT:
-                    input.run = true;
-                    break;
-                case SDLK_d:
-                case SDLK_RIGHT:
-                    input.goRight = true;
-                    break;
-                case SDLK_a:
-                case SDLK_LEFT:
-                    input.goLeft = true;
-                    break;
-                case SDLK_SPACE:
-                case SDLK_UP:
-                    if(!input.jump) {
-                        input.jumpEvent = true;
-                    }
-                    input.jump = true;
-                    break;
-                case SDLK_s:
-                case SDLK_DOWN:
-                    if(!input.crouch) {
-                        input.crouchEvent = true;
-                    }
-                    input.crouch = true;
-                    break;
-                case SDLK_p:
-                    input.stop = true;
-                    break;
-                case SDLK_r:
-                    input.restart = true;
-                    break;
-
-            }
-        }
-        if (e.type == SDL_KEYUP) {
-            switch (e.key.keysym.sym) {
-                case SDLK_LSHIFT:
-                    input.run = false;
-                    break;
-                case SDLK_d:
-                case SDLK_RIGHT:
-                    input.goRight = false;
-                    break;
-                case SDLK_a:
-                case SDLK_LEFT:
-                    input.goLeft = false;
-                    break;
-                case SDLK_SPACE:
-                case SDLK_UP:
-                    input.jump = false;
-                    break;
-                case SDLK_s:
-                case SDLK_DOWN:
-                    input.crouch = false;
-                    break;
-                case SDLK_p:
-                    input.stop = false;
-                    break;
-            }
-        }
-        //If user clicks the mouse
-        if (e.type == SDL_MOUSEBUTTONDOWN) {
-        }
-    }
-}
 
 int init(std::shared_ptr<Context> &context, SDL_Renderer *ren, const std::string &worldName, bool startOverride,
          int startPosX, int startPosY) {
@@ -187,8 +92,7 @@ int main(int argc __attribute((unused)), char *argv[] __attribute((unused))) {//
         return 1;
     }
 
-    InputStates input;
-    input.quit = false;
+    InputHandler input;
     std::shared_ptr<Context> context;
 
     if (TTF_Init() < 0) {
@@ -234,7 +138,7 @@ int main(int argc __attribute((unused)), char *argv[] __attribute((unused))) {//
             //Take a quick break after all that hard work
             //SDL_Delay(50);
             if (!context->getPlayer()->isDead()) {
-                readInput(input);
+                input.readInput();
             } else {
                 if(time - context->getPlayer()->getDeadTime() > 1500) {
                     SDL_Rect textRect;
@@ -246,7 +150,7 @@ int main(int argc __attribute((unused)), char *argv[] __attribute((unused))) {//
                         context.get()->getWorld()->render(ren, time);
                         SDL_RenderCopy(ren, deadTextTexture, NULL, &textRect);
                         SDL_RenderPresent(ren);
-                        readInput(input);
+                        input.readInput();
                     }
                     input.jump = false;
                     input.jumpEvent = false;
@@ -259,27 +163,18 @@ int main(int argc __attribute((unused)), char *argv[] __attribute((unused))) {//
                 init(context, ren, "0101", false, 0, 0);
             }
 
-            World::Sides moveSide;
-            if(input.goLeft) {moveSide = World::Sides::LEFT;}
-            else if(input.goRight) {moveSide = World::Sides::RIGHT;}
-            else if(input.jumpEvent) {moveSide = World::Sides::UP;}
-            else if(input.crouchEvent) {moveSide = World::Sides::DOWN;}
-            else {moveSide = World::Sides::NONE;}
-
-            std::string worldName;
-            bool startOverride = false;
-            int startPosX, startPosY;
-            if(moveSide != World::Sides::NONE && context->getWorld()->checkPortal(context->getPlayer()->getPosition(),
-                                                                                  moveSide, worldName, startOverride,
-                                                                                  startPosX, startPosY)){
-                std::cout << "Portal activate" << std::endl;
-                init(context, ren, worldName, startOverride, startPosX, startPosY);
-                continue;
-            }
-            context->getPlayer()->move(input.goLeft, input.goRight, input.jumpEvent, input.crouch, input.run);
-
-
             previousTime = time;
+            World::PortalInformation* portalInformation;
+            if(context->getWorld()->processInput(&input, &portalInformation)){
+                if(portalInformation == nullptr) {
+                    std::cerr << "Portal detected but information is not returned!" << std::endl;
+                } else {
+                    init(context, ren, portalInformation->worldName, portalInformation->startOverride, portalInformation->startPosX, portalInformation->startPosY);
+                    delete portalInformation;
+                    continue;
+                }
+
+            }
             context.get()->getWorld()->stepSimulation(time, context);
         }
         //Draw the world
