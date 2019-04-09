@@ -131,6 +131,9 @@ public:
         otherMario.score = score;
         otherMario.coins = coins;
         otherMario.status = status;
+        if(isBig()) {
+            otherMario.getPosition()->setUpBorder(otherMario.getPosition()->getUpBorder() - TILE_SIZE);
+        }
     }
 };
 

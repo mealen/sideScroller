@@ -561,4 +561,7 @@ void Mario::setPosition(int xPosition, int yPosition) {
     this->getPosition()->setRightBorder(xPosition * TILE_SIZE + TILE_SIZE -1);
     this->getPosition()->setUpBorder(yPosition * TILE_SIZE);
     this->getPosition()->setDownBorder(yPosition * TILE_SIZE + TILE_SIZE -1);
+    if(isBig()) {
+        getPosition()->setUpBorder(getPosition()->getUpBorder() - TILE_SIZE);
+    }
 }
