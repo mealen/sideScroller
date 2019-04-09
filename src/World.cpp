@@ -253,7 +253,7 @@ void World::stepSingleObject(long time, const std::shared_ptr<Context> &context,
     }
     if(aabb->getPhysicsState() == AABB::DYNAMIC || aabb->getPhysicsState() == AABB::NON_INTERACTIVE) {
         if ((tile != TileTypes::EMPTY &&
-             tile != TileTypes::OUT_OF_MAP)) {//if not possible, match the tile, and then stop
+             tile != TileTypes::OUT_OF_MAP) && aabb->getPhysicsState() == AABB::DYNAMIC) {//if not possible, match the tile, and then stop
             int curSize = (aabb->getDownBorder() - aabb->getUpBorder());
             aabb->setUpBorder(aabb->getUpBorder() - upwardSpeed);
             if (aabb->getUpwardSpeed() > 0) {
