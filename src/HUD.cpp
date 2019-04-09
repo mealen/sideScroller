@@ -5,6 +5,7 @@
 #include <sstream>
 #include <iomanip>
 #include "HUD.h"
+#include "Objects/Coin.h"
 
 HUD::HUD(SDL_Renderer* ren, std::shared_ptr<Mario> mario) : ren(ren), mario(mario) {
     font = TTF_OpenFont("res/fonts/emulogic.ttf", 8);
@@ -37,9 +38,17 @@ HUD::HUD(SDL_Renderer* ren, std::shared_ptr<Mario> mario) : ren(ren), mario(mari
                                                          textColor);
     marioTextTexture = SDL_CreateTextureFromSurface(ren, marioTextSurface);
     SDL_FreeSurface(marioTextSurface);
-    coinTexture = Utils::loadTexture(ren, Utils::getResourcePath() + "coin_text_icon.bmp");
+
+    for (int i = 0; i < 4; i++) {
+        std::string brickImage = Utils::getResourcePath("coin") + "coin_an" + std::to_string(i) + ".bmp";
+        coinTextures.push_back(Utils::loadTexture(ren, brickImage));
+    }
+    //coinTextures.push_back(Utils::loadTexture(ren, Utils::getResourcePath() + "coin_text_icon.bmp"));
 }
 
+SDL_Texture * HUD::getCoinTexture(long time) const {
+    return coinTextures[(time / (100)) % 4];
+}
 void HUD::updateCoins() {
     SDL_DestroyTexture(coinsTextTexture);
     SDL_Surface *coinsTextSurface = TTF_RenderText_Solid(font, ("*" + std::to_string(mario->getCoins())).c_str(),
@@ -48,8 +57,8 @@ void HUD::updateCoins() {
     SDL_FreeSurface(coinsTextSurface);
 }
 
-void HUD::renderCoins() {
-    SDL_RenderCopy(ren, coinTexture, nullptr, &coinImgPos);
+void HUD::renderCoins(long time) {
+    SDL_RenderCopy(ren, getCoinTexture(time), nullptr, &coinImgPos);
     SDL_RenderCopy(ren, coinsTextTexture, nullptr, &coinsRect);
 }
 
@@ -68,7 +77,7 @@ void HUD::render(long time, int x) {
     updateScore();
     SDL_RenderCopy(ren, marioTextTexture, nullptr, &marioTextRect);
     SDL_RenderCopy(ren, scoreTexture, nullptr, &scoreRect);
-    renderCoins();
+    renderCoins(time);
 }
 
 

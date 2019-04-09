@@ -26,14 +26,15 @@ private:
     SDL_Texture *marioTextTexture = nullptr;
     SDL_Texture *scoreTexture = nullptr;
     SDL_Rect scoreRect;
-    SDL_Texture *coinTexture = nullptr;
+    std::vector<SDL_Texture *> coinTextures;
     void updateScore();
     void updateCoins();
-    void renderCoins();
+    void renderCoins(long time);
     long scoreComboStartTime = -1;
     int comboScoreAmount = 0;
+    SDL_Texture * getCoinTexture(long time) const;
 
 
-};
+    };
 
 #endif //MARIO_HUD_H
