@@ -172,7 +172,6 @@ TileTypes World::collide(int rightSpeed, int downSpeed, long time, std::shared_p
 }
 
 void World::stepSimulation(long time, std::shared_ptr<Context> context) {
-    context->getPlayer()->step(context, time);
     int middleOfScreenPixel = SCREEN_WIDTH / 2;
 
     for (size_t i = 0; i < this->objects.size(); ++i) {
@@ -477,7 +476,8 @@ World::checkPortal(AABB *position, World::Sides side, std::string &worldName, bo
             if(position->getLeftBorder() >= portals[i].coordinates[0] &&
                     position->getRightBorder() <= portals[i].coordinates[1] &&
                     //position->getUpBorder() > portals[i].coordinates[2] &&
-                    position->getDownBorder() <= portals[i].coordinates[3]
+                    position->getDownBorder() <= portals[i].coordinates[3] &&
+                    position->getDownBorder() > portals[i].coordinates[3] - 4
                     ) {
                 worldName = portals[i].targetWorld;
                 startOverride = portals[i].startOverride;
