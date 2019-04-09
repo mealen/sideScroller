@@ -213,8 +213,25 @@ void World::stepSingleObject(long time, const std::shared_ptr<Context> &context,
     if (tile == TileTypes::EMPTY || aabb->getPhysicsState() != AABB::DYNAMIC) {
         aabb->setLeftBorder(aabb->getLeftBorder() + horizontalSpeed);
         aabb->setRightBorder(aabb->getRightBorder() + horizontalSpeed);
+    } else if(abs(horizontalSpeed) > 1) {
+        // if something is moving faster than 1, it is possible that object we hit is further than 1, find out the
+        // distance, and move that amount
+        int checkStep = -1;
+        if(horizontalSpeed < 0) {
+            checkStep = 1;
+        }
+        while(abs(horizontalSpeed) > 1) {
+            horizontalSpeed += checkStep;
+            tile = collide(horizontalSpeed, 0, time, context, interactiveObject);
+            if(tile == TileTypes::EMPTY) {
+                //Found the empty distance
+                aabb->setLeftBorder(aabb->getLeftBorder() + horizontalSpeed);
+                aabb->setRightBorder(aabb->getRightBorder() + horizontalSpeed);
+                break;
+            }
+        }
     }
-
+    
     aabb->setHorizontalSpeed(0);
 
     if (aabb->isHasJumpTriggered()) {
