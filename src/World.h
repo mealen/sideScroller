@@ -12,9 +12,18 @@
 #include <memory>
 
 
+class InputHandler;
 class World {
 public:
     enum class Sides{ LEFT, RIGHT, UP, DOWN, NONE};// none is not used, but here for checks
+
+    struct PortalInformation {
+        std::string worldName;
+        bool startOverride;
+        int startPosX;
+        int startPosY;
+    };
+
 private:
     struct Portal {
         int coordinates[4];//left, right, up, down
@@ -129,10 +138,9 @@ public:
         return mapWidth;
     }
 
-    bool
-    checkPortal(AABB *position, World::Sides side, std::string &worldName, bool &startOverride, int &startOverrideX,
-                int &startOverrideY);
+    bool checkPortal(AABB *position, World::Sides side, PortalInformation** portalInformation);
 
+    bool processInput(const InputHandler *input, PortalInformation** portalInformation);
 };
 
 #endif //MARIO_WORLD_H
