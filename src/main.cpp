@@ -68,7 +68,7 @@ int init(std::shared_ptr<Context> &context, SDL_Renderer *ren, const std::string
         }
     }
 
-    std::shared_ptr<HUD> hud = std::make_shared<HUD>(ren, mario);
+    std::shared_ptr<HUD> hud = std::make_shared<HUD>(ren, mario, 300);
 
     world->setMario(mario);
     world->addObject(mario);
@@ -163,12 +163,15 @@ int main(int argc __attribute((unused)), char *argv[] __attribute((unused))) {//
                     input.jump = false;
                     input.jumpEvent = false;
                     init(context, ren, "0101");
+                    context->getHUD()->setPrevTime(time);
                 }
             }
 
             if (input.restart) {
                 input.restart = false;
                 init(context, ren, "0101");
+                context->getHUD()->setPrevTime(time);
+
             }
 
             previousTime = time;

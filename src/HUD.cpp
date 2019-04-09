@@ -5,8 +5,9 @@
 #include <sstream>
 #include <iomanip>
 #include "HUD.h"
+#include "Objects/Coin.h"
 
-HUD::HUD(SDL_Renderer* ren, std::shared_ptr<Mario> mario) : ren(ren), mario(mario) {
+HUD::HUD(SDL_Renderer* ren, std::shared_ptr<Mario> mario, int time) : ren(ren), mario(mario), time(time) {
     font = TTF_OpenFont("res/fonts/emulogic.ttf", 8);
     textColor.r = 255;
     textColor.g = 255;
@@ -28,6 +29,16 @@ HUD::HUD(SDL_Renderer* ren, std::shared_ptr<Mario> mario) : ren(ren), mario(mari
     marioTextRect.w = 80;
     marioTextRect.h = 16;
 
+    timeTextPos.x = 560;
+    timeTextPos.y = 10;
+    timeTextPos.w = 64;
+    timeTextPos.h = 16;
+
+    timePos.x = 575;
+    timePos.y = 25;
+    timePos.w = 50;
+    timePos.h = 16;
+
     scoreRect.x = 25;
     scoreRect.y = 25;
     scoreRect.w = 100;
@@ -37,9 +48,23 @@ HUD::HUD(SDL_Renderer* ren, std::shared_ptr<Mario> mario) : ren(ren), mario(mari
                                                          textColor);
     marioTextTexture = SDL_CreateTextureFromSurface(ren, marioTextSurface);
     SDL_FreeSurface(marioTextSurface);
-    coinTexture = Utils::loadTexture(ren, Utils::getResourcePath() + "coin_text_icon.bmp");
+
+    SDL_Surface *timeTextSurface = TTF_RenderText_Solid(font, "TIME",
+                                                         textColor);
+    timeTextTexture = SDL_CreateTextureFromSurface(ren, timeTextSurface);
+    SDL_FreeSurface(timeTextSurface);
+
+    for (int i = 0; i < 4; i++) {
+        std::string brickImage = Utils::getResourcePath("coin") + "coin_an" + std::to_string(i) + ".bmp";
+        coinTextures.push_back(Utils::loadTexture(ren, brickImage));
+    }
+
+    prevTime = time;
 }
 
+SDL_Texture * HUD::getCoinTexture(long time) const {
+    return coinTextures[(time / (100)) % 4];
+}
 void HUD::updateCoins() {
     SDL_DestroyTexture(coinsTextTexture);
     SDL_Surface *coinsTextSurface = TTF_RenderText_Solid(font, ("*" + std::to_string(mario->getCoins())).c_str(),
@@ -48,8 +73,8 @@ void HUD::updateCoins() {
     SDL_FreeSurface(coinsTextSurface);
 }
 
-void HUD::renderCoins() {
-    SDL_RenderCopy(ren, coinTexture, nullptr, &coinImgPos);
+void HUD::renderCoins(long time) {
+    SDL_RenderCopy(ren, getCoinTexture(time), nullptr, &coinImgPos);
     SDL_RenderCopy(ren, coinsTextTexture, nullptr, &coinsRect);
 }
 
@@ -64,11 +89,33 @@ void HUD::render(long time, int x) {
         }
     }
 
+    if (time - prevTime > 1000) {
+        this->time -= ((time - prevTime) / 1000);
+        prevTime = time;
+    }
+
+    if (this->time == 0) {
+        mario->die(TIME);
+    }
+
     updateCoins();
     updateScore();
+    updateTime();
+    SDL_RenderCopy(ren, timeTextTexture, nullptr, &timeTextPos);
     SDL_RenderCopy(ren, marioTextTexture, nullptr, &marioTextRect);
     SDL_RenderCopy(ren, scoreTexture, nullptr, &scoreRect);
-    renderCoins();
+    SDL_RenderCopy(ren, timeTexture, nullptr, &timePos);
+    renderCoins(time);
+}
+
+void HUD::updateTime() {
+    std::ostringstream time;
+    time << std::setw(3) << std::setfill('0') << this->time;
+    SDL_DestroyTexture(timeTexture);
+    SDL_Surface *timeSurface = TTF_RenderText_Solid(font, time.str().c_str(),
+                                                     textColor);
+    timeTexture = SDL_CreateTextureFromSurface(ren, timeSurface);
+    SDL_FreeSurface(timeSurface);
 }
 
 
@@ -99,4 +146,16 @@ void HUD::animateScore(int amount, int x, int y, long time) {
     AnimatedScore* as = new AnimatedScore(x, y, time, score, ren);
     mario->increaseScore(score);
     animatedScores.push_back(as);
+}
+
+int HUD::getTime() const {
+    return time;
+}
+
+void HUD::setTime(int time) {
+    this->time = time;
+}
+
+void HUD::setPrevTime(long time) {
+    prevTime = time;
 }
