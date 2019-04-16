@@ -38,7 +38,8 @@ private:
     std::shared_ptr<Mario> mario = nullptr;
 
     TileTypes tiles[224][15];
-    SDL_Texture *worldImageTexture;
+    SDL_Texture *worldBackgroundImageTexture;
+    SDL_Texture *worldForegroundImageTexture;
     uint32_t mapWidth;
     SDL_Rect worldRenderRectangle;
     Mix_Music *music;
@@ -94,12 +95,14 @@ public:
 
         worldRenderRectangle.x = getWorldRenderX();
 
-        SDL_RenderCopy(ren, worldImageTexture, &worldRenderRectangle, NULL);
+        SDL_RenderCopy(ren, worldBackgroundImageTexture, &worldRenderRectangle, NULL);
 
         for (unsigned int i = 0; i < objects.size(); ++i) {
             objects[i]->render(ren, worldRenderRectangle.x, worldRenderRectangle.y ,time);
         }
         mario->render(ren, worldRenderRectangle.x, worldRenderRectangle.y, time);
+        SDL_RenderCopy(ren, worldForegroundImageTexture, &worldRenderRectangle, NULL);
+
     }
 
     /**
@@ -127,7 +130,8 @@ public:
     }
 
     ~World(){
-        SDL_DestroyTexture(worldImageTexture);
+        SDL_DestroyTexture(worldBackgroundImageTexture);
+        SDL_DestroyTexture(worldForegroundImageTexture);
         Mix_HaltMusic();
         Mix_FreeMusic(music);
     }

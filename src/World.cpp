@@ -275,8 +275,14 @@ void World::stepSingleObject(long time, const std::shared_ptr<Context> &context,
 void World::load(std::string worldName, int &error, Mix_Music *&music) {
     this->music = music;
     std::string logicFile = Utils::getResourcePath("levels") + worldName + "_logic.txt";
-    std::string worldImagePath = Utils::getResourcePath("levels") + worldName + "_graph.bmp";
-    if(loadTexture(ren, worldImageTexture, mapWidth, worldImagePath) != 0) {
+    std::string worldBackgroundImagePath = Utils::getResourcePath("levels") + worldName + "_bg.bmp";
+    if(loadTexture(ren, worldBackgroundImageTexture, mapWidth, worldBackgroundImagePath) != 0) {
+        error = 1;
+        return;
+    }
+    std::string worldForegroundImagePath = Utils::getResourcePath("levels") + worldName + "_fg.bmp";
+    worldForegroundImageTexture = Utils::loadTexture(ren, worldForegroundImagePath);
+    if(worldForegroundImageTexture == nullptr) {
         error = 1;
         return;
     }
@@ -532,7 +538,7 @@ bool World::processInput(const InputHandler *input, long time, PortalInformation
         return false;
     } else {
         if(time - portalAnimationStartTime < portalAnimationDuration) {
-            const int MOVEMENT_SPEED = 4;
+            const int MOVEMENT_SPEED = 2;
             switch (portalEnterSide) {
                 case Sides::DOWN: {
                     std::cout << "mario pos was "<< mario->getPosition()->getUpBorder() << " " << mario->getPosition()->getDownBorder() << std::endl;
