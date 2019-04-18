@@ -158,7 +158,7 @@ int main(int argc __attribute((unused)), char *argv[] __attribute((unused))) {//
                     textRect.y = 0;
                     textRect.w = 600;
                     textRect.h = 200;
-                    while (!input.jump && !input.quit) {
+                    while (!input.jump && !input.quit && !input.restart) {
                         context.get()->getWorld()->render(ren, time);
                         SDL_RenderCopy(ren, deadTextTexture, NULL, &textRect);
                         SDL_RenderPresent(ren);

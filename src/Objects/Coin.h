@@ -6,12 +6,14 @@
 #define MARIO_COIN_H
 
 #include <vector>
+#include <SDL_mixer.h>
 
 #include "InteractiveObject.h"
 
 class Coin: public InteractiveObject {
     std::vector<SDL_Texture*> texture;
     AABB* collisionBox;
+    Mix_Chunk *useSound;
     long firstRenderTime = 0;
     bool isDestroyed = false;
     bool isStatic = true;
