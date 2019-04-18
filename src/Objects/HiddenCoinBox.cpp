@@ -44,8 +44,7 @@ TileTypes HiddenCoinBox::interactWithSide(std::shared_ptr<Context> context, std:
                     mario->increaseCoin();
                     std::shared_ptr<Coin> hiddenCoin = std::make_shared<Coin>(context->getWorld()->getRen(),
                                                                               this->getPosition()->getLeftBorder() / TILE_SIZE,
-                                                                              (this->getPosition()->getUpBorder() / TILE_SIZE) - 1);
-                    hiddenCoin->setStatic(false);
+                                                                              (this->getPosition()->getUpBorder() / TILE_SIZE) - 1, false);
                     context->getWorld()->addObject(hiddenCoin);
                 } else {
                     std::cerr << "Unexpected behavior. Player is not Mario. Who the f**K are you;" << std::endl;

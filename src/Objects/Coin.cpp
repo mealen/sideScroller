@@ -11,7 +11,7 @@ AABB *Coin::getPosition() const {
 }
 
 SDL_Texture *Coin::getTexture(long time) const {
-    return this->texture[(time / (TOTAL_ANIM_TIME / 8)) % 4];
+    return this->texture[(time / (TOTAL_ANIM_TIME / 4)) % this->texture.size()];
 }
 
 TileTypes Coin::getTileType() const {
@@ -74,19 +74,23 @@ bool Coin::waitingForDestroy() {
     return isDestroyed;
 }
 
-Coin::Coin(SDL_Renderer *ren, int x, int y) {
+Coin::Coin(SDL_Renderer *ren, int x, int y, bool isStatic) : isStatic(isStatic) {
     collisionBox = new AABB(
             x * TILE_SIZE,
             x * TILE_SIZE + TILE_SIZE -1,
             y * TILE_SIZE,
             y * TILE_SIZE + TILE_SIZE -1);
 
-    for (int i = 0; i < 4; i++) {
-        std::string brickImage = Utils::getResourcePath("coin") + "coin_an" + std::to_string(i) + ".bmp";
-        texture.push_back(Utils::loadTexture(ren, brickImage));
+    if (isStatic) {
+        for (int i = 0; i < 3; i++) {
+            std::string brickImage = Utils::getResourcePath("coin") + "coin_use" + std::to_string(i) + ".bmp";
+            texture.push_back(Utils::loadTexture(ren, brickImage));
+        }
+    } else {
+        for (int i = 0; i < 4; i++) {
+            std::string brickImage = Utils::getResourcePath("coin") + "coin_an" + std::to_string(i) + ".bmp";
+            texture.push_back(Utils::loadTexture(ren, brickImage));
+        }
     }
-}
 
-void Coin::setStatic(bool isStatic) {
-    this->isStatic = isStatic;
 }

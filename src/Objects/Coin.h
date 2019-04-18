@@ -19,7 +19,7 @@ class Coin: public InteractiveObject {
     const float SHRINK_FACTOR = 0.75f;
 
 public:
-    Coin(SDL_Renderer *ren, int x, int y);
+    Coin(SDL_Renderer *ren, int x, int y, bool isStatic);
 
     AABB *getPosition() const override;
 
@@ -35,8 +35,6 @@ public:
     void step(std::shared_ptr<Context> context __attribute((unused)), long time) override;
 
     bool waitingForDestroy() override;
-
-    void setStatic(bool isStatic);
 
     void die();
 };

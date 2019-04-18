@@ -54,8 +54,8 @@ HUD::HUD(SDL_Renderer* ren, std::shared_ptr<Mario> mario, int time) : ren(ren), 
     timeTextTexture = SDL_CreateTextureFromSurface(ren, timeTextSurface);
     SDL_FreeSurface(timeTextSurface);
 
-    for (int i = 0; i < 4; i++) {
-        std::string brickImage = Utils::getResourcePath("coin") + "coin_an" + std::to_string(i) + ".bmp";
+    for (int i = 0; i < 3; i++) {
+        std::string brickImage = Utils::getResourcePath("coin") + "coin_" + std::to_string(i) + ".bmp";
         coinTextures.push_back(Utils::loadTexture(ren, brickImage));
     }
 
@@ -63,7 +63,7 @@ HUD::HUD(SDL_Renderer* ren, std::shared_ptr<Mario> mario, int time) : ren(ren), 
 }
 
 SDL_Texture * HUD::getCoinTexture(long time) const {
-    return coinTextures[(time / (100)) % 4];
+    return coinTextures[(time / (200)) % 3];
 }
 void HUD::updateCoins() {
     SDL_DestroyTexture(coinsTextTexture);
