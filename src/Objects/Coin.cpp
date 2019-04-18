@@ -4,6 +4,7 @@
 
 #include "Coin.h"
 #include "../Utils.h"
+#include "Mario.h"
 
 AABB *Coin::getPosition() const {
     return this->collisionBox;
@@ -26,25 +27,39 @@ void Coin::render(SDL_Renderer *renderer, int x, int y, long time) {
     screenPos.w = TILE_SIZE * SHRINK_FACTOR;
     screenPos.h = TILE_SIZE * SHRINK_FACTOR;
 
-    if(firstRenderTime == 0 ) {
-        firstRenderTime = time;
+    if (isStatic) {
+
+    } else {
+        if (firstRenderTime == 0) {
+            firstRenderTime = time;
+        }
+
+        long animTime = time - firstRenderTime;
+
+        if (animTime >= TOTAL_ANIM_TIME) {
+            isDestroyed = true;
+        }
+        float offset = sin(M_PI * (animTime) / TOTAL_ANIM_TIME);
+        screenPos.y = screenPos.y - offset * 3 * TILE_SIZE;
     }
 
-    long animTime = time - firstRenderTime;
+    SDL_RenderCopyEx(renderer, getTexture(time), 0, &screenPos, 0, 0, SDL_FLIP_NONE);
 
-    if(animTime >= TOTAL_ANIM_TIME) {
-        isDestroyed = true;
-    }
-    float offset = sin(M_PI * (animTime) / TOTAL_ANIM_TIME);
-    screenPos.y = screenPos.y - offset * 3 * TILE_SIZE;
-
-    SDL_RenderCopyEx(renderer, getTexture(animTime), 0, &screenPos, 0, 0, SDL_FLIP_NONE);
-
+}
+void Coin::die() {
+    this->isDestroyed = true;
 }
 
 TileTypes Coin::interactWithSide(std::shared_ptr<Context> context __attribute((unused)),
                                             std::shared_ptr<InteractiveObject> otherObject __attribute((unused)), CollisionSide interactionSide __attribute((unused)),
                                             long time __attribute((unused))) {
+    std::cout << "interacted" << std::endl;
+    if(otherObject->getTileType() == TileTypes::PLAYER) {
+        Mario *player = static_cast<Mario *>(otherObject.get());
+        player->increaseCoin();
+        die();
+    }
+
     return this->getTileType();
 }
 
@@ -67,4 +82,8 @@ Coin::Coin(SDL_Renderer *ren, int x, int y) {
         std::string brickImage = Utils::getResourcePath("coin") + "coin_an" + std::to_string(i) + ".bmp";
         texture.push_back(Utils::loadTexture(ren, brickImage));
     }
+}
+
+void Coin::setStatic(bool isStatic) {
+    this->isStatic = isStatic;
 }
