@@ -210,7 +210,7 @@ TileTypes Mario::getTileType() const {
 
 TileTypes Mario::interactWithSide(std::shared_ptr<Context> context __attribute((unused)), std::shared_ptr<InteractiveObject> otherObject,
                                   CollisionSide interactionSide, long time __attribute((unused))) {
-    if(jumpSoundChannel != -1 && Mix_Playing(jumpSoundChannel)) {
+    if(jumpSoundChannel != -1 && interactionSide != CollisionSide::DOWN && Mix_Playing(jumpSoundChannel)) {
         Mix_HaltChannel(jumpSoundChannel);
         jumpSoundChannel = -1;
     }
