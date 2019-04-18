@@ -529,6 +529,8 @@ bool World::processInput(const InputHandler *input, long time, PortalInformation
                                                           moveSide, portalInformation)) {
 
             std::cout << "Portal activate" << std::endl;
+            portalStartPositionY = mario->getPosition()->getDownBorder();
+            portalStartPositionX = mario->getPosition()->getLeftBorder();
             portalAnimationStartTime = time;
             mario->getPosition()->setPhysicsState(AABB::PhysicsState::KINEMATIC);
             portalEnterSide = moveSide;
@@ -538,20 +540,26 @@ bool World::processInput(const InputHandler *input, long time, PortalInformation
         return false;
     } else {
         if(time - portalAnimationStartTime < portalAnimationDuration) {
+            const int MAXIMUM_Movement = TILE_SIZE * 2;
             const int MOVEMENT_SPEED = 2;
             switch (portalEnterSide) {
                 case Sides::DOWN: {
-                    std::cout << "mario pos was "<< mario->getPosition()->getUpBorder() << " " << mario->getPosition()->getDownBorder() << std::endl;
-                    mario->getPosition()->setUpBorder(mario->getPosition()->getUpBorder() + MOVEMENT_SPEED);
-                    mario->getPosition()->setDownBorder(mario->getPosition()->getDownBorder() + MOVEMENT_SPEED);
+                    if(portalStartPositionY - mario->getPosition()->getDownBorder() < MAXIMUM_Movement){
+                        mario->getPosition()->setUpBorder(mario->getPosition()->getUpBorder() + MOVEMENT_SPEED);
+                        mario->getPosition()->setDownBorder(mario->getPosition()->getDownBorder() + MOVEMENT_SPEED);
+                    }
                 }
                 break;
                 case Sides::LEFT: {
-                    mario->move(true, false, false, false, false);
+                    if (portalStartPositionX - mario->getPosition()->getLeftBorder() < MAXIMUM_Movement) {
+                        mario->move(true, false, false, false, false);
+                    }
                 }
                 break;
                 case Sides::RIGHT: {
-                    mario->move(false, true, false, false, false);
+                    if(mario->getPosition()->getLeftBorder() - portalStartPositionX < MAXIMUM_Movement) {
+                        mario->move(false, true, false, false, false);
+                    }
                 }
                 break;
             }

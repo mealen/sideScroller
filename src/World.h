@@ -44,6 +44,7 @@ private:
     SDL_Rect worldRenderRectangle;
     Mix_Music *music;
     long portalAnimationStartTime = 0;
+    int portalStartPositionX, portalStartPositionY;
     const long portalAnimationDuration = 1000;
     Sides portalEnterSide = Sides::NONE;
 
