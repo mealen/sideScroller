@@ -174,6 +174,22 @@ TileTypes World::collide(int rightSpeed, int downSpeed, long time, std::shared_p
 void World::stepSimulation(long time, std::shared_ptr<Context> context) {
     int middleOfScreenPixel = SCREEN_WIDTH / 2;
 
+    if(portalTriggeredExternally) {
+        if ((time - portalAnimationStartTime) >= portalAnimationDuration) {
+            mario->getPosition()->setPhysicsState(AABB::PhysicsState::DYNAMIC);
+            portalAnimationStartTime = 0;
+            portalTriggeredExternally = false;
+        } else {
+            if(animatePortal(time)) {
+                //don't wait if animation finished
+                mario->getPosition()->setPhysicsState(AABB::PhysicsState::DYNAMIC);
+                portalAnimationStartTime = 0;
+                portalTriggeredExternally = false;
+            } else {
+                return;
+            }
+        }
+    }
     for (size_t i = 0; i < this->objects.size(); ++i) {
         if (context->getPlayer()->getPosition()->getMaxRight() + middleOfScreenPixel + TILE_SIZE >
             this->objects[i]->getPosition()->getLeftBorder()) {
@@ -447,21 +463,26 @@ void World::parseAdvancedFeatures(std::ifstream &mapFile) {
                 //sample line for portal
                 // coord1,coord2,coord3,coord4,[left,right,down,up],worldName, (Optional)starOverrideX, (Optional)startOverrideY
                 bool fail = false;
-                std::string tokens[8];
+                std::string tokens[9];
                 size_t lastToken = 0;
                 size_t newToken = 0;
-                for (int i = 0; i < 8; ++i) {
+                for (int i = 0; i < 9; ++i) {
                     newToken = line.find(",", lastToken);
                     tokens[i] = line.substr(lastToken, newToken - lastToken);
                     if(newToken == std::string::npos) {
-                        if((i == 5 || i == 7)) {
+                        if(i == 6){
+                            //this is the case where no start override is going to be set, but start animation is
+                            tokens[8] = tokens[6];
+                            tokens[6] = "";
+                            break;
+                        } else if((i == 5 || i == 7 || i == 8)) {
                             break;
                         } else {
                             fail = true;
                         }
                     }
                     lastToken = newToken +1;
-                    if (lastToken == std::string::npos && (i != 5 || i != 7)) {
+                    if (lastToken == std::string::npos && (i == 5 || i == 7 || i == 8)) {
                         fail = true;
                     }
                 }
@@ -477,12 +498,24 @@ void World::parseAdvancedFeatures(std::ifstream &mapFile) {
                 else if(tokens[4] == "right") {newPortal.moveSide = Sides::RIGHT;}
                 else if(tokens[4] == "down") {newPortal.moveSide = Sides::DOWN;}
                 else if(tokens[4] == "up") {newPortal.moveSide = Sides::UP;}
+                else {std::cerr << "Portal enter animation side not found" << std::endl;}
                 newPortal.targetWorld = tokens[5];
                 if(!tokens[6].empty()) {
                     newPortal.startOverride = true;
                     newPortal.startPosition[0] = std::stoi(tokens[6]);
                     newPortal.startPosition[1] = std::stoi(tokens[7]);
                 }
+                if(!tokens[6].empty()) {
+                    newPortal.startOverride = true;
+                    newPortal.startPosition[0] = std::stoi(tokens[6]);
+                    newPortal.startPosition[1] = std::stoi(tokens[7]);
+                }
+                if(tokens[8] == "left") {newPortal.newWorldAnimSide = Sides::LEFT;}
+                else if(tokens[8] == "right") {newPortal.newWorldAnimSide = Sides::RIGHT;}
+                else if(tokens[8] == "down") {newPortal.newWorldAnimSide = Sides::DOWN;}
+                else if(tokens[8] == "up") {newPortal.newWorldAnimSide = Sides::UP;}
+                else if(tokens[8] == "none") {newPortal.newWorldAnimSide = Sides::NONE;}
+                else {std::cerr << "Portal exit animation side not found" << std::endl;}
                 portals.push_back(newPortal);
             }
             break;
@@ -509,6 +542,7 @@ World::checkPortal(AABB *position, World::Sides side, PortalInformation** portal
                 (*portalInformation)->startOverride = portals[i].startOverride;
                 (*portalInformation)->startPosX = portals[i].startPosition[0];
                 (*portalInformation)->startPosY = portals[i].startPosition[1];
+                (*portalInformation)->startAnimationSide= portals[i].newWorldAnimSide;
                 return true;
             }
         }
@@ -526,7 +560,7 @@ bool World::processInput(const InputHandler *input, long time, PortalInformation
 
     if(portalAnimationStartTime == 0) {
         if (moveSide != World::Sides::NONE && checkPortal(mario->getPosition(),
-                                                          moveSide, portalInformation)) {
+                                                          moveSide, &activatedPortalInformation)) {
 
             std::cout << "Portal activate" << std::endl;
             portalStartPositionY = mario->getPosition()->getDownBorder();
@@ -539,35 +573,81 @@ bool World::processInput(const InputHandler *input, long time, PortalInformation
         }
         return false;
     } else {
-        if(time - portalAnimationStartTime < portalAnimationDuration) {
-            const int MAXIMUM_Movement = TILE_SIZE * 2;
-            const int MOVEMENT_SPEED = 2;
-            switch (portalEnterSide) {
-                case Sides::DOWN: {
-                    if(portalStartPositionY - mario->getPosition()->getDownBorder() < MAXIMUM_Movement){
-                        mario->getPosition()->setUpBorder(mario->getPosition()->getUpBorder() + MOVEMENT_SPEED);
-                        mario->getPosition()->setDownBorder(mario->getPosition()->getDownBorder() + MOVEMENT_SPEED);
-                    }
-                }
-                break;
-                case Sides::LEFT: {
-                    if (portalStartPositionX - mario->getPosition()->getLeftBorder() < MAXIMUM_Movement) {
-                        mario->move(true, false, false, false, false);
-                    }
-                }
-                break;
-                case Sides::RIGHT: {
-                    if(mario->getPosition()->getLeftBorder() - portalStartPositionX < MAXIMUM_Movement) {
-                        mario->move(false, true, false, false, false);
-                    }
-                }
-                break;
-            }
-        } else {
-            std::cout << "Portal animation Done" <<std::endl;
+        if(animatePortal(time) && !portalTriggeredExternally) {
+            *portalInformation = activatedPortalInformation;
             return true;
         }
     }
     return false;
+}
+
+bool World::animatePortal(long time) const {
+    if (time - portalAnimationStartTime < portalAnimationDuration) {
+        if(mario->getPosition()->getPhysicsState() != AABB::PhysicsState::KINEMATIC) {
+            std::cout << "mario state not set" << std::endl;
+        }
+        const int MAXIMUM_MOVEMENT = TILE_SIZE * 2;
+        const int MOVEMENT_SPEED = 2;
+        switch (portalEnterSide) {
+            case Sides::DOWN: {
+                if (portalStartPositionY - mario->getPosition()->getDownBorder() < MAXIMUM_MOVEMENT) {
+                    mario->getPosition()->setUpBorder(mario->getPosition()->getUpBorder() + MOVEMENT_SPEED);
+                    mario->getPosition()->setDownBorder(mario->getPosition()->getDownBorder() + MOVEMENT_SPEED);
+                } else {
+                    std::cout << "Down movement skip " << std::endl;
+                    return true;
+                }
+            }
+                break;
+            case Sides::LEFT: {
+                if (portalStartPositionX - mario->getPosition()->getLeftBorder() < MAXIMUM_MOVEMENT) {
+                    mario->move(true, false, false, false, false);
+                } else {
+                    std::cout << "left movement skip " << std::endl;
+                    return true;
+
+                }
+            }
+                break;
+            case Sides::RIGHT: {
+                if (mario->getPosition()->getLeftBorder() - portalStartPositionX < MAXIMUM_MOVEMENT) {
+                    mario->move(false, true, false, false, false);
+                } else {
+                    std::cout << "right movement skip " << std::endl;
+                    return true;
+
+                }
+            }
+                break;
+            case Sides::UP: {
+                if (portalStartPositionY - mario->getPosition()->getDownBorder() < MAXIMUM_MOVEMENT) {
+                    mario->getPosition()->setUpBorder(mario->getPosition()->getUpBorder() - MOVEMENT_SPEED);
+                    mario->getPosition()->setDownBorder(mario->getPosition()->getDownBorder() - MOVEMENT_SPEED);
+                } else {
+                    std::cout << "up movement skip " << std::endl;
+                    return true;
+                }
+                break;
+                case Sides::NONE: {
+                    std::cout << "Portal animation not playing" << std::endl;
+                    return true;
+                }
+            }
+        }
+    } else {
+        std::cout << "Portal animation Done" << std::endl;
+        return true;
+    }
+    return false;
+}
+
+void World::triggerPortalAnimation(World::Sides side, long time) {
+    std::cout << "Portal tiggered" << std::endl;
+    portalStartPositionY = mario->getPosition()->getDownBorder();
+    portalStartPositionX = mario->getPosition()->getLeftBorder();
+    portalAnimationStartTime = time;
+    mario->getPosition()->setPhysicsState(AABB::PhysicsState::KINEMATIC);
+    portalEnterSide = side;
+    portalTriggeredExternally = true;
 }
 

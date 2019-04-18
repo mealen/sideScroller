@@ -22,15 +22,17 @@ public:
         bool startOverride;
         int startPosX;
         int startPosY;
+        Sides startAnimationSide;
     };
 
 private:
     struct Portal {
         int coordinates[4];//left, right, up, down
-        Sides moveSide;
+        Sides moveSide = Sides::NONE;
         std::string targetWorld;
         int startPosition[2];
         bool startOverride = false;
+        Sides newWorldAnimSide = Sides::NONE;
     };
     std::vector<Portal> portals;
     std::vector<std::shared_ptr<InteractiveObject>> objects;
@@ -43,12 +45,16 @@ private:
     uint32_t mapWidth;
     SDL_Rect worldRenderRectangle;
     Mix_Music *music;
+    PortalInformation* activatedPortalInformation = nullptr;
     long portalAnimationStartTime = 0;
+    bool portalTriggeredExternally = false;
     int portalStartPositionX, portalStartPositionY;
     const long portalAnimationDuration = 1000;
     Sides portalEnterSide = Sides::NONE;
 
     void parseAdvancedFeatures(std::ifstream &mapfile);
+    bool animatePortal(long time) const;
+
 public:
     SDL_Renderer *getRen() const {
         return ren;
@@ -148,6 +154,8 @@ public:
     bool checkPortal(AABB *position, World::Sides side, PortalInformation** portalInformation);
 
     bool processInput(const InputHandler *input, long time, PortalInformation **portalInformation);
+
+    void triggerPortalAnimation(World::Sides side, long time);
 };
 
 #endif //MARIO_WORLD_H

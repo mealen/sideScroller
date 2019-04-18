@@ -21,7 +21,8 @@
 
 void logFrameRate();
 
-int init(std::shared_ptr<Context> &context, SDL_Renderer *ren, const std::string worldName, World::PortalInformation* portalInformation = nullptr) {
+int init(std::shared_ptr<Context> &context, SDL_Renderer *ren, const std::string worldName,
+         World::PortalInformation *portalInformation = nullptr, long time = 0) {
     int error;
 
     if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048) == -1) {
@@ -72,6 +73,9 @@ int init(std::shared_ptr<Context> &context, SDL_Renderer *ren, const std::string
 
     world->setMario(mario);
     world->addObject(mario);
+    if(portalInformation != nullptr) {
+        world->triggerPortalAnimation(portalInformation->startAnimationSide, time);
+    }
 
     context = std::make_shared<Context>(world, mario, hud);
     return 0;
@@ -108,7 +112,9 @@ int main(int argc __attribute((unused)), char *argv[] __attribute((unused))) {//
         return 1;
     }
 
-    if (init(context, ren, "0101") == -1) {
+    long time = SDL_GetTicks();
+
+    if (init(context, ren, "0101", nullptr, time) == -1) {
         SDL_DestroyRenderer(ren);
         SDL_DestroyWindow(win);
         std::cerr << "Init problem" << std::endl;
@@ -128,8 +134,6 @@ int main(int argc __attribute((unused)), char *argv[] __attribute((unused))) {//
     SDL_Surface* deadTextSurface = TTF_RenderText_Solid(font, "Game over! You died!", textColor);
     SDL_Texture *deadTextTexture = SDL_CreateTextureFromSurface(ren, deadTextSurface);
 
-
-    long time;
     long previousTime = 0;
 
     while (!input.quit) {
@@ -162,14 +166,14 @@ int main(int argc __attribute((unused)), char *argv[] __attribute((unused))) {//
                     }
                     input.jump = false;
                     input.jumpEvent = false;
-                    init(context, ren, "0101");
+                    init(context, ren, "0101", nullptr, time);
                     context->getHUD()->setPrevTime(time);
                 }
             }
 
             if (input.restart) {
                 input.restart = false;
-                init(context, ren, "0101");
+                init(context, ren, "0101", nullptr, time);
                 context->getHUD()->setPrevTime(time);
 
             }
@@ -180,7 +184,7 @@ int main(int argc __attribute((unused)), char *argv[] __attribute((unused))) {//
                 if(portalInformation == nullptr) {
                     std::cerr << "Portal detected but information is not returned!" << std::endl;
                 } else {
-                    init(context, ren, "", portalInformation);
+                    init(context, ren, "", portalInformation, time);
                     delete portalInformation;
                     continue;
                 }
