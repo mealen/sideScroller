@@ -15,7 +15,10 @@ SDL_Texture *Coin::getTexture(long time) const {
 }
 
 TileTypes Coin::getTileType() const {
-    return TileTypes::EMPTY;
+    if(isDestroyed) {
+        return TileTypes::EMPTY;
+    }
+    return TileTypes::COIN;
 }
 
 void Coin::render(SDL_Renderer *renderer, int x, int y, long time) {
@@ -53,11 +56,11 @@ void Coin::die() {
 TileTypes Coin::interactWithSide(std::shared_ptr<Context> context __attribute((unused)),
                                             std::shared_ptr<InteractiveObject> otherObject __attribute((unused)), CollisionSide interactionSide __attribute((unused)),
                                             long time __attribute((unused))) {
-    std::cout << "interacted" << std::endl;
     if(otherObject->getTileType() == TileTypes::PLAYER) {
         Mario *player = static_cast<Mario *>(otherObject.get());
         player->increaseCoin();
         die();
+        return TileTypes::EMPTY;
     }
 
     return this->getTileType();

@@ -5,8 +5,6 @@
 #ifndef MARIO_BRICK_H
 #define MARIO_BRICK_H
 
-
-
 #include <SDL_render.h>
 #include <SDL_mixer.h>
 
@@ -101,7 +99,6 @@ public:
             //down left
             SDL_RenderCopyEx(renderer, getTexture(time), &texturePos, &screenPos, -animTime, 0, SDL_FLIP_NONE);
         } else if(hitTime != 0 && hitTime != time) {
-
             SDL_Rect texturePos;
             screenPos.w = texturePos.w = TILE_SIZE;
             screenPos.h = texturePos.h = TILE_SIZE;

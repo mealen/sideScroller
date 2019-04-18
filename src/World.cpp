@@ -101,10 +101,12 @@ TileTypes World::collide(int rightSpeed, int downSpeed, long time, std::shared_p
             objects[i]->getPosition()->getRightBorder()) {
             continue;
         }
-
+        if(objects[i]->getTileType() == TileTypes::COIN) {
+            std::cout << "found object to collide with type:" << objects[i]->getTileType() << std::endl;
+        }
         // collision are prioritized as following 1 = 2 > 3 = 4
         //this part makes sure colliding object has the highest priority by tile type
-        if (tile <= objects[i]->getTileType()) {
+        if (tile <= objects[i]->getTileType() && (objects[i]->getTileType() != TileTypes::EMPTY && objects[i]->getPosition()->getPhysicsState() != AABB::PhysicsState::NON_INTERACTIVE)) {
 
             testingObject = objects[i];
             //now we know there is a collision, check what is the direction of collision
@@ -134,6 +136,13 @@ TileTypes World::collide(int rightSpeed, int downSpeed, long time, std::shared_p
                     collisionSide = CollisionSide::RIGHT;
                     collidingObject = testingObject;
                 }
+            }
+            if (collidingObject == nullptr) {
+                //this means we are not colliding by side, but we are inside
+                tile = objects[i]->getTileType();
+                collidingObject = testingObject;
+                collisionSide = CollisionSide ::INVALID;
+
             }
         }
     }
