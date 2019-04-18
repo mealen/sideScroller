@@ -55,7 +55,10 @@ private:
     uint32_t mapWidth;
     bool moveRight = true;
     bool fireTriggered = false;
-    Mix_Chunk *growSound;
+    int jumpSoundChannel = -1;
+    Mix_Chunk *growSound = nullptr;
+    Mix_Chunk *jumpSound = nullptr;
+    Mix_Chunk *jumpBigSound = nullptr;
 public:
     static const int JUMP_SPEED = 16;
 

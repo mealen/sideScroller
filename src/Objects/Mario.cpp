@@ -66,7 +66,8 @@ Mario::Mario(SDL_Rect mapPosition, SDL_Renderer *ren, uint32_t mapWidth, int &er
     }
 
     growSound = Mix_LoadWAV("./res/sounds/mushroomeat.wav");
-
+    jumpSound = Mix_LoadWAV("./res/sounds/jump.wav");
+    jumpBigSound = Mix_LoadWAV("./res/sounds/jumpbig.wav");
     error = 0;
 }
 
@@ -209,6 +210,10 @@ TileTypes Mario::getTileType() const {
 
 TileTypes Mario::interactWithSide(std::shared_ptr<Context> context __attribute((unused)), std::shared_ptr<InteractiveObject> otherObject,
                                   CollisionSide interactionSide, long time __attribute((unused))) {
+    if(jumpSoundChannel != -1 && Mix_Playing(jumpSoundChannel)) {
+        Mix_HaltChannel(jumpSoundChannel);
+        jumpSoundChannel = -1;
+    }
     if (star) {
         otherObject->die(getTileType());
     }
@@ -232,6 +237,9 @@ bool Mario::waitingForDestroy() {
 }
 
 void Mario::step(std::shared_ptr<Context> context, long time) {
+    if(jumpSoundChannel != -1 && !Mix_Playing(jumpSoundChannel)) {
+        jumpSoundChannel = -1;
+    }
     if (fireTriggered) {
         int fireballLeftBorder = (this->getPosition()->getLeftBorder()) - (TILE_SIZE / 2);
         Fireball::Direction fireballDirection = Fireball::Direction::LEFT_DOWN;
@@ -358,8 +366,14 @@ void Mario::move(bool left, bool right, bool jump, bool crouch, bool run) {
         return;
     }
     if (jump) {
+        if(isBig()) {
+            jumpSoundChannel = Mix_PlayChannel(-1, jumpBigSound, 0);
+        } else {
+            jumpSoundChannel = Mix_PlayChannel(-1, jumpSound, 0);
+        }
         currentState = JUMP;
         collisionBox->jump(JUMP_SPEED);
+
     }
     if(!crouch && currentState == CROUCH) {
         currentState = STAND;
