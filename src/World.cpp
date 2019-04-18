@@ -365,6 +365,14 @@ void World::load(std::string worldName, int &error, Mix_Music *&music) {
         starBrickPos = getAndRemoveObject(TileTypes::STAR_BRICK);
     }
 
+    std::shared_ptr<Coin> coin;
+    SDL_Rect coinPos = getAndRemoveObject(TileTypes::COIN);
+    while (coinPos.x != -1 && coinPos.y != -1) {
+        coin = std::make_shared<Coin>(ren, coinPos.x, coinPos.y);
+        addObject(coin);
+        coinPos = getAndRemoveObject(TileTypes::COIN);
+    }
+
     error = 0;
 }
 

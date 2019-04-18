@@ -14,6 +14,7 @@ class Coin: public InteractiveObject {
     AABB* collisionBox;
     long firstRenderTime = 0;
     bool isDestroyed = false;
+    bool isStatic = true;
     const long TOTAL_ANIM_TIME = 600l;
     const float SHRINK_FACTOR = 0.75f;
 
@@ -34,6 +35,10 @@ public:
     void step(std::shared_ptr<Context> context __attribute((unused)), long time) override;
 
     bool waitingForDestroy() override;
+
+    void setStatic(bool isStatic);
+
+    void die();
 };
 
 
