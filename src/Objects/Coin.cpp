@@ -56,9 +56,12 @@ void Coin::die() {
 TileTypes Coin::interactWithSide(std::shared_ptr<Context> context __attribute((unused)),
                                             std::shared_ptr<InteractiveObject> otherObject __attribute((unused)), CollisionSide interactionSide __attribute((unused)),
                                             long time __attribute((unused))) {
-    if(otherObject->getTileType() == TileTypes::PLAYER) {
+    if(otherObject->getTileType() == TileTypes::PLAYER && isStatic) {
         Mario *player = static_cast<Mario *>(otherObject.get());
         player->increaseCoin();
+        if(Mix_PlayChannel(-1, useSound, 0)==-1) {
+            printf("Mix_PlayChannel: %s\n", Mix_GetError());
+        }
         die();
         return TileTypes::EMPTY;
     }
@@ -85,6 +88,14 @@ Coin::Coin(SDL_Renderer *ren, int x, int y, bool isStatic) : isStatic(isStatic) 
         for (int i = 0; i < 3; i++) {
             std::string brickImage = Utils::getResourcePath("coin") + "coin_use" + std::to_string(i) + ".bmp";
             texture.push_back(Utils::loadTexture(ren, brickImage));
+        }
+        Mix_Chunk *sample;
+        sample = Mix_LoadWAV("./res/sounds/coin.wav");
+        if(!sample) {
+            printf("Mix_LoadWAV: %s\n", Mix_GetError());
+            // handle error
+        } else {
+            useSound = sample;
         }
     } else {
         for (int i = 0; i < 4; i++) {
