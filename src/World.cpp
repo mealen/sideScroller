@@ -59,7 +59,7 @@ TileTypes World::collide(int rightSpeed, int downSpeed, long time, std::shared_p
     if(interactiveObject->getTileType() == TileTypes::PLAYER) {
         //std::cout << "tile type " << tile << std::endl;
     }
-    if(tile != TileTypes::EMPTY) {
+    if(tile != TileTypes::EMPTY && tile != TileTypes::OUT_OF_MAP) {
         if (getTileObject(horCheck / TILE_SIZE, (verCheck - downSpeed) / TILE_SIZE) != TileTypes::EMPTY) {
             if (rightSpeed >= 0) {
                 collisionWithStaticSide = CollisionSide::RIGHT;
@@ -163,7 +163,7 @@ TileTypes World::collide(int rightSpeed, int downSpeed, long time, std::shared_p
         }
         interactiveObject->interactWithSide(context, collidingObject, reverseCollisionSide, time);
     } else {
-        if (tile != TileTypes::EMPTY) {
+        if (tile != TileTypes::EMPTY && tile != TileTypes::OUT_OF_MAP) {
             interactiveObject->collideWithSide(context, tile, collisionWithStaticSide,
                                                time);
         }
@@ -225,7 +225,7 @@ void World::stepSingleObject(long time, const std::shared_ptr<Context> &context,
 
     TileTypes tile = collide(horizontalSpeed, 0, time, context, interactiveObject);
 
-    if (tile == TileTypes::EMPTY || aabb->getPhysicsState() != AABB::DYNAMIC) {
+    if ((tile == TileTypes::EMPTY || tile == TileTypes::OUT_OF_MAP) || aabb->getPhysicsState() != AABB::DYNAMIC) {
         aabb->setLeftBorder(aabb->getLeftBorder() + horizontalSpeed);
         aabb->setRightBorder(aabb->getRightBorder() + horizontalSpeed);
     } else if(abs(horizontalSpeed) > 1) {
