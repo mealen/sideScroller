@@ -207,12 +207,21 @@ void World::stepSimulation(long time, std::shared_ptr<Context> context) {
     for (size_t i = 0; i < this->objects.size(); ++i) {
         if (context->getPlayer()->getPosition()->getMaxRight() + middleOfScreenPixel + TILE_SIZE >
             this->objects[i]->getPosition()->getLeftBorder()) {
+
+            if ((context->getPlayer()->isFireAnimationStarted() || context->getPlayer()->isGrowStarted()) &&
+                this->objects[i]->getTileType() != TileTypes::PLAYER) {
+                continue;
+            }
             this->objects[i]->step(context, time);
         }
     }
 
     for (size_t i = 0; i < this->objects.size(); ++i) {
         std::shared_ptr<InteractiveObject> interactiveObject = this->objects[i];
+        if ((context->getPlayer()->isFireAnimationStarted() || context->getPlayer()->isGrowStarted()) &&
+            interactiveObject->getTileType() != TileTypes::PLAYER) {
+            continue;
+        }
         stepSingleObject(time, context, interactiveObject);
     }
 
