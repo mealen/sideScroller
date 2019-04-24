@@ -101,7 +101,7 @@ void Goomba::collideWithSide(std::shared_ptr<Context> context __attribute((unuse
 TileTypes Goomba::interactWithSide(std::shared_ptr<Context> context, std::shared_ptr<InteractiveObject> otherObject,
                                    CollisionSide interactionSide, long time) {
     if(squashTime != 0) {
-        return TileTypes::GOOMBA;//if already interacted, don't allow again
+        return TileTypes::EMPTY;//if already interacted, don't allow again
     }
 
     // if mario is coming from top, kill
@@ -122,9 +122,13 @@ TileTypes Goomba::interactWithSide(std::shared_ptr<Context> context, std::shared
             return TileTypes::EMPTY;
         }
         // swap direction
-    } else if ((interactionSide == CollisionSide::LEFT || interactionSide == CollisionSide::RIGHT)
+    } else if ((interactionSide == CollisionSide::LEFT || interactionSide == CollisionSide::RIGHT || interactionSide == CollisionSide::INVALID)// invalid ls for inside, when shrinking
                 && otherObject->getTileType() == TileTypes::PLAYER) {
-        otherObject->die(getTileType());
+        if(!(static_cast<Mario*>(otherObject.get()))->isShrinkStarted()) {
+            otherObject->die(getTileType());
+        } else {
+            return TileTypes::EMPTY;
+        }
     }
 
     if (interactionSide == CollisionSide::LEFT || interactionSide == CollisionSide::RIGHT) {
