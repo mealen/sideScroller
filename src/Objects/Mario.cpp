@@ -164,6 +164,17 @@ SDL_Texture * Mario::getTexture(long time) const {
         }
 
 
+    } else if (fireAnimationStartTime > 0) {
+        int rand = (time / 150) % 2;
+        switch (rand) {
+            case 0:
+                textureColor = NORMAL;
+                break;
+            case 1:
+            default:
+                textureColor = WHITE;
+                break;
+        }
     } else {
         textureColor = color;
     }
@@ -258,6 +269,10 @@ void Mario::step(std::shared_ptr<Context> context, long time) {
         context->getWorld()->addObject(fireball);
         fireTriggered = false;
         fireStartTime = time;
+    }
+
+    if (time - fireAnimationStartTime > 1000) {
+        fireAnimationStartTime = 0;
     }
 
     if (time - fireStartTime > 500) {
@@ -359,7 +374,7 @@ void Mario::die(TileTypes type) {
 }
 
 void Mario::move(bool left, bool right, bool jump, bool crouch, bool run) {
-    if (growStarted) {
+    if (growStarted || fireAnimationStartTime != 0) {
         return;
     }
     if (isDead()) {
@@ -450,7 +465,7 @@ bool Mario::grow() {
 bool Mario::shrink() {
     if (isBig()) {
         if (canFire()) {
-            setFire(false);
+            setFire(false, 0);
         }
         this->status = Status::SMALL;
         currentState = STAND;
@@ -468,7 +483,6 @@ bool Mario::isBig() const {
 
 long Mario::getDeadTime() const {
     return lastStepTime;
-
 }
 
 int Mario::getCoins() const {
@@ -511,10 +525,12 @@ bool Mario::canFire() const {
     return fire;
 }
 
-void Mario::setFire(bool fire) {
+void Mario::setFire(bool fire, long time) {
     if (fire) {
         if (isBig()) {
             this->fire = fire;
+            currentState = STAND;
+            this->fireAnimationStartTime = time;
             color = Color::WHITE;
         } else {
             grow();
@@ -533,6 +549,10 @@ void Mario::setStar(long starTime) {
 
 bool Mario::getStar() const {
     return star;
+}
+
+bool Mario::isFireAnimationStarted() const {
+    return fireAnimationStartTime != 0;
 }
 
 std::string Mario::enumToName(Mario::Status status) {

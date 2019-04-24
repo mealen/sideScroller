@@ -33,9 +33,9 @@ Flower::~Flower() {
 
 }
 
-TileTypes Flower::interactWithSide(std::shared_ptr<Context> context[[gnu::unused]],
+TileTypes Flower::interactWithSide(std::shared_ptr<Context> context,
                                            std::shared_ptr<InteractiveObject> otherObject __attribute((unused)), CollisionSide interactionSide[[gnu::unused]],
-                                           long time [[gnu::unused]]) {
+                                           long time) {
     if(hitTime != 0) {
         return TileTypes::FLOWER;//if already interacted, don't allow again
     }
@@ -44,10 +44,11 @@ TileTypes Flower::interactWithSide(std::shared_ptr<Context> context[[gnu::unused
     if(otherObject->getTileType() == TileTypes::PLAYER) {
         if(!otherObject->isDead()) {
             isSquashed = true;
-
+            hitTime = time;
             die(getTileType());
             Mario *player = static_cast<Mario *>(otherObject.get());
-            player->setFire(true);
+            context->getHUD()->animateScore(1000, collisionBox->getLeftBorder(), collisionBox->getUpBorder(), time);
+            player->setFire(true, time);
             return TileTypes::EMPTY;
         }
         // swap direction

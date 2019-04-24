@@ -52,6 +52,7 @@ private:
     long lastStepTime = 0;
     long fireStartTime = 0;
     long starStartTime = 0;
+    long fireAnimationStartTime = 0;
     uint32_t mapWidth;
     bool moveRight = true;
     bool fireTriggered = false;
@@ -112,13 +113,15 @@ public:
 
     void setRunning(bool run);
 
-    void setFire(bool fire);
+    void setFire(bool fire, long time);
 
     bool canFire() const;
 
     void setStar(long starTime);
 
     bool getStar() const;
+
+    bool isFireAnimationStarted() const;
 
     Status getStatus();
 
