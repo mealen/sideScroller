@@ -8,6 +8,7 @@
 #include "../AABB.h"
 #include "../Utils.h"
 #include "InteractiveObject.h"
+#include "../Context.h"
 #include "Mario.h"
 #include "CoinBox.h"
 #include "Mushroom.h"
@@ -72,8 +73,8 @@ void Mushroom::collideWithSide(std::shared_ptr<Context> context __attribute((unu
 
 }
 
-TileTypes Mushroom::interactWithSide(std::shared_ptr<Context> context __attribute((unused)), std::shared_ptr<InteractiveObject> otherObject,
-                                     CollisionSide interactionSide, long time __attribute((unused))) {
+TileTypes Mushroom::interactWithSide(std::shared_ptr<Context> context, std::shared_ptr<InteractiveObject> otherObject,
+                                     CollisionSide interactionSide, long time) {
     if(hitTime != 0) {
         return TileTypes::MUSHROOM;//if already interacted, don't allow again
     }
@@ -85,6 +86,8 @@ TileTypes Mushroom::interactWithSide(std::shared_ptr<Context> context __attribut
             die(getTileType());
             Mario *player = static_cast<Mario *>(otherObject.get());
             player->grow();
+            hitTime = time;
+            context->getHUD()->animateScore(1000, collisionBox->getLeftBorder(), collisionBox->getUpBorder(), time);
             return TileTypes::EMPTY;
         }
         // swap direction
