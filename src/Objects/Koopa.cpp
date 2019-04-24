@@ -133,7 +133,8 @@ TileTypes Koopa::interactWithSide(std::shared_ptr<Context> context, std::shared_
         }
         // swap direction
     } else if (interactionSide == CollisionSide::LEFT || interactionSide == CollisionSide::RIGHT) {
-        if(isShellMoving) {
+        if(isShellMoving && ((interactionSide == CollisionSide::LEFT && !directionRight) ||
+                             (interactionSide == CollisionSide::RIGHT && directionRight))) {
             otherObject->die(getTileType());
         } else {
             if (otherObject->getTileType() == TileTypes::PLAYER) {
@@ -165,7 +166,7 @@ TileTypes Koopa::interactWithSide(std::shared_ptr<Context> context, std::shared_
 
     }
 
-    if (otherObject->getTileType() == TileTypes::PLAYER) {
+    if (otherObject->getTileType() == TileTypes::PLAYER && !isHideInShell) {
         if ((static_cast<Mario *>(otherObject.get())->getStar())) {
             this->killHitTime = time;
             collisionBox->setPhysicsState(AABB::NON_INTERACTIVE);
