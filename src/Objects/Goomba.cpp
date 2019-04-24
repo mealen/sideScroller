@@ -207,8 +207,8 @@ TileTypes Goomba::interactWithSide(std::shared_ptr<Context> context, std::shared
     return TileTypes::GOOMBA;//no interaction yet
 }
 
-bool Goomba::waitingForDestroy() {
-    return isRemoveWaiting; //there is no case we are expecting removal
+bool Goomba::waitingForDestroy() const {
+    return isRemoveWaiting;
 }
 
 void Goomba::step(std::shared_ptr<Context> context __attribute((unused)), long time) {

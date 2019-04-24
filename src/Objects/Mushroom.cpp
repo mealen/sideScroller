@@ -109,7 +109,7 @@ TileTypes Mushroom::interactWithSide(std::shared_ptr<Context> context __attribut
     return TileTypes::MUSHROOM;//no interaction yet
 }
 
-bool Mushroom::waitingForDestroy() {
+bool Mushroom::waitingForDestroy() const {
     return isDead(); //there is no case we are expecting removal
 }
 

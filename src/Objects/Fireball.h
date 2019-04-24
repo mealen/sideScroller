@@ -44,7 +44,7 @@ public:
     TileTypes interactWithSide(std::shared_ptr<Context> context __attribute((unused)), std::shared_ptr<InteractiveObject> otherObject,
                                CollisionSide interactionSide, long time __attribute((unused))) override;
 
-    bool waitingForDestroy() override;
+    bool waitingForDestroy() const override;
 
     void step(std::shared_ptr<Context> context __attribute((unused)), long time __attribute((unused))) override;
 

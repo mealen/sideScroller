@@ -76,7 +76,7 @@ void Flower::setCreateTime(long time) {
     createTime = time;
 }
 
-bool Flower::waitingForDestroy() {
+bool Flower::waitingForDestroy() const {
     return isDead(); //there is no case we are expecting removal
 }
 

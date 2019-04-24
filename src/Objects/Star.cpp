@@ -108,7 +108,7 @@ TileTypes Star::interactWithSide(std::shared_ptr<Context> context __attribute((u
     return TileTypes::MUSHROOM;//no interaction yet
 }
 
-bool Star::waitingForDestroy() {
+bool Star::waitingForDestroy() const {
     return isDead(); //there is no case we are expecting removal
 }
 

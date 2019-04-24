@@ -36,7 +36,7 @@ public:
 
     void step(std::shared_ptr<Context> context __attribute((unused)), long time) override;
 
-    bool waitingForDestroy() override;
+    bool waitingForDestroy() const override;
 
     void die();
 };

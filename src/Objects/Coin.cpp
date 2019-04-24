@@ -73,7 +73,7 @@ void Coin::step(std::shared_ptr<Context> context __attribute((unused)), long tim
 
 }
 
-bool Coin::waitingForDestroy() {
+bool Coin::waitingForDestroy() const {
     return isDestroyed;
 }
 

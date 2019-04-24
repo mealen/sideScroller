@@ -213,7 +213,7 @@ void Koopa::moveShell(const CollisionSide &interactionSide) {
     }
 }
 
-bool Koopa::waitingForDestroy() {
+bool Koopa::waitingForDestroy() const {
     return isRemoveWaiting; //there is no case we are expecting removal
 }
 

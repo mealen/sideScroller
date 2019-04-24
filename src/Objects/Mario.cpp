@@ -232,7 +232,7 @@ TileTypes Mario::interactWithSide(std::shared_ptr<Context> context __attribute((
     return this->getTileType();//no interaction yet
 }
 
-bool Mario::waitingForDestroy() {
+bool Mario::waitingForDestroy() const {
     return false; //there is no case we are expecting removal
 }
 

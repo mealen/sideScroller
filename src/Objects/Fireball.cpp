@@ -86,7 +86,7 @@ TileTypes Fireball::interactWithSide(std::shared_ptr<Context> context __attribut
     return TileTypes::FIREBALL;//no interaction yet
 }
 
-bool Fireball::waitingForDestroy() {
+bool Fireball::waitingForDestroy() const {
     return isDead(); //there is no case we are expecting removal
 }
 

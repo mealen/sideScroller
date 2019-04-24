@@ -82,7 +82,7 @@ public:
                                std::shared_ptr<InteractiveObject> otherObject,
                                CollisionSide interactionSide, long time __attribute((unused))) override;
 
-    bool waitingForDestroy() override;
+    bool waitingForDestroy() const override;
 
     void step(std::shared_ptr<Context> context, long time) override;
 

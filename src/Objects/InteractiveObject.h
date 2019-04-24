@@ -28,7 +28,7 @@ public:
                                  CollisionSide interactionSide __attribute((unused)),
                                  long time __attribute((unused))) {};
     virtual void step(std::shared_ptr<Context> context, long time) = 0;
-    virtual bool waitingForDestroy() = 0;
+    virtual bool waitingForDestroy() const = 0;
 
     virtual ~InteractiveObject() {};
 

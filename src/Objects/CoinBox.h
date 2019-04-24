@@ -114,7 +114,7 @@ public:
     TileTypes interactWithSide(std::shared_ptr<Context> context, std::shared_ptr<InteractiveObject> otherObject,
                                CollisionSide interactionSide, long time);
 
-    bool waitingForDestroy() {
+    bool waitingForDestroy() const {
         return false; //there is no case we are expecting removal
     };
 

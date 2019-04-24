@@ -138,7 +138,7 @@ public:
         return this->getTileType();
     }
 
-    bool waitingForDestroy() {
+    bool waitingForDestroy() const {
         return false; //there is no case we are expecting removal
     }
 
