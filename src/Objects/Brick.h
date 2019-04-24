@@ -19,7 +19,7 @@ class Brick : public BoxBase {
     long hitTime = 0;
     Mix_Chunk *breakSound = NULL;
     Mix_Chunk *hitSound = NULL;
-    bool breakFramePassed = false;
+    bool breakTimeFramePassed = false;
     bool isDestroyed = false;
     const int HIT_ANIMATION_TIME = 250;
 
@@ -53,7 +53,7 @@ public:
     };
 
     TileTypes getTileType() const {
-        if(this->breakFramePassed) {
+        if(this->breakTimeFramePassed) {
             return TileTypes::EMPTY;// if breaking, don't interact
         }
         return TileTypes::BRICK;
@@ -73,8 +73,8 @@ public:
             texturePos.x = 0;
             texturePos.y = 0;
             long animTime = time - breakTime;
-            if (animTime > 17) {
-                breakFramePassed = true;
+            if (animTime > 250) {
+                breakTimeFramePassed = true;
             }
             if(animTime > 500) {
                 isDestroyed = true;
