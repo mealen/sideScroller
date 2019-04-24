@@ -16,6 +16,7 @@
 #include "Objects/StarBrick.h"
 #include "Objects/HiddenCoinBox.h"
 #include "InputHandler.h"
+#include "Objects/Flag.h"
 
 TileTypes World::collide(int rightSpeed, int downSpeed, long time, std::shared_ptr<Context> context,
                               std::shared_ptr<InteractiveObject> interactiveObject) {
@@ -410,6 +411,14 @@ void World::load(std::string worldName, int &error, Mix_Music *&music) {
         coin = std::make_shared<Coin>(ren, coinPos.x, coinPos.y, true);
         addObject(coin);
         coinPos = getAndRemoveObject(TileTypes::COIN);
+    }
+
+    std::shared_ptr<Flag> flag;
+    SDL_Rect flagPos = getAndRemoveObject(TileTypes::FLAG);
+    while (flagPos.x != -1 && flagPos.y != -1) {
+        flag = std::make_shared<Flag>(ren, flagPos.x, flagPos.y);
+        addObject(flag);
+        flagPos = getAndRemoveObject(TileTypes::FLAG);
     }
 
     error = 0;
