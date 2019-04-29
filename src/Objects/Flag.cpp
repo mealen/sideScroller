@@ -27,10 +27,10 @@
  */
 Flag::Flag(SDL_Renderer *ren, int x, int y) {
     collisionBox = new AABB(
-            x * TILE_SIZE - TILE_SIZE, // 2 tiles width
-            x * TILE_SIZE + TILE_SIZE -1,
+            x * TILE_SIZE + TILE_SIZE /4, // 1/2 tiles width
+            x * TILE_SIZE + TILE_SIZE - TILE_SIZE / 4 -1,
             y * TILE_SIZE,
-            y * TILE_SIZE + TILE_SIZE -1); //-1 because 32 is not part of box. pixels 0 - TILE_SIZE, TILE_SIZE excluded
+            y * TILE_SIZE + TILE_SIZE *10 -1); //10 long. -1 because 32 is not part of box. pixels 0 - TILE_SIZE, TILE_SIZE excluded
 
 
     std::string flagImage = Utils::getResourcePath("flag") + "flag.bmp";
@@ -44,7 +44,7 @@ Flag::~Flag() {
 }
 void Flag::render(SDL_Renderer *renderer, int x, int y, long time) {
     SDL_Rect screenPos;
-    screenPos.x = collisionBox->getLeftBorder() - x;
+    screenPos.x = collisionBox->getLeftBorder() - ((float)(TILE_SIZE) * (5.0/4.0)) - x;
     screenPos.y = collisionBox->getUpBorder() - y;
     screenPos.w = TILE_SIZE * 2;
     screenPos.h = TILE_SIZE;
@@ -54,6 +54,7 @@ void Flag::render(SDL_Renderer *renderer, int x, int y, long time) {
 
 TileTypes Flag::interactWithSide(std::shared_ptr<Context> context, std::shared_ptr<InteractiveObject> otherObject,
                                  CollisionSide interactionSide, long time) {
+    std::cout << "flag collision at position " << otherObject->getPosition()->getUpBorder() << std::endl;
     return EMPTY;
 }
 
