@@ -21,17 +21,34 @@ Mario::Mario(SDL_Rect mapPosition, SDL_Renderer *ren, uint32_t mapWidth, int &er
 
     for (Status status : {SMALL, BIG}) {
         for (Color color : {NORMAL, BLACK, WHITE}) {
-            for (TextureNames textureName : {STAND, MOVE, JUMP, DEAD, CROUCH}) {
+            for (TextureNames textureName : {STAND, MOVE, JUMP, DEAD, CROUCH, POLE}) {
                 if (textureName == DEAD && !(status == SMALL && color == NORMAL)) {continue;}
                 if (textureName == CROUCH && status == SMALL) {continue;}
+                if(textureName == POLE && color == BLACK) {continue;}
                 if (textureName == MOVE) {
                     for (int i = 0; i < 3; i++) {
                         std::string marioImage = Utils::getResourcePath("mario/" +
                                                                         enumToName(status) + "/" +
                                                                         enumToName(color)) +
-                                                                        "mario_" + enumToName(textureName) +
-                                                                        std::to_string(i) + ".bmp";
-                        SDL_Texture* texture = Utils::loadTexture(ren, marioImage);
+                                                 "mario_" + enumToName(textureName) +
+                                                 std::to_string(i) + ".bmp";
+                        SDL_Texture *texture = Utils::loadTexture(ren, marioImage);
+
+                        if (texture == nullptr) {
+                            std::cerr << "Error loading Mario textures" << std::endl;
+                            error = 1;
+                            return;
+                        }
+                        textures[status][color][textureName].push_back(texture);
+                    }
+                } else if (textureName == POLE){
+                    for (int i = 0; i < 2; i++) {
+                        std::string marioImage = Utils::getResourcePath("mario/" +
+                                                                        enumToName(status) + "/" +
+                                                                        enumToName(color)) +
+                                                 "mario_" + enumToName(textureName) +
+                                                 std::to_string(i) + ".bmp";
+                        SDL_Texture *texture = Utils::loadTexture(ren, marioImage);
 
                         if (texture == nullptr) {
                             std::cerr << "Error loading Mario textures" << std::endl;
@@ -591,8 +608,10 @@ std::string Mario::enumToName(Mario::TextureNames status) {
             return "death";
         case Mario::TextureNames::CROUCH:
             return "crouch";
+        case Mario::TextureNames::POLE:
+            return "pole";
         default:
-            return nullptr;
+            return "";
     }
 }
 
