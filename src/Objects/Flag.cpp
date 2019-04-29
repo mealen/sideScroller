@@ -5,7 +5,26 @@
 #include "Flag.h"
 #include "../Utils.h"
 
-
+/**
+ * the are 2 objects here flag and pole.
+ * Flag is not interactive, so it doesn't have an AABB. Its placement and movement will be governed manually by this class
+ * pole is 10 tiles long, but half tile wide.
+ *
+ * Interaction logic:
+ * Any interaction with player should check the interaction height
+ * give points based on height
+ * make player kinematic
+ * switch player state to POLE
+ * move player down to base with speed POLE_MOVEMENT_SPEED
+ * move flag to base with speed POLE_MOVEMENT_SPEED
+ * wait until both animation finishes
+ * move player to the castle door using walking animation
+ * trigger level change
+ *
+ * @param ren
+ * @param x
+ * @param y
+ */
 Flag::Flag(SDL_Renderer *ren, int x, int y) {
     collisionBox = new AABB(
             x * TILE_SIZE - TILE_SIZE, // 2 tiles width
