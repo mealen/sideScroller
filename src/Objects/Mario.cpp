@@ -421,9 +421,11 @@ void Mario::move(bool left, bool right, bool jump, bool crouch, bool run) {
             }
         }
     } else if (right) {
-        moveRight = true;
-        currentState = MOVE;
-        collisionBox->moveRight(moveSpeed);
+        if (collisionBox->getRightBorder() + moveSpeed < mapWidth) {
+            moveRight = true;
+            currentState = MOVE;
+            collisionBox->moveRight(moveSpeed);
+        }
     } else if (!left && !right) {
         currentState = STAND;
     }
