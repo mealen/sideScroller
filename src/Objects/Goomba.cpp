@@ -136,7 +136,7 @@ TileTypes Goomba::interactWithSide(std::shared_ptr<Context> context, std::shared
                 otherObject->getTileType() == TileTypes::MUSHROOM) {
 
         } else if(!directionChangeRequested) {
-            directionRight = !directionRight;
+            directionChangeRequested = true;
             if (otherObject->getTileType() == TileTypes::GOOMBA) {
                 Goomba *otherGoomba = static_cast<Goomba *>(otherObject.get());
                 otherGoomba->directionChangeRequested = true;

@@ -428,7 +428,8 @@ void Mario::move(bool left, bool right, bool jump, bool crouch, bool run) {
         //if not end of map, check with middle of screen
         // if end of map, check with end of screen
         if((uint32_t)collisionBox->getMaxRight() + SCREEN_WIDTH < mapWidth) {
-            if (collisionBox->getLeftBorder() + (10 * TILE_SIZE) > collisionBox->getMaxRight()) {
+            if (collisionBox->getLeftBorder() + (10 * TILE_SIZE) > collisionBox->getMaxRight() &&
+            collisionBox->getLeftBorder() + moveSpeed > 0) {
                 collisionBox->moveLeft(moveSpeed);
             }
         } else {
@@ -437,9 +438,11 @@ void Mario::move(bool left, bool right, bool jump, bool crouch, bool run) {
             }
         }
     } else if (right) {
-        moveRight = true;
-        currentState = MOVE;
-        collisionBox->moveRight(moveSpeed);
+        if (collisionBox->getRightBorder() + moveSpeed < mapWidth) {
+            moveRight = true;
+            currentState = MOVE;
+            collisionBox->moveRight(moveSpeed);
+        }
     } else if (!left && !right && collisionBox->getPhysicsState() == AABB::DYNAMIC) {
         currentState = STAND;
     }
