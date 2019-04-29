@@ -440,7 +440,7 @@ void Mario::move(bool left, bool right, bool jump, bool crouch, bool run) {
         moveRight = true;
         currentState = MOVE;
         collisionBox->moveRight(moveSpeed);
-    } else if (!left && !right) {
+    } else if (!left && !right && collisionBox->getPhysicsState() == AABB::DYNAMIC) {
         currentState = STAND;
     }
 
