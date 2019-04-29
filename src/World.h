@@ -30,7 +30,7 @@ public:
         int maximumMovement;
         int duration;
         Sides movementSide;
-        PlayerAnimation* nextAnimation = nullptr;
+        std::shared_ptr<PlayerAnimation> nextAnimation = nullptr;
     };
 
 private:
@@ -58,7 +58,7 @@ private:
     bool portalTriggeredExternally = false;
     int portalStartPositionX, portalStartPositionY;
     const long PORTAL_ANIMATION_DURATION = 1000;
-    PlayerAnimation* currentAnimation = nullptr;
+    std::shared_ptr<PlayerAnimation> currentAnimation = nullptr;
 
     void parseAdvancedFeatures(std::ifstream &mapfile);
     bool animatePlayer(long time) const;

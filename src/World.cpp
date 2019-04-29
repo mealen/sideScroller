@@ -196,7 +196,7 @@ void World::stepSimulation(long time, std::shared_ptr<Context> context) {
             portalTriggeredExternally = false;
         } else {
             if(animatePlayer(time)) {
-                currentAnimation = currentAnimation ->nextAnimation;
+                currentAnimation = currentAnimation->nextAnimation;
                 if(currentAnimation != nullptr) {
                     portalAnimationStartTime = time;
                 } else {
@@ -612,7 +612,7 @@ bool World::processInput(const InputHandler *input, long time, PortalInformation
             portalStartPositionX = mario->getPosition()->getLeftBorder();
             portalAnimationStartTime = time;
             mario->getPosition()->setPhysicsState(AABB::PhysicsState::KINEMATIC);
-            PlayerAnimation* playerAnimation = new PlayerAnimation();
+            std::shared_ptr<PlayerAnimation> playerAnimation = std::make_shared<PlayerAnimation>();
             playerAnimation->maximumMovement = TILE_SIZE * 2;
             playerAnimation->movementSpeed = 2;
             playerAnimation->movementSide = moveSide;
@@ -635,7 +635,6 @@ bool World::processInput(const InputHandler *input, long time, PortalInformation
 }
 
 bool World::animatePlayer(long time) const {
-
     if (time - portalAnimationStartTime < PORTAL_ANIMATION_DURATION) {
         if(currentAnimation == nullptr) {
             return true;
