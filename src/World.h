@@ -25,6 +25,14 @@ public:
         Sides startAnimationSide;
     };
 
+    struct PlayerAnimation {
+        int movementSpeed;
+        int maximumMovement;
+        int duration;
+        Sides movementSide;
+        PlayerAnimation* nextAnimation = nullptr;
+    };
+
 private:
     struct Portal {
         int coordinates[4];//left, right, up, down
@@ -49,11 +57,11 @@ private:
     long portalAnimationStartTime = 0;
     bool portalTriggeredExternally = false;
     int portalStartPositionX, portalStartPositionY;
-    const long portalAnimationDuration = 1000;
-    Sides portalEnterSide = Sides::NONE;
+    const long PORTAL_ANIMATION_DURATION = 1000;
+    PlayerAnimation* currentAnimation = nullptr;
 
     void parseAdvancedFeatures(std::ifstream &mapfile);
-    bool animatePortal(long time) const;
+    bool animatePlayer(long time) const;
 
 public:
     SDL_Renderer *getRen() const {
