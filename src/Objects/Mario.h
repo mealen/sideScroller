@@ -141,6 +141,10 @@ public:
             otherMario.getPosition()->setUpBorder(otherMario.getPosition()->getUpBorder() - TILE_SIZE);
         }
     }
+
+    void setState(TextureNames state) {
+        this->currentState = state;
+    }
 };
 
 #endif //MARIO_MARIO_H

@@ -11,7 +11,7 @@
 class Flag : public InteractiveObject {
     AABB* collisionBox;
     SDL_Texture * texture;
-
+    bool activated = false;
 public:
 
     Flag(SDL_Renderer *ren, int x, int y);

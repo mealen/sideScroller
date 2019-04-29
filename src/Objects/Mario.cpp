@@ -195,13 +195,6 @@ SDL_Texture * Mario::getTexture(long time) const {
     } else {
         textureColor = color;
     }
-    if(collisionBox->isHasJumped()) {
-        if (isGrowStarted()) {
-            return textures.at(status).at(textureColor).at(STAND).at(0);
-        } else {
-            return textures.at(status).at(textureColor).at(JUMP).at(0);
-        }
-    }
     if (isDead()) {
         if(status == SMALL) {
             // if not small, means dead by dropping, don't assign dead texture
@@ -214,14 +207,19 @@ SDL_Texture * Mario::getTexture(long time) const {
         case MOVE:
             return textures.at(status).at(textureColor).at(MOVE).at((time / 75) % 3);
         case JUMP:
-            return textures.at(status).at(textureColor).at(currentState).at(0);
+            if (isGrowStarted()) {
+                return textures.at(status).at(textureColor).at(STAND).at(0);
+            } else {
+                return textures.at(status).at(textureColor).at(currentState).at(0);
+            }
         case CROUCH:
             if(isBig()) {
                 return textures.at(status).at(textureColor).at(currentState).at(0);
             } else {
                 return textures.at(status).at(textureColor).at(STAND).at(0);
             }
-
+        case POLE:
+            return textures.at(status).at(textureColor).at(currentState).at((time / 75) % 2);
         default:
             std::cerr << "Requested Texture type not found" << std::endl;
             exit(-1);
@@ -444,7 +442,7 @@ void Mario::move(bool left, bool right, bool jump, bool crouch, bool run) {
             collisionBox->moveRight(moveSpeed);
         }
     } else if (!left && !right && collisionBox->getPhysicsState() == AABB::DYNAMIC) {
-        currentState = STAND;
+        this->currentState = STAND;
     }
 
     if (canFire() && run && fireStartTime == 0 && !isRunning()) {
@@ -454,6 +452,11 @@ void Mario::move(bool left, bool right, bool jump, bool crouch, bool run) {
     if (!fireTriggered) {
         setRunning(run);
     }
+    //this method only called when player actually gets input
+    if(collisionBox->isHasJumped()) {
+        this->currentState = JUMP;
+    }
+
 }
 
 Mario::~Mario() {

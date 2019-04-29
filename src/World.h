@@ -47,6 +47,7 @@ private:
     SDL_Renderer *ren = nullptr;
     std::shared_ptr<Mario> mario = nullptr;
 
+    long lastSetupTime = 0;
     TileTypes tiles[224][15];
     SDL_Texture *worldBackgroundImageTexture;
     SDL_Texture *worldForegroundImageTexture;
@@ -54,9 +55,9 @@ private:
     SDL_Rect worldRenderRectangle;
     Mix_Music *music;
     PortalInformation* activatedPortalInformation = nullptr;
-    long portalAnimationStartTime = 0;
+    long animationAnimationStartTime = 0;
     bool portalTriggeredExternally = false;
-    int portalStartPositionX, portalStartPositionY;
+    int animationStartPositionX, animationStartPositionY;
     const long PORTAL_ANIMATION_DURATION = 1000;
     std::shared_ptr<PlayerAnimation> currentAnimation = nullptr;
 
@@ -164,6 +165,9 @@ public:
     bool processInput(const InputHandler *input, long time, PortalInformation **portalInformation);
 
     void triggerPortalAnimation(World::Sides side, long time);
+
+    void playAnimation(std::shared_ptr<PlayerAnimation> animation, Mario::TextureNames state);
+
 };
 
 #endif //MARIO_WORLD_H

@@ -4,7 +4,8 @@
 
 #include "Flag.h"
 #include "../Utils.h"
-
+#include "../World.h"
+#include "../Context.h"
 /**
  * the are 2 objects here flag and pole.
  * Flag is not interactive, so it doesn't have an AABB. Its placement and movement will be governed manually by this class
@@ -54,7 +55,16 @@ void Flag::render(SDL_Renderer *renderer, int x, int y, long time) {
 
 TileTypes Flag::interactWithSide(std::shared_ptr<Context> context, std::shared_ptr<InteractiveObject> otherObject,
                                  CollisionSide interactionSide, long time) {
-    std::cout << "flag collision at position " << otherObject->getPosition()->getUpBorder() << std::endl;
+    if(!this->activated) {
+        std::cout << "flag collision at position " << otherObject->getPosition()->getUpBorder() << std::endl;
+        this->activated = true;
+        std::shared_ptr<World::PlayerAnimation> playerAnimation = std::make_shared<World::PlayerAnimation>();
+        playerAnimation->movementSide = World::Sides::DOWN;
+        playerAnimation->maximumMovement = collisionBox->getDownBorder() - otherObject->getPosition()->getDownBorder();
+        playerAnimation->movementSpeed = 2;
+        playerAnimation->duration = playerAnimation->maximumMovement / playerAnimation->movementSpeed * 1000/60;
+        context->getWorld()->playAnimation(playerAnimation, Mario::TextureNames::POLE);
+    }
     return EMPTY;
 }
 

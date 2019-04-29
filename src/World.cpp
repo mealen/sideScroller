@@ -187,22 +187,23 @@ TileTypes World::collide(int rightSpeed, int downSpeed, long time, std::shared_p
 }
 
 void World::stepSimulation(long time, std::shared_ptr<Context> context) {
+    lastSetupTime = time;
     int middleOfScreenPixel = SCREEN_WIDTH / 2;
 
     if(portalTriggeredExternally) {
-        if (currentAnimation == nullptr || (time - portalAnimationStartTime) >= currentAnimation->duration) {
+        if (currentAnimation == nullptr || (time - animationAnimationStartTime) >= currentAnimation->duration) {
             mario->getPosition()->setPhysicsState(AABB::PhysicsState::DYNAMIC);
-            portalAnimationStartTime = 0;
+            animationAnimationStartTime = 0;
             portalTriggeredExternally = false;
         } else {
             if(animatePlayer(time)) {
                 currentAnimation = currentAnimation->nextAnimation;
                 if(currentAnimation != nullptr) {
-                    portalAnimationStartTime = time;
+                    animationAnimationStartTime = time;
                 } else {
                     //don't wait if animation finished
                     mario->getPosition()->setPhysicsState(AABB::PhysicsState::DYNAMIC);
-                    portalAnimationStartTime = 0;
+                    animationAnimationStartTime = 0;
                     portalTriggeredExternally = false;
                 }
             } else {
@@ -603,14 +604,14 @@ bool World::processInput(const InputHandler *input, long time, PortalInformation
     else if(input->crouchEvent) {moveSide = World::Sides::DOWN;}
     else {moveSide = World::Sides::NONE;}
 
-    if(portalAnimationStartTime == 0) {
+    if(animationAnimationStartTime == 0) {
         if (moveSide != World::Sides::NONE && checkPortal(mario->getPosition(),
                                                           moveSide, &activatedPortalInformation)) {
 
             std::cout << "Portal activate" << std::endl;
-            portalStartPositionY = mario->getPosition()->getDownBorder();
-            portalStartPositionX = mario->getPosition()->getLeftBorder();
-            portalAnimationStartTime = time;
+            animationStartPositionY = mario->getPosition()->getDownBorder();
+            animationStartPositionX = mario->getPosition()->getLeftBorder();
+            animationAnimationStartTime = time;
             mario->getPosition()->setPhysicsState(AABB::PhysicsState::KINEMATIC);
             std::shared_ptr<PlayerAnimation> playerAnimation = std::make_shared<PlayerAnimation>();
             playerAnimation->maximumMovement = TILE_SIZE * 2;
@@ -624,7 +625,9 @@ bool World::processInput(const InputHandler *input, long time, PortalInformation
         return false;
     } else {
         if(animatePlayer(time)) {
-            currentAnimation = currentAnimation ->nextAnimation;
+            if(currentAnimation != nullptr) {
+                currentAnimation = currentAnimation->nextAnimation;
+            }
             if(!portalTriggeredExternally) {
                 *portalInformation = activatedPortalInformation;
                 return true;
@@ -635,17 +638,17 @@ bool World::processInput(const InputHandler *input, long time, PortalInformation
 }
 
 bool World::animatePlayer(long time) const {
-    if (time - portalAnimationStartTime < PORTAL_ANIMATION_DURATION) {
-        if(currentAnimation == nullptr) {
-            return true;
-        }
+    if(currentAnimation == nullptr) {
+        return true;
+    }
+    if (time - animationAnimationStartTime < currentAnimation->duration) {
         if(mario->getPosition()->getPhysicsState() != AABB::PhysicsState::KINEMATIC) {
             std::cout << "mario state not set" << std::endl;
         }
 
         switch (currentAnimation->movementSide) {
             case Sides::DOWN: {
-                if (portalStartPositionY - mario->getPosition()->getDownBorder() < currentAnimation->maximumMovement) {
+                if (animationStartPositionY - mario->getPosition()->getDownBorder() < currentAnimation->maximumMovement) {
                     mario->getPosition()->setUpBorder(mario->getPosition()->getUpBorder() + currentAnimation->movementSpeed);
                     mario->getPosition()->setDownBorder(mario->getPosition()->getDownBorder() + currentAnimation->movementSpeed);
                 } else {
@@ -655,7 +658,7 @@ bool World::animatePlayer(long time) const {
             }
                 break;
             case Sides::LEFT: {
-                if (portalStartPositionX - mario->getPosition()->getLeftBorder() < currentAnimation->maximumMovement) {
+                if (animationStartPositionX - mario->getPosition()->getLeftBorder() < currentAnimation->maximumMovement) {
                     mario->move(true, false, false, false, false);
                 } else {
                     std::cout << "left movement skip " << std::endl;
@@ -665,7 +668,7 @@ bool World::animatePlayer(long time) const {
             }
                 break;
             case Sides::RIGHT: {
-                if (mario->getPosition()->getLeftBorder() - portalStartPositionX < currentAnimation->maximumMovement) {
+                if (mario->getPosition()->getLeftBorder() - animationStartPositionX < currentAnimation->maximumMovement) {
                     mario->move(false, true, false, false, false);
                 } else {
                     std::cout << "right movement skip " << std::endl;
@@ -675,7 +678,7 @@ bool World::animatePlayer(long time) const {
             }
                 break;
             case Sides::UP: {
-                if (portalStartPositionY - mario->getPosition()->getDownBorder() < currentAnimation->maximumMovement) {
+                if (animationStartPositionY - mario->getPosition()->getDownBorder() < currentAnimation->maximumMovement) {
                     mario->getPosition()->setUpBorder(mario->getPosition()->getUpBorder() - currentAnimation->movementSpeed);
                     mario->getPosition()->setDownBorder(mario->getPosition()->getDownBorder() - currentAnimation->movementSpeed);
                 } else {
@@ -690,24 +693,34 @@ bool World::animatePlayer(long time) const {
             }
         }
     } else {
-        std::cout << "Portal animation Done" << std::endl;
+        std::cout << "Animation Done" << std::endl;
         return true;
     }
     return false;
 }
 
+void World::playAnimation(std::shared_ptr<PlayerAnimation> animation, Mario::TextureNames state) {
+    this->currentAnimation = animation;
+    std::cout << "animation tiggered" << std::endl;
+    animationStartPositionY = mario->getPosition()->getDownBorder();
+    animationStartPositionX = mario->getPosition()->getLeftBorder();
+    animationAnimationStartTime = lastSetupTime;
+    mario->setState(state);
+    mario->getPosition()->setPhysicsState(AABB::PhysicsState::KINEMATIC);
+}
+
 void World::triggerPortalAnimation(World::Sides side, long time) {
     std::cout << "Portal tiggered" << std::endl;
-    portalStartPositionY = mario->getPosition()->getDownBorder();
-    portalStartPositionX = mario->getPosition()->getLeftBorder();
-    portalAnimationStartTime = time;
+    animationStartPositionY = mario->getPosition()->getDownBorder();
+    animationStartPositionX = mario->getPosition()->getLeftBorder();
+    animationAnimationStartTime = time;
     mario->getPosition()->setPhysicsState(AABB::PhysicsState::KINEMATIC);
-    PlayerAnimation* playerAnimation = new PlayerAnimation;
+    std::shared_ptr<PlayerAnimation> playerAnimation = std::make_shared<PlayerAnimation>();
     playerAnimation->maximumMovement = TILE_SIZE * 2;
     playerAnimation->movementSpeed = 2;
     playerAnimation->movementSide = side;
     playerAnimation->duration = PORTAL_ANIMATION_DURATION;
-    currentAnimation =playerAnimation;
+    currentAnimation = playerAnimation;
     portalTriggeredExternally = true;
 }
 
