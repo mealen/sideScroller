@@ -195,10 +195,10 @@ int main(int argc __attribute((unused)), char *argv[] __attribute((unused))) {//
         //Draw the world
         context.get()->getWorld()->render(ren, time);
         context.get()->getHUD()->render(time, context->getWorld()->getWorldRenderX());
+        SDL_RenderPresent(ren);
 
         //Update the screen
         logFrameRate();
-        SDL_RenderPresent(ren);
     }
 
     TTF_CloseFont(font);
