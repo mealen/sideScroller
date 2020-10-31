@@ -10,7 +10,7 @@ AnimatedScore::AnimatedScore(int x, int y, long startTime, int score, SDL_Render
     textColor.r = 255;
     textColor.g = 255;
     textColor.b = 255;
-    textColor.a = 1;
+    textColor.a = 255;
 
     SDL_Surface *animatedScoreText = TTF_RenderText_Solid(font, std::to_string(score).c_str(),
                                                           textColor);

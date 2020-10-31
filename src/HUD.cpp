@@ -12,7 +12,7 @@ HUD::HUD(SDL_Renderer* ren, std::shared_ptr<Mario> mario, int time) : ren(ren), 
     textColor.r = 255;
     textColor.g = 255;
     textColor.b = 255;
-    textColor.a = 1;
+    textColor.a = 255;
 
     coinsRect.x = 300;
     coinsRect.y = 10;
