@@ -2,15 +2,12 @@
 // Created by engin on 9.04.2019.
 //
 
+#include <iostream>
 #include "InputHandler.h"
-
-#include <SDL_events.h>
-
 
 void InputHandler::readInput() {
         jumpEvent = false;
         crouchEvent = false;
-        SDL_Event e;
         while (SDL_PollEvent(&e)) {
             //If user closes the window
             if (e.type == SDL_QUIT) {

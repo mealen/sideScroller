@@ -4,8 +4,10 @@
 
 #ifndef MARIO_INPUTHANDLER_H
 #define MARIO_INPUTHANDLER_H
+#include <SDL_events.h>
 
 class InputHandler {
+    SDL_Event e;
     public:
         bool quit = false;
         bool goRight = false;
