@@ -395,7 +395,7 @@ void Mario::move(bool left, bool right, bool jump, bool crouch, bool run) {
     if (isDead()) {
         return;
     }
-    if (jump) {
+    if (jump && currentState != JUMP) {
         if(isBig()) {
             jumpSoundChannel = Mix_PlayChannel(-1, jumpBigSound, 0);
         } else {
